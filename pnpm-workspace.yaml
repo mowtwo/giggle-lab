@@ -1,7 +1,11 @@
 allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
   esbuild: true
   sharp: false
   unrs-resolver: false
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+minimumReleaseAgeExclude:
+  - animal-island-ui@0.9.3

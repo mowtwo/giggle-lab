@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import "animal-island-ui/style";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Giggle Lab",
-  description: "A Next.js playground for ridiculous mini web apps.",
+  description: "A tiny shelf for silly frontend apps.",
 };
 
 export default function RootLayout({

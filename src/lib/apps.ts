@@ -1,46 +1,23 @@
-import type { LucideIcon } from "lucide-react";
-import { BadgePercent, Drama, Laugh, WandSparkles } from "lucide-react";
+import type { IconName } from "animal-island-ui";
 
 export type MiniApp = {
-  title: string;
+  titleKey: string;
   slug: string;
-  summary: string;
-  status: "ready" | "idea";
-  color: "pink" | "purple" | "blue" | "yellow" | "teal" | "green" | "red" | "lime";
-  icon: LucideIcon;
+  summaryKey: string;
+  status: "ready" | "draft";
+  color: "default" | "app-pink" | "purple" | "app-blue" | "app-yellow" | "app-orange" | "app-teal" | "app-green" | "app-red" | "lime-green" | "yellow-green" | "brown" | "warm-peach-pink";
+  icon: IconName;
+  href?: string;
 };
 
 export const miniApps: MiniApp[] = [
   {
-    title: "Excuse Blender",
-    slug: "excuse-blender",
-    summary: "Emergency-grade nonsense for late replies and tiny disasters.",
-    status: "idea",
-    color: "yellow",
-    icon: WandSparkles,
-  },
-  {
-    title: "Drama Thermometer",
-    slug: "drama-thermometer",
-    summary: "Measures how theatrical a message feels before you hit send.",
-    status: "idea",
-    color: "purple",
-    icon: Drama,
-  },
-  {
-    title: "Discount Oracle",
-    slug: "discount-oracle",
-    summary: "Turns questionable deals into confident shopping prophecies.",
-    status: "idea",
-    color: "teal",
-    icon: BadgePercent,
-  },
-  {
-    title: "Tiny Roast Desk",
-    slug: "tiny-roast-desk",
-    summary: "A compact station for gentle, low-stakes verbal chaos.",
+    titleKey: "powerOnDetector.title",
+    slug: "power-on-detector",
+    summaryKey: "powerOnDetector.summary",
     status: "ready",
-    color: "pink",
-    icon: Laugh,
+    color: "app-yellow",
+    icon: "icon-diy",
+    href: "/power-on-detector",
   },
 ];

@@ -1,0 +1,55 @@
+{
+  "Common": {
+    "brandSubtitle": "纯前端小玩具货架",
+    "repo": "Repo",
+    "open": "打开",
+    "source": "看源码",
+    "backToShelf": "返回货架",
+    "loading": "页面切换中",
+    "ready": "已上线",
+    "draft": "草稿",
+    "language": "中文"
+  },
+  "Home": {
+    "todayOpen": "今日营业中",
+    "heroTitle": "没什么用，但挺好笑。",
+    "heroBody": "这里收一些纯前端小 app。当前上架的是开机检测器：能打开本页，说明你的设备大概率已经开机。",
+    "sampleLabel": "今日样例",
+    "sampleTitle": "开机检测器",
+    "sampleBody": "它会非常认真地告诉你：如果你能按下检测按钮，那么事情已经有了答案。",
+    "motto": "纯前端、低价值、高确定性。",
+    "shelfEyebrow": "Frontend toy",
+    "shelfTitle": "小程序货架",
+    "shelfCount": "{count} 个已上架"
+  },
+  "Apps": {
+    "powerOnDetector": {
+      "title": "开机检测器",
+      "summary": "点击按钮，严肃检测当前设备是否处于开机状态。"
+    }
+  },
+  "PowerOn": {
+    "title": "{device}开机检测器",
+    "description": "本工具会通过浏览器、设备与图形渲染线索，严肃检测当前设备是否处于开机状态。",
+    "start": "开始检测",
+    "modalTitle": "{device}状态检测",
+    "checking": "正在检测这台{device}...检测中...这可能会花一些时间。",
+    "surprise": "！！！",
+    "result": "哦！！！看来你的{device}是开机的状态。",
+    "metadataTitle": "开机检测器 - Giggle Lab",
+    "metadataDescription": "严肃检测当前设备是否处于开机状态。"
+  },
+  "Devices": {
+    "iphone": "iPhone",
+    "ipad": "iPad",
+    "macbook": "MacBook",
+    "windowsPc": "Windows 电脑",
+    "androidPhone": "Android 手机",
+    "androidTablet": "Android 平板",
+    "linuxPc": "Linux 电脑",
+    "linuxDevice": "Linux 设备",
+    "appleDevice": "Apple 设备",
+    "computer": "这台电脑",
+    "device": "这台设备"
+  }
+}

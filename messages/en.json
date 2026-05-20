@@ -1,0 +1,55 @@
+{
+  "Common": {
+    "brandSubtitle": "Tiny frontend toy shelf",
+    "repo": "Repo",
+    "open": "Open",
+    "source": "Source",
+    "backToShelf": "Back to shelf",
+    "loading": "Switching pages",
+    "ready": "Ready",
+    "draft": "Draft",
+    "language": "English"
+  },
+  "Home": {
+    "todayOpen": "Open today",
+    "heroTitle": "Mostly useless. Pretty funny.",
+    "heroBody": "A shelf for tiny frontend apps. Currently featuring a power-on detector: if you can read this page, your device is probably already on.",
+    "sampleLabel": "Today's sample",
+    "sampleTitle": "Power-on detector",
+    "sampleBody": "It will very seriously tell you that if you can press the button, the answer is already here.",
+    "motto": "Frontend only. Low value. High certainty.",
+    "shelfEyebrow": "Frontend toy",
+    "shelfTitle": "Toy shelf",
+    "shelfCount": "{count} published"
+  },
+  "Apps": {
+    "powerOnDetector": {
+      "title": "Power-on Detector",
+      "summary": "Press a button to seriously check whether this device is powered on."
+    }
+  },
+  "PowerOn": {
+    "title": "{device} Power-on Detector",
+    "description": "This tool uses browser, device, and graphics-rendering clues to seriously check whether your current device is powered on.",
+    "start": "Start detection",
+    "modalTitle": "{device} Status Check",
+    "checking": "Checking this {device}... checking... this may take a while.",
+    "surprise": "!!!",
+    "result": "Oh!!! Looks like your {device} is powered on.",
+    "metadataTitle": "Power-on Detector - Giggle Lab",
+    "metadataDescription": "Seriously check whether your current device is powered on."
+  },
+  "Devices": {
+    "iphone": "iPhone",
+    "ipad": "iPad",
+    "macbook": "MacBook",
+    "windowsPc": "Windows PC",
+    "androidPhone": "Android phone",
+    "androidTablet": "Android tablet",
+    "linuxPc": "Linux PC",
+    "linuxDevice": "Linux device",
+    "appleDevice": "Apple device",
+    "computer": "computer",
+    "device": "device"
+  }
+}
