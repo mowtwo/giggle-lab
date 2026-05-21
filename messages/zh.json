@@ -200,7 +200,17 @@
     "preview": "预览",
     "download": "下载文件",
     "noPreview": "这个类型浏览器不能直接预览，但可以下载。",
-    "receiverHint": "扫描时保持二维码完整入画。一批扫齐后会自动存档并清空本批缓存，请按发送端提示切到下一批。"
+    "receiverHint": "扫描时保持二维码完整入画。一批扫齐后会自动存档并清空本批缓存，请按发送端提示切到下一批。",
+    "exportPdfTitle": "导出 PDF",
+    "exportPdfHelp": "PDF 把当前批或所有批的二维码用矢量方式画成可打印的版面，方便离线扫描或归档。文件大时所有批 ZIP 体积会比较大，按需选择。",
+    "exportCurrentBatch": "导出当前批",
+    "exportAllBatchesZip": "导出所有批 (ZIP)",
+    "exportCancel": "取消导出",
+    "exportingBatch": "正在生成第 {batch} 批 PDF",
+    "exportingAll": "正在生成所有批 PDF 并打包",
+    "exportProgress": "批 {batch}/{batchTotal} · 帧 {frame}/{frameTotal}",
+    "exportDone": "已下载 {filename}",
+    "perPage": "{count} 个/页"
   },
   "Devices": {
     "iphone": "iPhone",

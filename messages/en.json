@@ -200,7 +200,17 @@
     "preview": "Preview",
     "download": "Download file",
     "noPreview": "This file type cannot be previewed in the browser, but it can be downloaded.",
-    "receiverHint": "Keep the QR code fully in view. When a batch is complete it's archived and its buffer is cleared — switch the sender to the next batch when prompted."
+    "receiverHint": "Keep the QR code fully in view. When a batch is complete it's archived and its buffer is cleared — switch the sender to the next batch when prompted.",
+    "exportPdfTitle": "Export PDF",
+    "exportPdfHelp": "PDF lays out the current batch or every batch as vector QR pages for printing or offline archival. The all-batches ZIP can grow large for big files — pick what you need.",
+    "exportCurrentBatch": "Export current batch",
+    "exportAllBatchesZip": "Export all batches (ZIP)",
+    "exportCancel": "Cancel export",
+    "exportingBatch": "Generating PDF for batch {batch}",
+    "exportingAll": "Generating PDFs for all batches",
+    "exportProgress": "Batch {batch}/{batchTotal} · Frame {frame}/{frameTotal}",
+    "exportDone": "Downloaded {filename}",
+    "perPage": "{count} per page"
   },
   "Devices": {
     "iphone": "iPhone",

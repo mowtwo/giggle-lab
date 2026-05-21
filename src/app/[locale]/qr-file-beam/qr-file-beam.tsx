@@ -17,71 +17,37 @@ import {
 import { LocaleSwitch } from "@/components/locale-switch";
 import { useAppNavigation } from "@/components/navigation-provider";
 
+import {
+  buildAllBatchesZip,
+  buildBatchPdf,
+  downloadBlob,
+  LAYOUT_OPTIONS,
+  type ExportProgress,
+  type LayoutMode,
+} from "./export-pdf";
+import {
+  batchRange,
+  DEFAULT_BATCH_SIZE,
+  DEFAULT_CHUNK_SIZE,
+  MAX_BATCH_SIZE,
+  MAX_FILE_SIZE,
+  MIN_BATCH_SIZE,
+  PROTOCOL,
+  type BatchMeta,
+  type Chunk,
+  type FileFinal,
+  type FileMeta,
+  type Packet,
+} from "./protocol";
+
 type Mode = "send" | "receive";
 
-const PROTOCOL = "giggle-lab.qr-file-beam.v2";
-const DEFAULT_CHUNK_SIZE = 1200;
-const DEFAULT_BATCH_SIZE = 300;
-const MIN_BATCH_SIZE = 50;
-const MAX_BATCH_SIZE = 1000;
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
 const QR_OPTIONS = {
   errorCorrectionLevel: "L",
   margin: 1,
   scale: 8,
 } as const;
 
-type FileMeta = {
-  protocol: typeof PROTOCOL;
-  type: "file-meta";
-  id: string;
-  name: string;
-  mime: string;
-  size: number;
-  totalChunks: number;
-  totalBatches: number;
-  batchSize: number;
-  chunkSize: number;
-  encoding: "base64";
-  checksum: string;
-  checksumAlgorithm: "SHA-256";
-  createdAt: number;
-};
-type BatchMeta = {
-  protocol: typeof PROTOCOL;
-  type: "batch-meta";
-  id: string;
-  batchIndex: number;
-  batchTotal: number;
-  chunkStart: number;
-  chunkCount: number;
-};
-type Chunk = {
-  protocol: typeof PROTOCOL;
-  type: "chunk";
-  id: string;
-  batchIndex: number;
-  index: number;
-  data: string;
-};
-type BatchFinal = {
-  protocol: typeof PROTOCOL;
-  type: "batch-final";
-  id: string;
-  batchIndex: number;
-  chunkStart: number;
-  chunkCount: number;
-};
-type FileFinal = {
-  protocol: typeof PROTOCOL;
-  type: "file-final";
-  id: string;
-  totalChunks: number;
-  totalBatches: number;
-  checksum: string;
-  size: number;
-};
-type Packet = FileMeta | BatchMeta | Chunk | BatchFinal | FileFinal;
 type ReceivedFile = {
   meta: FileMeta;
   blob: Blob;
@@ -202,7 +168,7 @@ function parsePacket(rawValue: string): Packet | null {
       typeof packet.id === "string" &&
       typeof packet.batchIndex === "number"
     ) {
-      return packet as BatchFinal;
+      return packet as Packet;
     }
 
     if (
@@ -233,19 +199,6 @@ function clampInt(value: number, min: number, max: number) {
 
 function clampBatchSize(value: number) {
   return clampInt(value, MIN_BATCH_SIZE, MAX_BATCH_SIZE);
-}
-
-function batchRange(
-  batchIndex: number,
-  batchSize: number,
-  totalChunks: number,
-) {
-  const chunkStart = batchIndex * batchSize;
-  const chunkCount = Math.max(
-    0,
-    Math.min(batchSize, totalChunks - chunkStart),
-  );
-  return { chunkStart, chunkCount };
 }
 
 export function QrFileBeam() {
@@ -289,6 +242,16 @@ export function QrFileBeam() {
   const [receivedFile, setReceivedFile] = useState<ReceivedFile | null>(null);
   const [scanStatus, setScanStatus] = useState(t("idleScanner"));
   const [isScanning, setIsScanning] = useState(false);
+
+  // PDF export state
+  const [pdfLayout, setPdfLayout] = useState<LayoutMode>("3x3");
+  const [exportState, setExportState] = useState<
+    | { kind: "idle" }
+    | { kind: "running"; label: string; progress: ExportProgress | null }
+    | { kind: "error"; message: string }
+    | { kind: "done"; message: string }
+  >({ kind: "idle" });
+  const exportAbortRef = useRef<AbortController | null>(null);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -964,6 +927,85 @@ export function QrFileBeam() {
     );
   }
 
+  async function runExport(
+    label: string,
+    task: (signal: AbortSignal) => Promise<{ blob: Blob; filename: string }>,
+  ) {
+    exportAbortRef.current?.abort();
+    const ac = new AbortController();
+    exportAbortRef.current = ac;
+    setExportState({ kind: "running", label, progress: null });
+
+    try {
+      const { blob, filename } = await task(ac.signal);
+      if (ac.signal.aborted) {
+        return;
+      }
+      downloadBlob(blob, filename);
+      setExportState({
+        kind: "done",
+        message: t("exportDone", { filename }),
+      });
+    } catch (error) {
+      if ((error as { name?: string }).name === "AbortError") {
+        setExportState({ kind: "idle" });
+        return;
+      }
+      const message =
+        error instanceof Error ? error.message : String(error);
+      setExportState({ kind: "error", message });
+    } finally {
+      if (exportAbortRef.current === ac) {
+        exportAbortRef.current = null;
+      }
+    }
+  }
+
+  function exportCurrentBatch() {
+    if (!effectiveFileMeta || !currentBatch) {
+      return;
+    }
+    const targetBatch = currentBatch.batchIndex;
+    void runExport(
+      t("exportingBatch", { batch: targetBatch + 1 }),
+      (signal) =>
+        buildBatchPdf(effectiveFileMeta, allChunks, targetBatch, {
+          layout: pdfLayout,
+          signal,
+          onProgress: (progress) =>
+            setExportState((current) =>
+              current.kind === "running"
+                ? { ...current, progress }
+                : current,
+            ),
+        }),
+    );
+  }
+
+  function exportAllBatches() {
+    if (!effectiveFileMeta) {
+      return;
+    }
+    void runExport(t("exportingAll"), (signal) =>
+      buildAllBatchesZip(effectiveFileMeta, allChunks, {
+        layout: pdfLayout,
+        signal,
+        onProgress: (progress) =>
+          setExportState((current) =>
+            current.kind === "running"
+              ? { ...current, progress }
+              : current,
+          ),
+      }),
+    );
+  }
+
+  function cancelExport() {
+    exportAbortRef.current?.abort();
+  }
+
+  const isExporting = exportState.kind === "running";
+
   const archivedCount = archivedSet.size;
   const pendingCount = pendingChunks.size;
   const expectedBatchChunks = latestBatchMeta?.chunkCount ?? 0;
@@ -1351,6 +1393,98 @@ export function QrFileBeam() {
                           }
                         />
                       </label>
+
+                      <div className="grid gap-3 rounded-lg bg-white/70 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <span className="text-sm font-black text-[#794f27]">
+                            {t("exportPdfTitle")}
+                          </span>
+                          <span className="text-xs font-black text-[#8a7b66]">
+                            {pdfLayout} · {t("perPage", {
+                              count:
+                                pdfLayout === "1x1"
+                                  ? 1
+                                  : pdfLayout === "2x2"
+                                    ? 4
+                                    : pdfLayout === "3x3"
+                                      ? 9
+                                      : 16,
+                            })}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-4 gap-2">
+                          {LAYOUT_OPTIONS.map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              disabled={isExporting}
+                              onClick={() => setPdfLayout(option)}
+                              className={`rounded-lg border-2 px-2 py-2 text-sm font-black transition disabled:opacity-50 ${
+                                pdfLayout === option
+                                  ? "border-[#19c8b9] bg-[#e6f9f6] text-[#00766d]"
+                                  : "border-[#d4c9b4] bg-white/70 text-[#725d42]"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            type="primary"
+                            disabled={isExporting}
+                            onClick={exportCurrentBatch}
+                          >
+                            {t("exportCurrentBatch")}
+                          </Button>
+                          <Button
+                            type="default"
+                            disabled={
+                              isExporting ||
+                              !effectiveFileMeta ||
+                              effectiveFileMeta.totalBatches < 2
+                            }
+                            onClick={exportAllBatches}
+                          >
+                            {t("exportAllBatchesZip")}
+                          </Button>
+                        </div>
+                        {exportState.kind === "running" ? (
+                          <div className="grid gap-2">
+                            <p className="text-xs font-bold leading-5 text-[#725d42]">
+                              {exportState.label}
+                              {exportState.progress
+                                ? ` · ${t("exportProgress", {
+                                    batch:
+                                      exportState.progress.batchIndex + 1,
+                                    batchTotal:
+                                      exportState.progress.batchTotal,
+                                    frame:
+                                      exportState.progress.frameInBatch,
+                                    frameTotal:
+                                      exportState.progress.frameTotal,
+                                  })}`
+                                : ""}
+                            </p>
+                            <Button type="default" onClick={cancelExport}>
+                              {t("exportCancel")}
+                            </Button>
+                          </div>
+                        ) : null}
+                        {exportState.kind === "done" ? (
+                          <p className="break-all text-xs font-bold leading-5 text-[#00766d]">
+                            {exportState.message}
+                          </p>
+                        ) : null}
+                        {exportState.kind === "error" ? (
+                          <p className="break-all text-xs font-bold leading-5 text-[#e05a5a]">
+                            {exportState.message}
+                          </p>
+                        ) : null}
+                        <p className="text-xs font-bold leading-5 text-[#8a7b66]">
+                          {t("exportPdfHelp")}
+                        </p>
+                      </div>
 
                       <p className="rounded-lg bg-[#fffdf2] p-4 text-sm font-bold leading-6 text-[#725d42]">
                         {t("senderHint")}
