@@ -29,4 +29,13 @@ export const miniApps: MiniApp[] = [
     icon: "icon-diy",
     href: "/power-on-detector",
   },
+  {
+    titleKey: "qrFileBeam.title",
+    slug: "qr-file-beam",
+    summaryKey: "qrFileBeam.summary",
+    status: "ready",
+    color: "app-teal",
+    icon: "icon-camera",
+    href: "/qr-file-beam",
+  },
 ];
