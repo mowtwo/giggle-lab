@@ -64,7 +64,11 @@ export default function Home() {
               <Button
                 type="primary"
                 size="large"
-                onClick={() => navigate("/power-on-detector")}
+                onClick={() => {
+                  if (miniApps[0]?.href) {
+                    navigate(miniApps[0].href);
+                  }
+                }}
               >
                 {tCommon("open")}
               </Button>

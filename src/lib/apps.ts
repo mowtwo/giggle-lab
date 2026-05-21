@@ -12,6 +12,15 @@ export type MiniApp = {
 
 export const miniApps: MiniApp[] = [
   {
+    titleKey: "heartCardEditor.title",
+    slug: "heart-card-editor",
+    summaryKey: "heartCardEditor.summary",
+    status: "ready",
+    color: "app-pink",
+    icon: "icon-camera",
+    href: "/heart-card-editor",
+  },
+  {
     titleKey: "powerOnDetector.title",
     slug: "power-on-detector",
     summaryKey: "powerOnDetector.summary",
