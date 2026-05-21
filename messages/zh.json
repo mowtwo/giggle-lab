@@ -34,6 +34,10 @@
     "qrFileBeam": {
       "title": "二维码文件光束",
       "summary": "把小文件切成二维码帧，在另一台设备上用摄像头扫回完整文件。"
+    },
+    "minesweeper": {
+      "title": "动森扫雷",
+      "summary": "经典扫雷的动物之森调色版，外加魔鬼级无尽模式：到达边界就长出新区块。"
     }
   },
   "HeartCard": {
@@ -211,6 +215,29 @@
     "exportProgress": "批 {batch}/{batchTotal} · 帧 {frame}/{frameTotal}",
     "exportDone": "已下载 {filename}",
     "perPage": "{count} 个/页"
+  },
+  "Minesweeper": {
+    "metadataTitle": "动森扫雷 - Giggle Lab",
+    "metadataDescription": "动物之森配色的经典扫雷，外加无尽模式：到达边界自动扩展新区块。",
+    "title": "动森扫雷",
+    "description": "草地翻不到雷的格子会铺开沙地，数字告诉你身边藏着几颗。无尽模式会在你扫到边界时长出新的草地区块，几乎无限。",
+    "difficulty": {
+      "easy": "悠闲",
+      "normal": "标准",
+      "hard": "专家",
+      "endless": "魔鬼·无尽"
+    },
+    "difficultySpec": "{rows}×{cols} · {mines} 颗雷",
+    "difficultySpecEndless": "{rows}×{cols} 每块 · {mines} 颗/块",
+    "rulesHint": "左键翻地块，右键插旗（手机长按）。点开数字时如果周围旗子数量对得上，会自动一次性翻开剩余邻居。",
+    "endlessHint": "无尽模式：扫到一个区块边界时（具体说，flood-fill 翻到 0 邻居格的下一格在邻块时），新区块会自动长出来。视图可拖拽和滚轮缩放。",
+    "restart": "重新开始",
+    "flagModeOn": "插旗模式",
+    "flagModeOff": "翻地模式",
+    "statusReady": "准备好就开扫",
+    "statusPlaying": "扫雷中…",
+    "statusWon": "🎉 全部清完！",
+    "statusLost": "💥 踩到雷了"
   },
   "Devices": {
     "iphone": "iPhone",

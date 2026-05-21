@@ -34,6 +34,10 @@
     "qrFileBeam": {
       "title": "QR File Beam",
       "summary": "Slice a small file into QR frames, then scan it back on another device."
+    },
+    "minesweeper": {
+      "title": "Animal Crossing Minesweeper",
+      "summary": "Classic minesweeper in pastel meadow colours, plus a devil endless mode that grows a new block when you reach a boundary."
     }
   },
   "HeartCard": {
@@ -211,6 +215,29 @@
     "exportProgress": "Batch {batch}/{batchTotal} · Frame {frame}/{frameTotal}",
     "exportDone": "Downloaded {filename}",
     "perPage": "{count} per page"
+  },
+  "Minesweeper": {
+    "metadataTitle": "Animal Crossing Minesweeper - Giggle Lab",
+    "metadataDescription": "Classic minesweeper in Animal Crossing meadow colours, plus an endless mode that grows a new block when you hit a boundary.",
+    "title": "Animal Crossing Minesweeper",
+    "description": "Reveal grassy tiles to flatten them into sand, with numbers hinting at the mines next door. Endless mode sprouts a fresh block of meadow each time your flood-fill reaches an edge.",
+    "difficulty": {
+      "easy": "Chill",
+      "normal": "Standard",
+      "hard": "Expert",
+      "endless": "Devil · Endless"
+    },
+    "difficultySpec": "{rows}×{cols} · {mines} mines",
+    "difficultySpecEndless": "{rows}×{cols} per block · {mines} mines / block",
+    "rulesHint": "Left-click to reveal, right-click to flag (long-press on touch). Click a revealed number whose flags match it and the remaining neighbours auto-reveal.",
+    "endlessHint": "Endless: when a flood-fill reveal reaches the edge of a block (specifically, a 0-adjacent cell next to a neighbouring block), the next block sprouts. Drag to pan, wheel to zoom.",
+    "restart": "Restart",
+    "flagModeOn": "Flag mode",
+    "flagModeOff": "Reveal mode",
+    "statusReady": "Ready when you are",
+    "statusPlaying": "Sweeping…",
+    "statusWon": "🎉 All clear!",
+    "statusLost": "💥 You hit a mine"
   },
   "Devices": {
     "iphone": "iPhone",

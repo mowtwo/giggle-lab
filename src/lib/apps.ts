@@ -38,4 +38,13 @@ export const miniApps: MiniApp[] = [
     icon: "icon-camera",
     href: "/qr-file-beam",
   },
+  {
+    titleKey: "minesweeper.title",
+    slug: "minesweeper",
+    summaryKey: "minesweeper.summary",
+    status: "ready",
+    color: "lime-green",
+    icon: "icon-diy",
+    href: "/minesweeper",
+  },
 ];
