@@ -681,17 +681,17 @@ export function QrFileBeam() {
           <LocaleSwitch />
         </div>
 
-        <section className="mx-auto grid max-w-6xl gap-6 py-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+        <section className="mx-auto grid max-w-6xl gap-6 py-8 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
           <div className="space-y-5">
             <Card type="title" color="app-teal" className="p-6">
               <div className="space-y-5">
-                <div className="flex items-center gap-4">
-                  <Icon name="icon-camera" size={76} bounce />
-                  <div>
+                <div className="flex flex-wrap items-center gap-4">
+                  <Icon name="icon-camera" size={64} bounce />
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-black uppercase tracking-[0.12em] text-[#00766d]">
                       QR file beam
                     </p>
-                    <h1 className="text-balance text-4xl font-black leading-tight text-[#794f27] sm:text-5xl">
+                    <h1 className="text-balance text-3xl font-black leading-tight text-[#794f27] sm:text-4xl">
                       {t("title")}
                     </h1>
                   </div>
@@ -756,7 +756,7 @@ export function QrFileBeam() {
           </div>
 
           {mode === "send" ? (
-            <Card color="warm-peach-pink" className="p-5 sm:p-6">
+            <Card color="warm-peach-pink" className="min-w-0 p-5 sm:p-6">
               <div className="grid gap-5">
                 <div className="grid gap-3">
                   <label className="text-sm font-black text-[#794f27]">
@@ -775,9 +775,9 @@ export function QrFileBeam() {
                 </div>
 
                 {file && meta ? (
-                  <div className="grid gap-5 xl:grid-cols-[minmax(260px,390px)_1fr]">
+                  <div className="grid gap-5 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] md:items-start">
                     <div className="grid justify-items-center gap-3">
-                      <div className="grid aspect-square w-full max-w-[390px] place-items-center rounded-lg border-4 border-[#794f27] bg-white p-3">
+                      <div className="grid aspect-square w-full max-w-[280px] place-items-center rounded-lg border-4 border-[#794f27] bg-white p-3">
                         {qrDataUrl ? (
                           <img
                             src={qrDataUrl}
@@ -790,7 +790,7 @@ export function QrFileBeam() {
                           </p>
                         )}
                       </div>
-                      <div className="h-3 w-full overflow-hidden rounded-full bg-white/80">
+                      <div className="h-3 w-full max-w-[280px] overflow-hidden rounded-full bg-white/80">
                         <div
                           className="h-full rounded-full bg-[#19c8b9]"
                           style={{ width: `${sendProgress}%` }}
@@ -804,12 +804,12 @@ export function QrFileBeam() {
                       </p>
                     </div>
 
-                    <div className="grid content-start gap-4">
+                    <div className="grid min-w-0 content-start gap-4">
                       <div className="rounded-lg bg-white/70 p-4">
-                        <p className="break-all text-xl font-black text-[#794f27]">
+                        <p className="break-all text-lg font-black leading-snug text-[#794f27]">
                           {file.name}
                         </p>
-                        <p className="mt-2 text-sm font-bold text-[#725d42]">
+                        <p className="mt-2 text-sm font-bold leading-6 text-[#725d42]">
                           {formatBytes(file.size)} ·{" "}
                           {file.type || "application/octet-stream"} ·{" "}
                           {t("chunkCount", { total: meta.total })}
@@ -819,13 +819,16 @@ export function QrFileBeam() {
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      <div className="grid grid-cols-2 gap-3">
                         <Button
                           type="primary"
                           disabled={isPreparing}
                           onClick={() => setIsPlaying((current) => !current)}
                         >
                           {isPlaying ? t("pause") : t("play")}
+                        </Button>
+                        <Button type="default" onClick={() => setFrameIndex(0)}>
+                          {t("metaFrame")}
                         </Button>
                         <Button
                           type="default"
@@ -845,13 +848,10 @@ export function QrFileBeam() {
                         >
                           {t("next")}
                         </Button>
-                        <Button type="default" onClick={() => setFrameIndex(0)}>
-                          {t("metaFrame")}
-                        </Button>
                       </div>
 
                       <div className="grid gap-3 rounded-lg bg-white/70 p-4">
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                           <label className="text-sm font-black text-[#794f27]">
                             {t("frameIndexLabel")}
                           </label>
@@ -860,7 +860,7 @@ export function QrFileBeam() {
                             min="0"
                             max={Math.max(totalFrames - 1, 0)}
                             value={frameIndex}
-                            className="h-10 w-28 rounded-lg border-2 border-[#c4b89e] bg-[#f8f8f0] px-3 text-right text-sm font-black text-[#725d42]"
+                            className="h-10 w-24 rounded-lg border-2 border-[#c4b89e] bg-[#f8f8f0] px-3 text-right text-sm font-black text-[#725d42]"
                             onChange={(event) =>
                               setFrameIndex(
                                 clampFrameIndex(
@@ -878,29 +878,36 @@ export function QrFileBeam() {
                           max={Math.max(totalFrames - 1, 0)}
                           step="1"
                           value={frameIndex}
+                          className="w-full accent-[#19c8b9]"
                           onChange={(event) =>
                             setFrameIndex(
                               clampFrameIndex(Number(event.target.value), totalFrames),
                             )
                           }
                         />
-                        <div className="flex items-center justify-between gap-3 text-xs font-black text-[#8a7b66]">
+                        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs font-black text-[#8a7b66]">
                           <span>{t("metaFrame")}: 0</span>
-                          <span>{currentFrameKind}</span>
+                          <span className="text-[#00766d]">{currentFrameKind}</span>
                           <span>
                             {t("finalFrame")}: {Math.max(totalFrames - 1, 0)}
                           </span>
                         </div>
                       </div>
 
-                      <label className="grid gap-2 text-sm font-black text-[#794f27]">
-                        {t("speed")}
+                      <label className="grid gap-2 rounded-lg bg-white/70 p-4 text-sm font-black text-[#794f27]">
+                        <span className="flex items-center justify-between gap-3">
+                          {t("speed")}
+                          <span className="text-xs font-black text-[#8a7b66]">
+                            {frameMs}ms
+                          </span>
+                        </span>
                         <input
                           type="range"
                           min="120"
                           max="1200"
                           step="20"
                           value={frameMs}
+                          className="w-full accent-[#19c8b9]"
                           onChange={(event) =>
                             setFrameMs(clampFrameMs(Number(event.target.value)))
                           }
@@ -922,8 +929,8 @@ export function QrFileBeam() {
               </div>
             </Card>
           ) : (
-            <Card color="app-blue" className="p-5 sm:p-6">
-              <div className="grid gap-5 xl:grid-cols-[minmax(280px,0.92fr)_1fr]">
+            <Card color="app-blue" className="min-w-0 p-5 sm:p-6">
+              <div className="grid gap-5 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)] md:items-start">
                 <div className="grid content-start gap-4">
                   <div className="overflow-hidden rounded-lg border-4 border-[#794f27] bg-[#201b16]">
                     <video
@@ -953,18 +960,18 @@ export function QrFileBeam() {
                   </Button>
                 </div>
 
-                <div className="grid content-start gap-4">
+                <div className="grid min-w-0 content-start gap-4">
                   <div className="rounded-lg bg-white/70 p-4">
                     <p className="text-sm font-black uppercase tracking-[0.12em] text-[#00766d]">
                       {t("receiverStatus")}
                     </p>
-                    <p className="mt-2 text-lg font-black leading-7 text-[#794f27]">
+                    <p className="mt-2 break-words text-lg font-black leading-7 text-[#794f27]">
                       {scanStatus}
                     </p>
                   </div>
 
                   <div className="rounded-lg bg-white/70 p-4">
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="text-sm font-black text-[#725d42]">
                         {receivedMeta
                           ? t("receiveCounter", {
@@ -1009,18 +1016,25 @@ export function QrFileBeam() {
                         <p className="text-sm font-black uppercase tracking-[0.12em] text-[#00766d]">
                           {t("preview")}
                         </p>
-                        <p className="mt-1 break-all text-xl font-black text-[#794f27]">
+                        <p className="mt-1 break-all text-lg font-black leading-snug text-[#794f27]">
                           {receivedFile.meta.name}
                         </p>
                       </div>
                       {renderPreview(receivedFile)}
-                      <a
-                        href={receivedFile.url}
-                        download={receivedFile.meta.name}
-                        className="inline-flex h-12 items-center justify-center rounded-full border-2 border-[#f8f8f0] bg-[#f8f8f0] px-6 text-base font-black text-[#794f27] shadow-[0_5px_#bdaea0]"
+                      <Button
+                        type="primary"
+                        block
+                        onClick={() => {
+                          const link = document.createElement("a");
+                          link.href = receivedFile.url;
+                          link.download = receivedFile.meta.name;
+                          document.body.appendChild(link);
+                          link.click();
+                          link.remove();
+                        }}
                       >
                         {t("download")}
-                      </a>
+                      </Button>
                     </div>
                   ) : (
                     <p className="rounded-lg bg-[#fffdf2] p-4 text-sm font-bold leading-6 text-[#725d42]">
