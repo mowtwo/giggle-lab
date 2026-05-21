@@ -44,7 +44,7 @@ type Mode = "send" | "receive";
 
 const QR_OPTIONS = {
   errorCorrectionLevel: "L",
-  margin: 1,
+  margin: 4,
   scale: 8,
 } as const;
 
@@ -790,7 +790,10 @@ export function QrFileBeam() {
 
     const now = performance.now();
 
-    if (now - lastScanAtRef.current < 95) {
+    // Light throttle: jsQR already self-rate-limits via its sync cost (~30-50ms
+    // per call), but BarcodeDetector can hit 60Hz and burn CPU for no extra
+    // hit-rate gain. Cap to ~33Hz which still gives ~9 scans per 280ms frame.
+    if (now - lastScanAtRef.current < 30) {
       scanRafRef.current = window.requestAnimationFrame(() => {
         scanFrameRef.current?.();
       });
@@ -820,7 +823,7 @@ export function QrFileBeam() {
       } else {
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         const result = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: "dontInvert",
+          inversionAttempts: "attemptBoth",
         });
         const packet = parsePacket(result?.data ?? "");
 
@@ -856,13 +859,25 @@ export function QrFileBeam() {
         ? new BarcodeDetectorCtor({ formats: ["qr_code"] })
         : null;
 
+      // focusMode / exposureMode / whiteBalanceMode are part of the
+      // image-capture spec extension to MediaTrackConstraints and not yet in
+      // lib.dom; cast through unknown so the constraint object passes through.
+      const videoConstraints = {
+        facingMode: "environment",
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+        frameRate: { ideal: 30 },
+        // Advanced constraints are best-effort; unsupported entries are
+        // ignored silently rather than rejecting the whole getUserMedia.
+        advanced: [
+          { focusMode: "continuous" },
+          { exposureMode: "continuous" },
+          { whiteBalanceMode: "continuous" },
+        ],
+      } as unknown as MediaTrackConstraints;
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
-        video: {
-          facingMode: "environment",
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
+        video: videoConstraints,
       });
 
       streamRef.current = stream;
@@ -870,6 +885,31 @@ export function QrFileBeam() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
+      }
+
+      // Try to apply continuous focus after the track is live, in case the
+      // initial constraints didn't take effect.
+      const track = stream.getVideoTracks()[0];
+      if (track) {
+        const capabilities = (
+          track as unknown as {
+            getCapabilities?: () => Record<string, unknown>;
+          }
+        ).getCapabilities?.();
+        const supportsContinuousFocus = Array.isArray(
+          capabilities?.focusMode,
+        )
+          ? (capabilities.focusMode as string[]).includes("continuous")
+          : false;
+        if (supportsContinuousFocus) {
+          try {
+            await track.applyConstraints({
+              advanced: [{ focusMode: "continuous" }],
+            } as unknown as MediaTrackConstraints);
+          } catch {
+            // ignore — best-effort
+          }
+        }
       }
 
       setIsScanning(true);
@@ -1159,9 +1199,9 @@ export function QrFileBeam() {
                 </div>
 
                 {file && effectiveFileMeta && currentBatch ? (
-                  <div className="grid gap-5 md:grid-cols-[minmax(0,240px)_minmax(0,1fr)] md:items-start">
+                  <div className="grid gap-5 md:grid-cols-[minmax(0,320px)_minmax(0,1fr)] md:items-start">
                     <div className="grid justify-items-center gap-3">
-                      <div className="grid aspect-square w-full max-w-[280px] place-items-center rounded-lg border-4 border-[#794f27] bg-white p-3">
+                      <div className="grid aspect-square w-full max-w-[320px] place-items-center rounded-lg border-4 border-[#794f27] bg-white p-3">
                         {qrDataUrl ? (
                           <img
                             src={qrDataUrl}
@@ -1174,7 +1214,7 @@ export function QrFileBeam() {
                           </p>
                         )}
                       </div>
-                      <div className="h-3 w-full max-w-[280px] overflow-hidden rounded-full bg-white/80">
+                      <div className="h-3 w-full max-w-[320px] overflow-hidden rounded-full bg-white/80">
                         <div
                           className="h-full rounded-full bg-[#19c8b9]"
                           style={{ width: `${batchProgress}%` }}

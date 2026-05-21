@@ -68,6 +68,11 @@ function yieldToBrowser(): Promise<void> {
 
 // Draw a QR code's bit matrix to the PDF using vector rects. Adjacent black
 // modules in a row are merged into a single rect for compactness.
+// Draws the matrix plus a 4-module quiet zone around it (the QR spec
+// requires it; without it scanners often refuse to lock on, especially when
+// neighbouring cells on the page touch each other).
+const QUIET_MODULES = 4;
+
 function drawQrMatrix(
   doc: import("jspdf").jsPDF,
   matrix: { size: number; get(row: number, col: number): number },
@@ -76,7 +81,10 @@ function drawQrMatrix(
   size: number,
 ) {
   const moduleCount = matrix.size;
-  const moduleSize = size / moduleCount;
+  const outerModules = moduleCount + QUIET_MODULES * 2;
+  const moduleSize = size / outerModules;
+  const innerX = x + QUIET_MODULES * moduleSize;
+  const innerY = y + QUIET_MODULES * moduleSize;
   doc.setFillColor(0, 0, 0);
 
   for (let row = 0; row < moduleCount; row += 1) {
@@ -87,8 +95,8 @@ function drawQrMatrix(
         runStart = col;
       } else if (!isBlack && runStart !== -1) {
         doc.rect(
-          x + runStart * moduleSize,
-          y + row * moduleSize,
+          innerX + runStart * moduleSize,
+          innerY + row * moduleSize,
           (col - runStart) * moduleSize,
           moduleSize,
           "F",
