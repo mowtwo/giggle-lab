@@ -267,7 +267,69 @@
     "verifiedTitle": "Verified solvable",
     "verifiedBody": "The generator keeps a replayable {steps}-move solution to filter bad boards.",
     "orderTitle": "Next idea",
-    "orderBody": "A later version can add villager orders: finish the requested flavours instead of sorting everything."
+    "orderBody": "A later version can add villager orders: finish the requested flavours instead of sorting everything.",
+    "mode": {
+      "chain": {
+        "tag": "Chain",
+        "name": "Long River",
+        "description": "Solve one board, deal the next. Build streaks at your own pace; bail any time.",
+        "streak": "Streak {count}",
+        "best": "Best {count}",
+        "next": "Next board",
+        "tipTitle": "Take your time",
+        "tipBody": "Switching difficulty resets your current streak. Best streak per difficulty is saved locally."
+      },
+      "orders": {
+        "tag": "Endless",
+        "name": "Order Day",
+        "description": "Villagers queue up with single-bottle requests. Finish matching bottles fast, score climbs.",
+        "tier": "Tier",
+        "fulfilled": "Shipped",
+        "expired": "Lost",
+        "rules": "Complete a bottle whose colour matches an open order to auto-ship it. Patience drains over time; expired orders cost a small fee.",
+        "restart": "Restart run",
+        "score": "{score} pts",
+        "best": "Best {score}",
+        "tierUp": "Tier {tier}!",
+        "askOneBottle": "1 bottle, please",
+        "colorLabel": {
+          "strawberry": "Strawberry",
+          "orange": "Orange",
+          "lemon": "Lemon",
+          "lime": "Lime",
+          "kiwi": "Kiwi",
+          "mint": "Mint",
+          "blueberry": "Blueberry",
+          "grape": "Grape",
+          "bubblegum": "Bubblegum",
+          "cocoa": "Cocoa"
+        },
+        "rewardTitle": "Reward math",
+        "rewardBody": "Base reward {base} pts per order; up to {fast} when shipped quickly. Tier-up bonus {tierBonus}. Expired order: −{penalty}.",
+        "tierTitle": "Tier ladder",
+        "tierBody": "Every {every} fulfilled orders advances a tier: one more colour to juggle and a tighter patience timer."
+      },
+      "conveyor": {
+        "tag": "Arcade",
+        "name": "Conveyor",
+        "description": "A new bottle slides onto the counter on a timer. Make room or the line jams.",
+        "interval": "Next in",
+        "colors": "Colours",
+        "rules": "Complete bottles to ship them away; only empty bottles can accept incoming juice. If the timer fires while every slot is full, the run ends.",
+        "restart": "Restart run",
+        "score": "Shipped {score}",
+        "best": "Best {score}",
+        "usage": "Slots {filled}/{total}",
+        "gameOverTag": "Counter full",
+        "gameOverScore": "Shipped {score} bottles",
+        "gameOverBest": "Best run: {score}",
+        "tryAgain": "Run again",
+        "shipTitle": "Auto-ship",
+        "shipBody": "A bottle that becomes a single full colour is automatically shipped out — slot frees up after a short delay.",
+        "pressureTitle": "Pressure curve",
+        "pressureBody": "Interval starts at {start}s and shrinks by 0.6s per ship, down to a floor of {min}s. New colours unlock every five ships."
+      }
+    }
   },
   "Devices": {
     "iphone": "iPhone",

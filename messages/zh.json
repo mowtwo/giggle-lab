@@ -267,7 +267,69 @@
     "verifiedTitle": "已验证可解",
     "verifiedBody": "生成器保留了一条 {steps} 步的可回放解法，用来过滤坏局。",
     "orderTitle": "后续创意",
-    "orderBody": "下一步可以加入岛民订单：不必全整理完，只要交出指定口味。"
+    "orderBody": "下一步可以加入岛民订单：不必全整理完，只要交出指定口味。",
+    "mode": {
+      "chain": {
+        "tag": "连击",
+        "name": "长河",
+        "description": "解一关，自动开下一关。按自己的节奏冲连击，随时收手。",
+        "streak": "连击 {count}",
+        "best": "最佳 {count}",
+        "next": "下一关",
+        "tipTitle": "随心而来",
+        "tipBody": "切换难度会重置当前连击。各难度的最佳连击保存在本地。"
+      },
+      "orders": {
+        "tag": "无尽",
+        "name": "订单流",
+        "description": "村民排队点单，每张一瓶口味。匹配色完成自动出货，越快分越高。",
+        "tier": "档位",
+        "fulfilled": "已发货",
+        "expired": "撤单",
+        "rules": "完成一只单色满瓶，颜色对得上订单就自动出货。订单耐心条会耗尽，超时小额扣分但不会结束。",
+        "restart": "重开本局",
+        "score": "{score} 分",
+        "best": "最佳 {score}",
+        "tierUp": "升到 {tier} 档！",
+        "askOneBottle": "求一瓶",
+        "colorLabel": {
+          "strawberry": "草莓",
+          "orange": "香橙",
+          "lemon": "柠檬",
+          "lime": "青柠",
+          "kiwi": "猕猴桃",
+          "mint": "薄荷",
+          "blueberry": "蓝莓",
+          "grape": "葡萄",
+          "bubblegum": "蜜桃",
+          "cocoa": "可可"
+        },
+        "rewardTitle": "得分规则",
+        "rewardBody": "基础 {base} 分/单；尽早出货最高 {fast} 分。升档奖励 {tierBonus} 分。超时撤单 −{penalty} 分。",
+        "tierTitle": "档位阶梯",
+        "tierBody": "每完成 {every} 单升一档：颜色 +1，耐心条同步收紧。"
+      },
+      "conveyor": {
+        "tag": "街机",
+        "name": "传送带",
+        "description": "定时滑出新瓶到柜台。腾不出空位，传送带就堵了。",
+        "interval": "下次滑入",
+        "colors": "颜色数",
+        "rules": "完成的单色瓶会自动出货，留出空位给下一只新瓶。所有槽位都装着瓶子时新瓶滑不下来，本局结束。",
+        "restart": "重开本局",
+        "score": "已出货 {score}",
+        "best": "最佳 {score}",
+        "usage": "槽位 {filled}/{total}",
+        "gameOverTag": "柜台塞满",
+        "gameOverScore": "本局出货 {score} 瓶",
+        "gameOverBest": "最佳记录：{score}",
+        "tryAgain": "再来一局",
+        "shipTitle": "自动出货",
+        "shipBody": "瓶子被整理成单色满瓶就会自动发走，短暂动画后槽位空出。",
+        "pressureTitle": "节奏曲线",
+        "pressureBody": "起步 {start} 秒一只新瓶，每发一货缩短 0.6 秒，最快 {min} 秒。每发 5 瓶解锁一种新颜色。"
+      }
+    }
   },
   "Devices": {
     "iphone": "iPhone",
