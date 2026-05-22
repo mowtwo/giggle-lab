@@ -10,6 +10,14 @@
     "draft": "Draft",
     "language": "English"
   },
+  "Audio": {
+    "introTitle": "Sound is on",
+    "introBody": "The shelf now has soft background music, page chatter, and gentle clicks. You can mute it any time with this speaker.",
+    "turnOff": "Mute",
+    "gotIt": "Got it",
+    "muteLabel": "Mute audio",
+    "unmuteLabel": "Turn audio on"
+  },
   "Home": {
     "todayOpen": "Open today",
     "heroTitle": "Mostly useless. Pretty funny.",

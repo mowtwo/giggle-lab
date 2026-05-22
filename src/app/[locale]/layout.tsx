@@ -2,8 +2,10 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
+import { AudioToggle } from "@/components/audio-toggle";
 import { NavigationProvider } from "@/components/navigation-provider";
 import { routing } from "@/i18n/routing";
+import { AudioProvider } from "@/lib/audio/provider";
 
 export default async function LocaleLayout({
   children,
@@ -20,7 +22,10 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider>
-      <NavigationProvider>{children}</NavigationProvider>
+      <AudioProvider>
+        <NavigationProvider>{children}</NavigationProvider>
+        <AudioToggle />
+      </AudioProvider>
     </NextIntlClientProvider>
   );
 }

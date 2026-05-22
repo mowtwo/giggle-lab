@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AnimaleseText } from "@/components/animalese-text";
+
 import { BoardCanvas } from "./board-shared";
 import type { Bottle } from "./game-logic";
 import { isBottleSorted } from "./game-logic";
@@ -190,9 +192,13 @@ export function ConveyorMode() {
               <p className="text-sm font-black uppercase tracking-[0.12em] text-[#b85f00]">
                 {t("mode.conveyor.tag")}
               </p>
-              <h1 className="text-balance text-3xl font-black leading-tight text-[#794f27] sm:text-4xl">
-                {t("title")}
-              </h1>
+              <AnimaleseText
+                as="h1"
+                text={t("title")}
+                cps={20}
+                pitch={0.9}
+                className="block text-balance text-3xl font-black leading-tight text-[#794f27] sm:text-4xl"
+              />
               <p className="text-sm font-bold leading-6 text-[#725d42]">
                 {t("mode.conveyor.description")}
               </p>

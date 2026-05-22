@@ -3,6 +3,7 @@
 import { Button, Card, Cursor, Divider, Footer, Icon } from "animal-island-ui";
 import { useTranslations } from "next-intl";
 
+import { AnimaleseText } from "@/components/animalese-text";
 import { AppCard } from "@/components/app-card";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { useAppNavigation } from "@/components/navigation-provider";
@@ -52,9 +53,13 @@ export default function Home() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-balance text-5xl font-black leading-tight text-[#794f27] sm:text-7xl">
-                {tHome("heroTitle")}
-              </h1>
+              <AnimaleseText
+                as="h1"
+                text={tHome("heroTitle")}
+                cps={16}
+                pitch={0.95}
+                className="block text-balance text-5xl font-black leading-tight text-[#794f27] sm:text-7xl"
+              />
               <p className="max-w-2xl text-lg font-bold leading-8 text-[#725d42]">
                 {tHome("heroBody")}
               </p>

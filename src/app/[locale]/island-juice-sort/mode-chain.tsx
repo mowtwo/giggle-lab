@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { AnimaleseText } from "@/components/animalese-text";
+
 import { BoardCanvas, Confetti } from "./board-shared";
 import {
   DIFFICULTY_CONFIG,
@@ -98,9 +100,12 @@ export function ChainMode() {
               <p className="text-sm font-black uppercase tracking-[0.12em] text-[#00766d]">
                 {t("mode.chain.tag")}
               </p>
-              <h1 className="text-balance text-3xl font-black leading-tight text-[#794f27] sm:text-4xl">
-                {t("title")}
-              </h1>
+              <AnimaleseText
+                as="h1"
+                text={t("title")}
+                cps={20}
+                className="block text-balance text-3xl font-black leading-tight text-[#794f27] sm:text-4xl"
+              />
               <p className="text-sm font-bold leading-6 text-[#725d42]">
                 {t("mode.chain.description")}
               </p>
