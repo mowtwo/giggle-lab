@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { AudioToggle } from "@/components/audio-toggle";
 import { NavigationProvider } from "@/components/navigation-provider";
+import { TanukiCompanion } from "@/components/tanuki-companion";
 import { routing } from "@/i18n/routing";
 import { AudioProvider } from "@/lib/audio/provider";
 
@@ -24,6 +25,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider>
       <AudioProvider>
         <NavigationProvider>{children}</NavigationProvider>
+        <TanukiCompanion />
         <AudioToggle />
       </AudioProvider>
     </NextIntlClientProvider>

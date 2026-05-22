@@ -31,6 +31,7 @@ type State = {
   listeners: Set<(enabled: boolean) => void>;
   volumeListeners: Set<(volumes: Volumes) => void>;
   voiceListeners: Set<(voice: VoiceConfig) => void>;
+  activityListeners: Set<(text: string) => void>;
 };
 
 const DEFAULT_VOLUMES: Volumes = { music: 0.55, sfx: 0.7, voice: 0.7 };
@@ -47,7 +48,19 @@ const state: State = {
   listeners: new Set(),
   volumeListeners: new Set(),
   voiceListeners: new Set(),
+  activityListeners: new Set(),
 };
+
+export function subscribeVoiceActivity(listener: (text: string) => void) {
+  state.activityListeners.add(listener);
+  return () => {
+    state.activityListeners.delete(listener);
+  };
+}
+
+function notifyVoiceActivity(text: string) {
+  for (const listener of state.activityListeners) listener(text);
+}
 
 function loadRuntime(): Promise<typeof Runtime> {
   if (state.runtime) return Promise.resolve(state.runtime);
@@ -238,6 +251,7 @@ export async function playAnimalese(
 ): Promise<number> {
   if (!state.enabled || !text) return 0;
   if (!state.unlocked) return 0;
+  notifyVoiceActivity(text);
   const rt = state.runtime ?? (await loadRuntime());
   const merged: AnimaleseOptions = {
     ...options,
