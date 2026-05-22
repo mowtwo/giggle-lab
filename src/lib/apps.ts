@@ -47,4 +47,13 @@ export const miniApps: MiniApp[] = [
     icon: "icon-diy",
     href: "/minesweeper",
   },
+  {
+    titleKey: "islandJuiceSort.title",
+    slug: "island-juice-sort",
+    summaryKey: "islandJuiceSort.summary",
+    status: "ready",
+    color: "app-teal",
+    icon: "icon-diy",
+    href: "/island-juice-sort",
+  },
 ];

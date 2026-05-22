@@ -38,6 +38,10 @@
     "minesweeper": {
       "title": "动森扫雷",
       "summary": "经典扫雷的动物之森调色版，外加魔鬼级无尽模式：到达边界就长出新区块。"
+    },
+    "islandJuiceSort": {
+      "title": "岛屿果汁整理",
+      "summary": "把分层果汁倒回同色玻璃瓶，随机生成但保证能解的治愈小谜题。"
     }
   },
   "HeartCard": {
@@ -238,6 +242,32 @@
     "statusPlaying": "扫雷中…",
     "statusWon": "🎉 全部清完！",
     "statusLost": "💥 踩到雷了"
+  },
+  "IslandJuiceSort": {
+    "metadataTitle": "岛屿果汁整理 - Giggle Lab",
+    "metadataDescription": "动森风格的分层果汁排序谜题，随机生成并验证可解。",
+    "title": "岛屿果汁整理",
+    "description": "岛上的饮料摊被弄乱了。点击一只瓶子，再点击另一只瓶子，把顶部同色果汁倒过去，直到每只瓶子只剩一种口味。",
+    "difficulty": {
+      "cozy": "悠闲",
+      "normal": "标准",
+      "tricky": "费脑",
+      "expert": "摊主考核"
+    },
+    "difficultySpec": "{colors} 色 · {bottles} 瓶",
+    "rulesHint": "只能倒到空瓶，或倒到顶部颜色相同的瓶子。每关随机洗牌色块后，由求解器验证可解，并附带一条最短解法步数。",
+    "moveCount": "{count} 步",
+    "seed": "Seed {seed}",
+    "complete": "订单完成！",
+    "undo": "撤销",
+    "restart": "重开",
+    "newPuzzle": "随机新局",
+    "dailyTitle": "随机营业日",
+    "dailyBody": "难度会通过颜色和瓶子数量扩大；空瓶保留为整理空间。",
+    "verifiedTitle": "已验证可解",
+    "verifiedBody": "生成器保留了一条 {steps} 步的可回放解法，用来过滤坏局。",
+    "orderTitle": "后续创意",
+    "orderBody": "下一步可以加入岛民订单：不必全整理完，只要交出指定口味。"
   },
   "Devices": {
     "iphone": "iPhone",

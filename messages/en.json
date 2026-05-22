@@ -38,6 +38,10 @@
     "minesweeper": {
       "title": "Animal Crossing Minesweeper",
       "summary": "Classic minesweeper in pastel meadow colours, plus a devil endless mode that grows a new block when you reach a boundary."
+    },
+    "islandJuiceSort": {
+      "title": "Island Juice Sort",
+      "summary": "Sort layered fruit juice back into matching glass bottles with random, verified-solvable puzzles."
     }
   },
   "HeartCard": {
@@ -238,6 +242,32 @@
     "statusPlaying": "Sweeping…",
     "statusWon": "🎉 All clear!",
     "statusLost": "💥 You hit a mine"
+  },
+  "IslandJuiceSort": {
+    "metadataTitle": "Island Juice Sort - Giggle Lab",
+    "metadataDescription": "Animal Crossing-inspired layered juice sorting puzzles that are randomly generated and verified solvable.",
+    "title": "Island Juice Sort",
+    "description": "The island drink stand got mixed up. Tap one bottle, then another, and pour matching top layers until every bottle holds one flavour.",
+    "difficulty": {
+      "cozy": "Cozy",
+      "normal": "Normal",
+      "tricky": "Tricky",
+      "expert": "Stand Master"
+    },
+    "difficultySpec": "{colors} colours · {bottles} bottles",
+    "rulesHint": "You can pour into an empty bottle or onto the same top colour. Each board is shuffled at random and verified by a solver, so a real solution always exists.",
+    "moveCount": "{count} moves",
+    "seed": "Seed {seed}",
+    "complete": "Order complete!",
+    "undo": "Undo",
+    "restart": "Restart",
+    "newPuzzle": "Random puzzle",
+    "dailyTitle": "Random day",
+    "dailyBody": "Difficulty grows through more colours and bottles, while empty bottles keep room for planning.",
+    "verifiedTitle": "Verified solvable",
+    "verifiedBody": "The generator keeps a replayable {steps}-move solution to filter bad boards.",
+    "orderTitle": "Next idea",
+    "orderBody": "A later version can add villager orders: finish the requested flavours instead of sorting everything."
   },
   "Devices": {
     "iphone": "iPhone",
