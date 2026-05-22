@@ -12,7 +12,11 @@
     "off": "关",
     "musicLabel": "音乐",
     "sfxLabel": "音效",
-    "voiceLabel": "朗读"
+    "voiceLabel": "朗读",
+    "voiceSection": "朗读音色",
+    "voicePitch": "音调",
+    "voiceRate": "语速",
+    "voiceShorten": "缩短长词"
   },
   "Common": {
     "brandSubtitle": "纯前端小玩具货架",

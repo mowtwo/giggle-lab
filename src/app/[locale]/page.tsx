@@ -56,9 +56,9 @@ export default function Home() {
               <AnimaleseText
                 as="h1"
                 text={tHome("heroTitle")}
-                cps={11}
-                pitch={0.86}
-                startDelay={2200}
+                cps={14}
+                pitch={1}
+                startDelay={950}
                 className="block text-balance text-5xl font-black leading-tight text-[#794f27] sm:text-7xl"
               />
               <p className="max-w-2xl text-lg font-bold leading-8 text-[#725d42]">

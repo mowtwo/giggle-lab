@@ -23,7 +23,11 @@
     "off": "Off",
     "musicLabel": "Music",
     "sfxLabel": "Effects",
-    "voiceLabel": "Voice"
+    "voiceLabel": "Voice",
+    "voiceSection": "Animalese voice",
+    "voicePitch": "Pitch",
+    "voiceRate": "Speed",
+    "voiceShorten": "Shorten words"
   },
   "Home": {
     "todayOpen": "Open today",

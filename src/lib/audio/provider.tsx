@@ -15,11 +15,16 @@ import {
   playSfx,
   requestBgm,
   setAudioEnabled,
+  setVoicePitch as setVoicePitchCore,
+  setVoiceRate as setVoiceRateCore,
+  setVoiceShorten as setVoiceShortenCore,
   setVolume as setVolumeCore,
   subscribeAudio,
+  subscribeVoice,
   subscribeVolumes,
   unlockAudio,
   type AudioBus,
+  type VoiceConfig,
   type Volumes,
 } from "./state";
 
@@ -28,8 +33,12 @@ type AudioControls = {
   mounted: boolean;
   introSeen: boolean;
   volumes: Volumes;
+  voice: VoiceConfig;
   toggle: () => void;
   setVolume: (bus: AudioBus, value: number) => void;
+  setVoicePitch: (value: number) => void;
+  setVoiceRate: (value: number) => void;
+  setVoiceShorten: (value: boolean) => void;
   dismissIntro: () => void;
 };
 
@@ -38,14 +47,21 @@ const AudioContext = createContext<AudioControls>({
   mounted: false,
   introSeen: true,
   volumes: { music: 0.55, sfx: 0.7, voice: 0.7 },
+  voice: { pitch: 1.0, rate: 1.15, shorten: false },
   toggle: () => {},
   setVolume: () => {},
+  setVoicePitch: () => {},
+  setVoiceRate: () => {},
+  setVoiceShorten: () => {},
   dismissIntro: () => {},
 });
 
 const STORE_ENABLED = "audio.enabled";
 const STORE_INTRO = "audio.intro.dismissed";
 const STORE_VOLUME_PREFIX = "audio.volume.";
+const STORE_VOICE_PITCH = "audio.voice.pitch";
+const STORE_VOICE_RATE = "audio.voice.rate";
+const STORE_VOICE_SHORTEN = "audio.voice.shorten";
 
 const READABLE_TAGS = new Set([
   "P",
@@ -86,6 +102,23 @@ function readVolumes(): Volumes {
   return defaults;
 }
 
+function readVoice(): VoiceConfig {
+  const defaults: VoiceConfig = { pitch: 1.0, rate: 1.15, shorten: false };
+  const pitch = window.localStorage.getItem(STORE_VOICE_PITCH);
+  if (pitch !== null) {
+    const num = Number.parseFloat(pitch);
+    if (!Number.isNaN(num)) defaults.pitch = Math.max(0.5, Math.min(2.0, num));
+  }
+  const rate = window.localStorage.getItem(STORE_VOICE_RATE);
+  if (rate !== null) {
+    const num = Number.parseFloat(rate);
+    if (!Number.isNaN(num)) defaults.rate = Math.max(0.5, Math.min(2.5, num));
+  }
+  const shorten = window.localStorage.getItem(STORE_VOICE_SHORTEN);
+  if (shorten !== null) defaults.shorten = shorten === "1";
+  return defaults;
+}
+
 export function AudioProvider({ children }: { children: ReactNode }) {
   const [enabled, setEnabled] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -95,27 +128,40 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     sfx: 0.7,
     voice: 0.7,
   });
+  const [voice, setVoiceState] = useState<VoiceConfig>({
+    pitch: 1.0,
+    rate: 1.15,
+    shorten: false,
+  });
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORE_ENABLED);
     const initial = stored === null ? true : stored === "1";
     const seenIntro = window.localStorage.getItem(STORE_INTRO) === "1";
     const initialVolumes = readVolumes();
-    initAudioState({ enabled: initial, volumes: initialVolumes });
+    const initialVoice = readVoice();
+    initAudioState({
+      enabled: initial,
+      volumes: initialVolumes,
+      voice: initialVoice,
+    });
     /* eslint-disable react-hooks/set-state-in-effect */
     setEnabled(initial);
     setIntroSeen(seenIntro);
     setVolumesState(initialVolumes);
+    setVoiceState(initialVoice);
     setMounted(true);
     /* eslint-enable react-hooks/set-state-in-effect */
     const offEnabled = subscribeAudio(setEnabled);
     const offVolumes = subscribeVolumes((next) =>
       setVolumesState({ ...next }),
     );
+    const offVoice = subscribeVoice((next) => setVoiceState({ ...next }));
     if (initial) void requestBgm(true);
     return () => {
       offEnabled();
       offVolumes();
+      offVoice();
     };
   }, []);
 
@@ -162,7 +208,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       if (!el) return;
       const text = (el.textContent || "").trim();
       if (text.length < 2 || text.length > 160) return;
-      void playAnimalese(text, { pitch: 0.92, rate: 0.78 });
+      void playAnimalese(text, { pitch: 0.95 });
     };
     window.addEventListener("pointerdown", onPointerDown, { capture: true });
     window.addEventListener("click", onClick);
@@ -187,6 +233,21 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     void setVolumeCore(bus, value);
   }, []);
 
+  const setVoicePitch = useCallback((value: number) => {
+    setVoiceState((prev) => ({ ...prev, pitch: value }));
+    setVoicePitchCore(value);
+  }, []);
+
+  const setVoiceRate = useCallback((value: number) => {
+    setVoiceState((prev) => ({ ...prev, rate: value }));
+    setVoiceRateCore(value);
+  }, []);
+
+  const setVoiceShorten = useCallback((value: boolean) => {
+    setVoiceState((prev) => ({ ...prev, shorten: value }));
+    setVoiceShortenCore(value);
+  }, []);
+
   const dismissIntro = useCallback(() => {
     window.localStorage.setItem(STORE_INTRO, "1");
     setIntroSeen(true);
@@ -200,8 +261,12 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         mounted,
         introSeen,
         volumes,
+        voice,
         toggle,
         setVolume,
+        setVoicePitch,
+        setVoiceRate,
+        setVoiceShorten,
         dismissIntro,
       }}
     >

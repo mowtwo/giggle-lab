@@ -54,10 +54,59 @@ function VolumeSlider({
   );
 }
 
+function RangeSlider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  format,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  format?: (v: number) => string;
+  onChange: (next: number) => void;
+}) {
+  return (
+    <label className="block space-y-1">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#7a6141]">
+        <span>{label}</span>
+        <span className="tabular-nums">
+          {format ? format(value) : value.toFixed(2)}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={min * 100}
+        max={max * 100}
+        step={step * 100}
+        value={value * 100}
+        onChange={(e) => onChange(Number.parseInt(e.target.value, 10) / 100)}
+        className="block w-full accent-[#ec4899]"
+      />
+    </label>
+  );
+}
+
 export function AudioToggle() {
   const t = useTranslations("Audio");
-  const { enabled, mounted, introSeen, volumes, toggle, setVolume, dismissIntro } =
-    useAudio();
+  const {
+    enabled,
+    mounted,
+    introSeen,
+    volumes,
+    voice,
+    toggle,
+    setVolume,
+    setVoicePitch,
+    setVoiceRate,
+    setVoiceShorten,
+    dismissIntro,
+  } = useAudio();
   const [panelOpen, setPanelOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -124,6 +173,45 @@ export function AudioToggle() {
                 value={volumes.voice}
                 onChange={(v) => setVolume("voice" as AudioBus, v)}
               />
+            </div>
+            <div className="mt-4 space-y-3 border-t-2 border-dashed border-[#e3d6b8] pt-3">
+              <p className="text-[10px] font-black uppercase tracking-wider text-[#a3206a]">
+                {t("voiceSection")}
+              </p>
+              <RangeSlider
+                label={t("voicePitch")}
+                value={voice.pitch}
+                min={0.5}
+                max={2.0}
+                step={0.05}
+                format={(v) => `${v.toFixed(2)}x`}
+                onChange={setVoicePitch}
+              />
+              <RangeSlider
+                label={t("voiceRate")}
+                value={voice.rate}
+                min={0.5}
+                max={2.5}
+                step={0.05}
+                format={(v) => `${v.toFixed(2)}x`}
+                onChange={setVoiceRate}
+              />
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-[10px] font-black uppercase tracking-wider text-[#7a6141]">
+                  {t("voiceShorten")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setVoiceShorten(!voice.shorten)}
+                  className={`rounded-lg border-2 px-2.5 py-1 text-[10px] font-black transition active:translate-y-[1px] ${
+                    voice.shorten
+                      ? "border-[#ec4899] bg-[#fdf2f8] text-[#a3206a]"
+                      : "border-[#d4c9b4] bg-white text-[#7a6141]"
+                  }`}
+                >
+                  {voice.shorten ? t("on") : t("off")}
+                </button>
+              </label>
             </div>
             <span className="pointer-events-none absolute -bottom-2 right-8 h-4 w-4 rotate-45 border-b-2 border-r-2 border-[#b99b72] bg-[#fffaf0]" />
           </motion.div>
