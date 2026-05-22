@@ -2,8 +2,10 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
 
 import { useAudio } from "@/lib/audio/provider";
+import type { AudioBus } from "@/lib/audio/state";
 
 const SPEAKER_ON = (
   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -23,22 +25,120 @@ const SPEAKER_OFF = (
   </svg>
 );
 
+function VolumeSlider({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (next: number) => void;
+}) {
+  const percent = Math.round(value * 100);
+  return (
+    <label className="block space-y-1">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-[#7a6141]">
+        <span>{label}</span>
+        <span className="tabular-nums">{percent}</span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={1}
+        value={percent}
+        onChange={(e) => onChange(Number.parseInt(e.target.value, 10) / 100)}
+        className="block w-full accent-[#19c8b9]"
+      />
+    </label>
+  );
+}
+
 export function AudioToggle() {
   const t = useTranslations("Audio");
-  const { enabled, mounted, introSeen, toggle, dismissIntro } = useAudio();
+  const { enabled, mounted, introSeen, volumes, toggle, setVolume, dismissIntro } =
+    useAudio();
+  const [panelOpen, setPanelOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!panelOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(e.target as Node)) {
+        setPanelOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", onDocClick);
+    return () => window.removeEventListener("mousedown", onDocClick);
+  }, [panelOpen]);
+
   if (!mounted) return null;
 
   return (
-    <div className="pointer-events-none fixed bottom-5 right-5 z-40 flex items-end gap-3">
+    <div
+      ref={containerRef}
+      data-no-sfx
+      data-no-animalese
+      className="pointer-events-none fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3"
+    >
       <AnimatePresence>
-        {!introSeen ? (
+        {panelOpen ? (
+          <motion.div
+            key="panel"
+            initial={{ opacity: 0, y: 12, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.92 }}
+            transition={{ type: "spring", stiffness: 320, damping: 24 }}
+            className="pointer-events-auto w-[260px] rounded-2xl border-2 border-[#b99b72] bg-[#fffaf0] p-4 shadow-[0_8px_0_rgba(122,97,65,0.18)]"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-black text-[#794f27]">
+                {t("settingsTitle")}
+              </p>
+              <button
+                type="button"
+                onClick={toggle}
+                className={`rounded-lg border-2 px-3 py-1 text-xs font-black transition active:translate-y-[1px] ${
+                  enabled
+                    ? "border-[#19c8b9] bg-[#dcfbf7] text-[#00766d]"
+                    : "border-[#d4c9b4] bg-white text-[#7a6141]"
+                }`}
+              >
+                {enabled ? t("on") : t("off")}
+              </button>
+            </div>
+            <div className="mt-3 space-y-3">
+              <VolumeSlider
+                label={t("musicLabel")}
+                value={volumes.music}
+                onChange={(v) => setVolume("music" as AudioBus, v)}
+              />
+              <VolumeSlider
+                label={t("sfxLabel")}
+                value={volumes.sfx}
+                onChange={(v) => setVolume("sfx" as AudioBus, v)}
+              />
+              <VolumeSlider
+                label={t("voiceLabel")}
+                value={volumes.voice}
+                onChange={(v) => setVolume("voice" as AudioBus, v)}
+              />
+            </div>
+            <span className="pointer-events-none absolute -bottom-2 right-8 h-4 w-4 rotate-45 border-b-2 border-r-2 border-[#b99b72] bg-[#fffaf0]" />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {!introSeen && !panelOpen ? (
           <motion.div
             key="intro"
             initial={{ opacity: 0, y: 12, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.92 }}
             transition={{ type: "spring", stiffness: 320, damping: 24 }}
-            className="pointer-events-auto max-w-[280px] rounded-2xl border-2 border-[#b99b72] bg-[#fffaf0] p-4 shadow-[0_8px_0_rgba(122,97,65,0.18)]"
+            className="pointer-events-auto relative max-w-[280px] rounded-2xl border-2 border-[#b99b72] bg-[#fffaf0] p-4 shadow-[0_8px_0_rgba(122,97,65,0.18)]"
           >
             <p className="text-sm font-black leading-snug text-[#794f27]">
               {t("introTitle")}
@@ -72,9 +172,15 @@ export function AudioToggle() {
 
       <button
         type="button"
-        onClick={toggle}
-        aria-label={enabled ? t("muteLabel") : t("unmuteLabel")}
-        title={enabled ? t("muteLabel") : t("unmuteLabel")}
+        onClick={() => {
+          if (!introSeen) {
+            dismissIntro();
+            return;
+          }
+          setPanelOpen((v) => !v);
+        }}
+        aria-label={t("openPanel")}
+        title={t("openPanel")}
         className={`pointer-events-auto grid h-11 w-11 place-items-center rounded-full border-2 transition active:translate-y-[1px] ${
           enabled
             ? "border-[#19c8b9] bg-white text-[#00766d] shadow-[0_3px_0_rgba(25,200,185,0.45)]"

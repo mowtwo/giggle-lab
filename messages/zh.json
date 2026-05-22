@@ -1,11 +1,18 @@
 {
   "Audio": {
     "introTitle": "现在有音效啦",
-    "introBody": "货架上来了一段轻柔的背景音乐，还有页面里说话似的提示音和点击音。任何时候都可以用这只小喇叭关掉。",
+    "introBody": "背景音乐、按钮点击声、点文字会用动森风格念出来。点这只小喇叭就能调音量。",
     "turnOff": "静音",
     "gotIt": "好的",
     "muteLabel": "静音",
-    "unmuteLabel": "打开音效"
+    "unmuteLabel": "打开音效",
+    "openPanel": "音频设置",
+    "settingsTitle": "音量",
+    "on": "开",
+    "off": "关",
+    "musicLabel": "音乐",
+    "sfxLabel": "音效",
+    "voiceLabel": "朗读"
   },
   "Common": {
     "brandSubtitle": "纯前端小玩具货架",

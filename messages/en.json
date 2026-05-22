@@ -12,11 +12,18 @@
   },
   "Audio": {
     "introTitle": "Sound is on",
-    "introBody": "The shelf now has soft background music, page chatter, and gentle clicks. You can mute it any time with this speaker.",
+    "introBody": "Soft background music, click sounds, and Animal Crossing-style readouts when you tap text. Open this speaker to balance volumes.",
     "turnOff": "Mute",
     "gotIt": "Got it",
     "muteLabel": "Mute audio",
-    "unmuteLabel": "Turn audio on"
+    "unmuteLabel": "Turn audio on",
+    "openPanel": "Open audio settings",
+    "settingsTitle": "Audio mix",
+    "on": "On",
+    "off": "Off",
+    "musicLabel": "Music",
+    "sfxLabel": "Effects",
+    "voiceLabel": "Voice"
   },
   "Home": {
     "todayOpen": "Open today",

@@ -2,7 +2,7 @@
 
 import * as Tone from "tone";
 
-import type { AnimaleseOptions, SfxName } from "./state";
+import type { AnimaleseOptions, AudioBus, SfxName } from "./state";
 
 let initialized = false;
 let masterGain: Tone.Gain | null = null;
@@ -21,13 +21,24 @@ let bgmPlaying = false;
 let animaleseSynth: Tone.MonoSynth | null = null;
 const sfxPlayers = new Map<SfxName, () => void>();
 
+type PinyinModule = typeof import("pinyin-pro");
+let pinyinLoader: Promise<PinyinModule> | null = null;
+async function getPinyin(): Promise<PinyinModule> {
+  if (!pinyinLoader) {
+    pinyinLoader = import(
+      /* webpackChunkName: "pinyin" */ "pinyin-pro"
+    );
+  }
+  return pinyinLoader;
+}
+
 export async function unlock() {
   if (!initialized) {
     initialized = true;
     masterGain = new Tone.Gain(1).toDestination();
-    musicGain = new Tone.Gain(0.42).connect(masterGain);
-    voiceGain = new Tone.Gain(0.8).connect(masterGain);
-    sfxGain = new Tone.Gain(0.9).connect(masterGain);
+    musicGain = new Tone.Gain(0.55).connect(masterGain);
+    voiceGain = new Tone.Gain(0.7).connect(masterGain);
+    sfxGain = new Tone.Gain(0.7).connect(masterGain);
   }
   await Tone.start();
 }
@@ -36,6 +47,14 @@ export function setMasterMute(muted: boolean) {
   if (!masterGain) return;
   masterGain.gain.cancelScheduledValues(Tone.now());
   masterGain.gain.rampTo(muted ? 0 : 1, 0.18);
+}
+
+export function setVolume(bus: AudioBus, value: number) {
+  const target = bus === "music" ? musicGain : bus === "sfx" ? sfxGain : voiceGain;
+  if (!target) return;
+  const clamped = Math.max(0, Math.min(1, value));
+  target.gain.cancelScheduledValues(Tone.now());
+  target.gain.rampTo(clamped, 0.08);
 }
 
 function ensureBgmSetup() {
@@ -119,59 +138,94 @@ export function stopBgm() {
   if (Tone.Transport.state === "started") Tone.Transport.stop();
 }
 
-function getAnimaleseSynth() {
-  if (!animaleseSynth && voiceGain) {
-    animaleseSynth = new Tone.MonoSynth({
-      oscillator: { type: "square" },
-      filter: { Q: 3.6, type: "bandpass", frequency: 1100 },
-      envelope: { attack: 0.005, decay: 0.04, sustain: 0, release: 0.02 },
-      filterEnvelope: {
-        attack: 0.005,
-        decay: 0.04,
-        sustain: 0,
-        release: 0.04,
-        baseFrequency: 700,
-        octaves: 2,
-      },
-    }).connect(voiceGain);
-    animaleseSynth.volume.value = -10;
+function freshAnimaleseSynth() {
+  if (animaleseSynth) {
+    animaleseSynth.dispose();
+    animaleseSynth = null;
   }
+  if (!voiceGain) return null;
+  animaleseSynth = new Tone.MonoSynth({
+    oscillator: { type: "square" },
+    filter: { Q: 3.2, type: "bandpass", frequency: 1100 },
+    envelope: { attack: 0.005, decay: 0.045, sustain: 0, release: 0.025 },
+    filterEnvelope: {
+      attack: 0.005,
+      decay: 0.05,
+      sustain: 0,
+      release: 0.04,
+      baseFrequency: 700,
+      octaves: 2,
+    },
+  }).connect(voiceGain);
+  animaleseSynth.volume.value = -10;
   return animaleseSynth;
 }
 
-const PUNCT_RE = /[.,!?;:。，！？；：、…—–]/;
+const PUNCT_RE = /[.,!?;:。，！？；：、…—–·]/;
+const VOWEL_RE = /[aeiouäöü]/i;
 
-export function playAnimalese(text: string, options: AnimaleseOptions): number {
-  const synth = getAnimaleseSynth();
+async function expandPinyin(text: string): Promise<string> {
+  if (!/[一-鿿]/.test(text)) return text;
+  try {
+    const mod = await getPinyin();
+    return mod.pinyin(text, {
+      toneType: "none",
+      type: "string",
+      v: true,
+      nonZh: "consecutive",
+    });
+  } catch {
+    return text;
+  }
+}
+
+export async function playAnimalese(
+  text: string,
+  options: AnimaleseOptions,
+): Promise<number> {
+  const synth = freshAnimaleseSynth();
   if (!synth) return 0;
+  const source = await expandPinyin(text);
+
   const pitch = options.pitch ?? 1;
   const rate = options.rate ?? 1;
   const velocity = options.volume ?? 0.55;
-  const charSeconds = 0.078 / rate;
+  const baseCharSec = 0.082 / rate;
   let t = Tone.now() + 0.01;
   const start = t;
+  let prev = "";
 
-  for (const ch of text) {
-    if (/\s/.test(ch)) {
-      t += charSeconds * 1.4;
+  for (const raw of source) {
+    if (/\s/.test(raw)) {
+      t += baseCharSec * 1.6;
+      prev = "";
       continue;
     }
-    if (PUNCT_RE.test(ch)) {
-      synth.triggerAttackRelease(160 * pitch, charSeconds * 0.7, t, 0.4);
-      t += charSeconds * 2.2;
+    if (PUNCT_RE.test(raw)) {
+      synth.triggerAttackRelease(150 * pitch, baseCharSec * 0.7, t, 0.42);
+      t += baseCharSec * 2.4;
+      prev = "";
       continue;
     }
+    const ch = raw.toLowerCase();
+    if (!/[a-z0-9]/.test(ch)) {
+      t += baseCharSec * 0.35;
+      continue;
+    }
+    if (ch === prev) {
+      // animalese trick: skip a doubled letter, just extend the pause
+      t += baseCharSec * 0.55;
+      continue;
+    }
+    prev = ch;
     const code = ch.charCodeAt(0);
-    const isLatin = /[a-zA-Z]/.test(ch);
-    const isCJK = code >= 0x4e00 && code <= 0x9fff;
-    const isDigit = /[0-9]/.test(ch);
-    if (!isLatin && !isCJK && !isDigit) {
-      t += charSeconds * 0.3;
-      continue;
-    }
-    const freq = (220 + (code % 28) * 14) * pitch;
-    synth.triggerAttackRelease(freq, charSeconds * 0.7, t, velocity);
-    t += charSeconds;
+    const isVowel = VOWEL_RE.test(ch);
+    const jitter = (((code * 9301 + 49297) % 233280) / 233280 - 0.5) * 0.08;
+    const freq = (isVowel ? 230 : 320) * (pitch + jitter) + (code % 16) * 9;
+    const dur = isVowel ? baseCharSec * 0.78 : baseCharSec * 0.52;
+    const vel = velocity * (isVowel ? 1 : 0.78);
+    synth.triggerAttackRelease(freq, dur, t, vel);
+    t += isVowel ? baseCharSec * 0.95 : baseCharSec * 0.7;
   }
 
   return t - start;
@@ -226,11 +280,14 @@ function ensureSfxPlayers() {
   sfxPlayers.set("tap", () => {
     const synth = new Tone.Synth({
       oscillator: { type: "sine" },
-      envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.02 },
+      envelope: { attack: 0.001, decay: 0.06, sustain: 0, release: 0.03 },
     }).connect(out);
-    synth.volume.value = -12;
-    synth.triggerAttackRelease(820, 0.04);
-    window.setTimeout(() => synth.dispose(), 200);
+    synth.volume.value = -16;
+    const t = Tone.now();
+    synth.frequency.setValueAtTime(880, t);
+    synth.frequency.exponentialRampToValueAtTime(660, t + 0.05);
+    synth.triggerAttackRelease(0.05, t);
+    window.setTimeout(() => synth.dispose(), 250);
   });
 
   sfxPlayers.set("tier-up", () => {
