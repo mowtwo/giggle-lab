@@ -8,11 +8,12 @@ import {
   Footer,
   Icon,
   Modal,
-  Typewriter,
 } from "animal-island-ui";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
+import { AnimaleseText } from "@/components/animalese-text";
 import { LocaleSwitch } from "@/components/locale-switch";
 import { useAppNavigation } from "@/components/navigation-provider";
 import { detectDevice, type DeviceInfo } from "./device-detection";
@@ -23,6 +24,7 @@ const TYPEWRITER_SPEED_MS = 55;
 const MIN_CHECKING_MS = 3300;
 const SURPRISE_HOLD_MS = 1500;
 const TYPEWRITER_BUFFER_MS = 700;
+const TYPEWRITER_CPS = Math.round(1000 / TYPEWRITER_SPEED_MS); // 18
 
 function getReadingDuration(text: string) {
   return Math.max(
@@ -31,30 +33,87 @@ function getReadingDuration(text: string) {
   );
 }
 
-function getModalContent(
-  phase: Phase,
-  message: string,
-  surprise: string,
-): ReactNode {
-  const content: Record<Phase, ReactNode> = {
-    checking: (
-      <p className="text-xl font-black leading-9 text-[#725d42]">
-        {message}
-      </p>
-    ),
-    surprise: (
-      <p className="py-6 text-center text-7xl font-black leading-none text-[#fc736d]">
-        {surprise}
-      </p>
-    ),
-    result: (
-      <p className="text-2xl font-black leading-10 text-[#725d42]">
-        {message}
-      </p>
-    ),
-  };
+function CloseButton({
+  open,
+  onClose,
+  label,
+}: {
+  open: boolean;
+  onClose: () => void;
+  label: string;
+}) {
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
 
-  return content[phase];
+  useEffect(() => {
+    if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPos(null);
+      return;
+    }
+    let modalEl: Element | null = null;
+    let ro: ResizeObserver | null = null;
+    let frame = 0;
+
+    const update = () => {
+      if (!modalEl) return;
+      const r = modalEl.getBoundingClientRect();
+      setPos({ left: r.right - 14, top: r.top - 14 });
+    };
+
+    const tryFind = () => {
+      const candidates = document.querySelectorAll(
+        '[class*="animal-modal"]:not([class*="modalClipped"]):not([class*="animal-mask"])',
+      );
+      const el = candidates[0];
+      if (el && el !== modalEl) {
+        modalEl = el;
+        ro?.disconnect();
+        ro = new ResizeObserver(update);
+        ro.observe(el);
+        update();
+      }
+      if (!modalEl) {
+        frame = window.requestAnimationFrame(tryFind);
+      }
+    };
+    tryFind();
+
+    window.addEventListener("resize", update);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", update);
+      ro?.disconnect();
+    };
+  }, [open]);
+
+  if (!open || !pos || typeof document === "undefined") return null;
+  return createPortal(
+    <button
+      type="button"
+      data-no-animalese
+      aria-label={label}
+      title={label}
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        left: pos.left,
+        top: pos.top,
+        zIndex: 1100,
+      }}
+      className="grid h-9 w-9 place-items-center rounded-full border-2 border-[#b99b72] bg-white text-[#7a6141] shadow-[0_3px_0_rgba(122,97,65,0.2)] transition active:translate-y-[1px] hover:border-[#794f27]"
+    >
+      <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+        <path
+          d="M6 6 L18 18 M18 6 L6 18"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
+    </button>,
+    document.body,
+  );
 }
 
 export function PowerOnDetector() {
@@ -66,11 +125,9 @@ export function PowerOnDetector() {
   const [phase, setPhase] = useState<Phase>("checking");
   const [device, setDevice] = useState<DeviceInfo | null>(null);
   const deviceName = tDevices(device?.key ?? "device");
-  const modalMessage =
-    phase === "result"
-      ? tPowerOn("result", { device: deviceName })
-      : tPowerOn("checking", { device: deviceName });
   const checkingMessage = tPowerOn("checking", { device: deviceName });
+  const resultMessage = tPowerOn("result", { device: deviceName });
+  const surpriseMessage = tPowerOn("surprise");
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -88,14 +145,12 @@ export function PowerOnDetector() {
     }
 
     const checkingDuration = getReadingDuration(checkingMessage);
-    const surpriseTimer = window.setTimeout(
-      () => setPhase("surprise"),
-      checkingDuration,
-    );
-    const resultTimer = window.setTimeout(
-      () => setPhase("result"),
-      checkingDuration + SURPRISE_HOLD_MS,
-    );
+    const surpriseTimer = window.setTimeout(() => {
+      setPhase((prev) => (prev === "checking" ? "surprise" : prev));
+    }, checkingDuration);
+    const resultTimer = window.setTimeout(() => {
+      setPhase((prev) => (prev === "surprise" ? "result" : prev));
+    }, checkingDuration + SURPRISE_HOLD_MS);
 
     return () => {
       window.clearTimeout(surpriseTimer);
@@ -107,6 +162,16 @@ export function PowerOnDetector() {
     setPhase("checking");
     setOpen(true);
   }
+
+  const advance = useCallback(() => {
+    setPhase((prev) => {
+      if (prev === "checking") return "surprise";
+      if (prev === "surprise") return "result";
+      // Already on result — close on click
+      setOpen(false);
+      return prev;
+    });
+  }, []);
 
   return (
     <Cursor>
@@ -148,20 +213,62 @@ export function PowerOnDetector() {
 
         <Footer type="tree" />
 
+        <CloseButton
+          open={open}
+          onClose={() => setOpen(false)}
+          label={tCommon("close")}
+        />
+
         <Modal
           open={open}
           title={tPowerOn("modalTitle", { device: deviceName })}
           width="min(520px, calc(100vw - 32px))"
           footer={null}
           typewriter={false}
+          maskClosable={false}
           onClose={() => setOpen(false)}
         >
-          <Typewriter
-            trigger={phase}
-            speed={phase === "surprise" ? 120 : TYPEWRITER_SPEED_MS}
+          <div
+            data-no-animalese
+            onClick={advance}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                advance();
+              }
+            }}
+            className="-m-4 cursor-pointer rounded-2xl p-4 transition active:translate-y-[1px]"
           >
-            {getModalContent(phase, modalMessage, tPowerOn("surprise"))}
-          </Typewriter>
+            {phase === "checking" ? (
+              <AnimaleseText
+                key="checking"
+                as="p"
+                text={checkingMessage}
+                cps={TYPEWRITER_CPS}
+                className="block text-xl font-black leading-9 text-[#725d42]"
+              />
+            ) : null}
+            {phase === "surprise" ? (
+              <AnimaleseText
+                key="surprise"
+                as="p"
+                text={surpriseMessage}
+                cps={8}
+                className="block py-6 text-center text-7xl font-black leading-none text-[#fc736d]"
+              />
+            ) : null}
+            {phase === "result" ? (
+              <AnimaleseText
+                key="result"
+                as="p"
+                text={resultMessage}
+                cps={TYPEWRITER_CPS}
+                className="block text-2xl font-black leading-10 text-[#725d42]"
+              />
+            ) : null}
+          </div>
         </Modal>
       </main>
     </Cursor>
