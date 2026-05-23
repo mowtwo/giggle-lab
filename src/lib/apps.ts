@@ -56,4 +56,13 @@ export const miniApps: MiniApp[] = [
     icon: "icon-diy",
     href: "/island-juice-sort",
   },
+  {
+    titleKey: "gifEditor.title",
+    slug: "gif-editor",
+    summaryKey: "gifEditor.summary",
+    status: "ready",
+    color: "app-orange",
+    icon: "icon-camera",
+    href: "/gif-editor",
+  },
 ];

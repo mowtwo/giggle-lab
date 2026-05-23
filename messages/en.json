@@ -62,6 +62,10 @@
     "islandJuiceSort": {
       "title": "Island Juice Sort",
       "summary": "Sort layered fruit juice back into matching glass bottles with random, verified-solvable puzzles."
+    },
+    "gifEditor": {
+      "title": "GIF Editor",
+      "summary": "Import a GIF or WebM, key out the background with the eyedropper, trim, and export back to GIF or WebM."
     }
   },
   "HeartCard": {
@@ -371,5 +375,46 @@
     "appleDevice": "Apple device",
     "computer": "computer",
     "device": "device"
+  },
+  "GifEditor": {
+    "metadataTitle": "GIF Editor - Giggle Lab",
+    "metadataDescription": "Browser-only GIF and WebM editor with chroma-key background removal and re-export.",
+    "tag": "GIF & WebM",
+    "title": "GIF Editor",
+    "description": "Drop a GIF or WebM, pick the background colour with the eyedropper, then export back to GIF (transparent) or WebM.",
+    "featureImport": "Import .gif or .webm",
+    "featureChroma": "Chroma-key background removal with tolerance and feather",
+    "featureTrim": "Trim by start and end frame",
+    "featureExport": "Re-export as GIF (transparent supported) or WebM",
+    "hint": "Everything runs in your browser. Large clips may take a moment on slower devices.",
+    "clipStats": "Clip",
+    "statSize": "Size",
+    "statFrames": "Frames",
+    "statDuration": "Duration",
+    "statSource": "Source",
+    "uploadTitle": "Drop a GIF or WebM here",
+    "uploadHint": "or pick one from disk. Up to 240 frames are sampled from a WebM.",
+    "pickFile": "Pick file",
+    "decoding": "Decoding…",
+    "frameStatus": "{current} / {total}",
+    "play": "Play",
+    "pause": "Pause",
+    "clear": "Replace clip",
+    "chromaTitle": "Background removal",
+    "chromaColor": "Background colour",
+    "chromaEyedropper": "Eyedropper",
+    "chromaEyedropperActive": "Click on the preview…",
+    "chromaTolerance": "Tolerance",
+    "chromaFeather": "Feather",
+    "showOriginal": "Show original (no key)",
+    "trimTitle": "Trim",
+    "trimStart": "Start frame",
+    "trimEnd": "End frame",
+    "trimSummary": "{count} frames will be exported.",
+    "transparentGif": "Transparent GIF output",
+    "exportGif": "Export GIF",
+    "exportWebm": "Export WebM",
+    "exporting": "Exporting…",
+    "readyDownload": "Download is ready"
   }
 }

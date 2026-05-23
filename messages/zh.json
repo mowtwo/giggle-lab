@@ -62,6 +62,10 @@
     "islandJuiceSort": {
       "title": "岛屿果汁整理",
       "summary": "把分层果汁倒回同色玻璃瓶，随机生成但保证能解的治愈小谜题。"
+    },
+    "gifEditor": {
+      "title": "GIF 编辑器",
+      "summary": "导入 GIF 或 WebM，用滴管抠掉背景色，裁剪后导回 GIF / WebM。"
     }
   },
   "HeartCard": {
@@ -371,5 +375,46 @@
     "appleDevice": "Apple 设备",
     "computer": "这台电脑",
     "device": "这台设备"
+  },
+  "GifEditor": {
+    "metadataTitle": "GIF 编辑器 - Giggle Lab",
+    "metadataDescription": "纯前端 GIF / WebM 编辑器，支持滴管抠背景色后再导出。",
+    "tag": "GIF & WebM",
+    "title": "GIF 编辑器",
+    "description": "拖入或选择 GIF / WebM，用滴管挑出背景色，再导出回 GIF（可透明）或 WebM。",
+    "featureImport": "导入 .gif 或 .webm",
+    "featureChroma": "滴管色抠背景，带容差和羽化",
+    "featureTrim": "按起止帧裁剪",
+    "featureExport": "重新导出 GIF（透明可选）或 WebM",
+    "hint": "全部在浏览器里跑，没有上传也没有服务器。大文件在低配设备上会慢一点。",
+    "clipStats": "片段信息",
+    "statSize": "尺寸",
+    "statFrames": "帧数",
+    "statDuration": "时长",
+    "statSource": "来源",
+    "uploadTitle": "把 GIF 或 WebM 拖到这里",
+    "uploadHint": "或者点按钮选一个。WebM 最多采样 240 帧。",
+    "pickFile": "选文件",
+    "decoding": "解析中…",
+    "frameStatus": "第 {current} / {total} 帧",
+    "play": "播放",
+    "pause": "暂停",
+    "clear": "换一个",
+    "chromaTitle": "背景抠除",
+    "chromaColor": "背景颜色",
+    "chromaEyedropper": "滴管取色",
+    "chromaEyedropperActive": "点预览取色…",
+    "chromaTolerance": "容差",
+    "chromaFeather": "羽化",
+    "showOriginal": "显示原图（不抠）",
+    "trimTitle": "裁剪",
+    "trimStart": "起始帧",
+    "trimEnd": "结束帧",
+    "trimSummary": "本次将导出 {count} 帧。",
+    "transparentGif": "GIF 透明背景",
+    "exportGif": "导出 GIF",
+    "exportWebm": "导出 WebM",
+    "exporting": "导出中…",
+    "readyDownload": "下载已就绪"
   }
 }
