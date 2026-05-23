@@ -327,7 +327,15 @@
         "rewardTitle": "Reward math",
         "rewardBody": "Base reward {base} pts per order; up to {fast} when shipped quickly. Tier-up bonus {tierBonus}. Expired order: −{penalty}.",
         "tierTitle": "Tier ladder",
-        "tierBody": "Every {every} fulfilled orders advances a tier: one more colour to juggle and a tighter patience timer."
+        "tierBody": "Every {every} fulfilled orders advances a tier: one more colour to juggle and a tighter patience timer.",
+        "toolsTitle": "Stall tools",
+        "toolsBody": "You start with two of each: skip-order, empty-bottle, and re-roll-bottle. Each tier-up restocks {gift} of every tool, up to a small reserve. ESC cancels a tool in progress.",
+        "skipTool": "Skip",
+        "clearTool": "Empty bottle",
+        "refreshTool": "Re-roll",
+        "skipPrompt": "Pick an order card to skip.",
+        "clearPrompt": "Pick a bottle to empty.",
+        "refreshPrompt": "Pick a bottle to re-roll its juice."
       },
       "conveyor": {
         "tag": "Arcade",

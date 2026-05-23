@@ -3,13 +3,17 @@
 import { Button, Card, Divider } from "animal-island-ui";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { AnimaleseText } from "@/components/animalese-text";
 import { playSfx } from "@/lib/audio/state";
 
 import { BoardCanvas, Confetti } from "./board-shared";
-import { type Bottle } from "./game-logic";
+import {
+  isBottleSorted,
+  solveBottles,
+  type Bottle,
+} from "./game-logic";
 import { JUICE_COLORS } from "./palette";
 import { useJuiceBoard } from "./use-board";
 
@@ -26,6 +30,12 @@ const BASE_REWARD = 20;
 const FAST_BONUS = 25;
 const EXPIRE_PENALTY = 5;
 const TIER_UP_BONUS = 30;
+const TIER_TOOL_GIFT = 1;
+const INITIAL_SKIPS = 2;
+const INITIAL_CLEARS = 2;
+const INITIAL_REFRESHES = 2;
+const MAX_TOOL_STOCK = 5;
+const SHIP_REFILL_DELAY_MS = 460;
 const BEST_KEY = "islandJuiceSort.orders.best";
 
 const TIER_CONFIGS: TierConfig[] = [
@@ -38,6 +48,8 @@ const TIER_CONFIGS: TierConfig[] = [
   { colors: 10, emptyBottles: 3, patienceMs: 36000 },
 ];
 
+type ToolKind = "skip" | "clear" | "refresh";
+
 type Order = {
   id: number;
   color: number;
@@ -49,7 +61,7 @@ function rand() {
   return Math.random();
 }
 
-function shuffleDeal(colorCount: number, emptyBottles: number): Bottle[] {
+function rawShuffleDeal(colorCount: number, emptyBottles: number): Bottle[] {
   const tokens: number[] = [];
   for (let c = 0; c < colorCount; c += 1) {
     for (let k = 0; k < CAPACITY; k += 1) tokens.push(c);
@@ -66,12 +78,44 @@ function shuffleDeal(colorCount: number, emptyBottles: number): Bottle[] {
   return bottles;
 }
 
-function mixedBottleFromPool(colorCount: number): Bottle {
-  const tokens: number[] = [];
-  for (let i = 0; i < CAPACITY; i += 1) {
-    tokens.push(Math.floor(rand() * colorCount));
+function solvableDeal(colorCount: number, emptyBottles: number): Bottle[] {
+  const budget = colorCount <= 5 ? 40000 : 30000;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const board = rawShuffleDeal(colorCount, emptyBottles);
+    const solution = solveBottles(board, CAPACITY, budget);
+    if (solution && solution.length > 0) return board;
   }
-  return tokens;
+  return rawShuffleDeal(colorCount, emptyBottles);
+}
+
+function isBoardWorkable(board: Bottle[]): boolean {
+  let emptySlots = 0;
+  const counts = new Map<number, number>();
+  for (const b of board) {
+    if (b.length === 0) emptySlots += 1;
+    for (const c of b) counts.set(c, (counts.get(c) ?? 0) + 1);
+  }
+  if (emptySlots === 0) return false;
+  for (const v of counts.values()) if (v >= CAPACITY) return true;
+  return false;
+}
+
+function safeReplacement(
+  board: Bottle[],
+  slot: number,
+  colorCount: number,
+): Bottle {
+  const baseBoard = board.map((b, i) => (i === slot ? [] : [...b]));
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const tokens: number[] = [];
+    for (let k = 0; k < CAPACITY; k += 1) {
+      tokens.push(Math.floor(rand() * colorCount));
+    }
+    const trial = baseBoard.map((b) => [...b]);
+    trial[slot] = tokens;
+    if (isBoardWorkable(trial)) return tokens;
+  }
+  return [];
 }
 
 let ORDER_ID = 1;
@@ -82,6 +126,13 @@ function makeOrder(colorCount: number, patienceMs: number): Order {
     patienceMs,
     spawnedAt: Date.now(),
   };
+}
+
+function findCompleteBottleByColor(board: Bottle[], color: number): number {
+  for (let i = 0; i < board.length; i += 1) {
+    if (isBottleSorted(board[i], CAPACITY) && board[i][0] === color) return i;
+  }
+  return -1;
 }
 
 function bumpStoredBest(score: number) {
@@ -112,88 +163,137 @@ export function OrdersMode() {
   const [shipping, setShipping] = useState<Set<number>>(new Set());
   const [now, setNow] = useState(() => Date.now());
   const [tierUpFlash, setTierUpFlash] = useState(0);
+  const [tools, setTools] = useState<Record<ToolKind, number>>({
+    skip: INITIAL_SKIPS,
+    clear: INITIAL_CLEARS,
+    refresh: INITIAL_REFRESHES,
+  });
+  const [toolMode, setToolMode] = useState<ToolKind | null>(null);
+
+  const tierIndexRef = useRef(tierIndex);
+  useEffect(() => {
+    tierIndexRef.current = tierIndex;
+  });
 
   const initialBottles = useMemo(
-    () => shuffleDeal(TIER_CONFIGS[0].colors, TIER_CONFIGS[0].emptyBottles),
+    () =>
+      solvableDeal(TIER_CONFIGS[0].colors, TIER_CONFIGS[0].emptyBottles),
     [],
   );
 
   const board = useJuiceBoard(initialBottles, CAPACITY);
-  const { setOnPourCommit, replaceBoard, setBottleAt } = board;
+  const { replaceBoard, setBottleAt, bottles } = board;
 
-  // Register pour-commit callback every render to keep closures fresh
-  useEffect(() => {
-    setOnPourCommit((info) => {
-      if (!info.targetCompletedNow) return;
-      const completedColor = info.after[info.move.to][0];
-      const slotIndex = info.move.to;
+  // Reward calc based on patience remaining at fulfillment time.
+  const rewardForOrder = useCallback((order: Order, elapsedMs: number) => {
+    const ratio = Math.max(0, 1 - elapsedMs / order.patienceMs);
+    return BASE_REWARD + Math.round(FAST_BONUS * ratio);
+  }, []);
 
-      setOrders((currentOrders) => {
-        const matchIdx = currentOrders.findIndex(
-          (o) => o.color === completedColor,
+  // One unified fulfillment path. Handles ALL ways an order gets shipped:
+  // player completes a bottle whose colour matches an active order, OR a new
+  // order spawns (from expiry / skip / refresh) that matches a bottle that
+  // was already sitting complete on the board.
+  const fulfillOrder = useCallback(
+    (order: Order, slot: number, snapshotBoard: Bottle[]) => {
+      const elapsed = Date.now() - order.spawnedAt;
+      const reward = rewardForOrder(order, elapsed);
+
+      setScore((s) => {
+        const nextScore = s + reward;
+        setBest((b) => bumpStoredBest(Math.max(b, nextScore)));
+        return nextScore;
+      });
+
+      setShipping((prev) => new Set(prev).add(slot));
+
+      setOrders((prev) => {
+        const without = prev.filter((o) => o.id !== order.id);
+        const tier =
+          TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
+        while (without.length < ORDER_SLOTS) {
+          without.push(makeOrder(tier.colors, tier.patienceMs));
+        }
+        return without;
+      });
+
+      setOrdersFulfilled((n) => {
+        const next = n + 1;
+        const targetTier = Math.min(
+          Math.floor(next / ORDERS_PER_TIER),
+          TIER_CONFIGS.length - 1,
         );
-        if (matchIdx < 0) return currentOrders;
-        const matchedOrder = currentOrders[matchIdx];
-        const elapsed = Date.now() - matchedOrder.spawnedAt;
-        const ratio = Math.max(0, 1 - elapsed / matchedOrder.patienceMs);
-        const reward = BASE_REWARD + Math.round(FAST_BONUS * ratio);
-
-        setScore((s) => {
-          const next = s + reward;
-          setBest((b) => bumpStoredBest(Math.max(b, next)));
-          return next;
+        setTierIndex((cur) => {
+          if (targetTier > cur) {
+            const nt = TIER_CONFIGS[targetTier];
+            setScore((s) => {
+              const v = s + TIER_UP_BONUS;
+              setBest((b) => bumpStoredBest(Math.max(b, v)));
+              return v;
+            });
+            setTierUpFlash((f) => f + 1);
+            setTools((prevTools) => ({
+              skip: Math.min(MAX_TOOL_STOCK, prevTools.skip + TIER_TOOL_GIFT),
+              clear: Math.min(
+                MAX_TOOL_STOCK,
+                prevTools.clear + TIER_TOOL_GIFT,
+              ),
+              refresh: Math.min(
+                MAX_TOOL_STOCK,
+                prevTools.refresh + TIER_TOOL_GIFT,
+              ),
+            }));
+            void playSfx("tier-up");
+            replaceBoard(solvableDeal(nt.colors, nt.emptyBottles));
+            setOrders((prevOrders) =>
+              prevOrders.map((o) => ({
+                ...o,
+                spawnedAt: Date.now(),
+                patienceMs: nt.patienceMs,
+              })),
+            );
+            return targetTier;
+          }
+          return cur;
         });
-
-        setShipping((prev) => new Set(prev).add(slotIndex));
-
-        setOrdersFulfilled((n) => {
-          const next = n + 1;
-          const targetTier = Math.min(
-            Math.floor(next / ORDERS_PER_TIER),
-            TIER_CONFIGS.length - 1,
-          );
-          setTierIndex((currentTier) => {
-            if (targetTier > currentTier) {
-              const nt = TIER_CONFIGS[targetTier];
-              setScore((s) => {
-                const v = s + TIER_UP_BONUS;
-                setBest((b) => bumpStoredBest(Math.max(b, v)));
-                return v;
-              });
-              setTierUpFlash((f) => f + 1);
-              void playSfx("tier-up");
-              replaceBoard(shuffleDeal(nt.colors, nt.emptyBottles));
-              setOrders((prevOrders) =>
-                prevOrders.map((o) => ({
-                  ...o,
-                  spawnedAt: Date.now(),
-                  patienceMs: nt.patienceMs,
-                })),
-              );
-              return targetTier;
-            }
-            return currentTier;
-          });
-          return next;
-        });
-
-        const activeTier =
-          TIER_CONFIGS[Math.min(tierIndex, TIER_CONFIGS.length - 1)];
-        window.setTimeout(() => {
-          setShipping((prev) => {
-            const next = new Set(prev);
-            next.delete(slotIndex);
-            return next;
-          });
-          setBottleAt(slotIndex, mixedBottleFromPool(activeTier.colors));
-        }, 460);
-
-        const next = currentOrders.filter((o) => o.id !== matchedOrder.id);
-        next.push(makeOrder(activeTier.colors, activeTier.patienceMs));
         return next;
       });
-    });
-  });
+
+      window.setTimeout(() => {
+        setShipping((prev) => {
+          const nextSet = new Set(prev);
+          nextSet.delete(slot);
+          return nextSet;
+        });
+        const tier =
+          TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
+        const projected = snapshotBoard.map((b, i) =>
+          i === slot ? [] : [...b],
+        );
+        setBottleAt(
+          slot,
+          safeReplacement(projected, slot, tier.colors),
+        );
+      }, SHIP_REFILL_DELAY_MS);
+    },
+    [rewardForOrder, setBottleAt, replaceBoard],
+  );
+
+  // Single matching effect — replaces all the scattered cascade checks.
+  // Runs whenever orders or bottles change. Picks the first
+  // (order, complete-bottle-of-matching-color) pair where the bottle isn't
+  // already being shipped, and fulfills it. Re-renders trigger another pass
+  // for cascades.
+  useEffect(() => {
+    for (const order of orders) {
+      const slot = findCompleteBottleByColor(bottles, order.color);
+      if (slot < 0) continue;
+      if (shipping.has(slot)) continue;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fulfillOrder(order, slot, bottles);
+      return;
+    }
+  }, [orders, bottles, shipping, fulfillOrder]);
 
   // Persisted best score: read once on mount
   useEffect(() => {
@@ -213,14 +313,11 @@ export function OrdersMode() {
           .map((o) => o.id);
         if (expiredIds.length === 0) return prev;
         const surviving = prev.filter((o) => !expiredIds.includes(o.id));
-        setTierIndex((currentTier) => {
-          const cfg =
-            TIER_CONFIGS[Math.min(currentTier, TIER_CONFIGS.length - 1)];
-          while (surviving.length < ORDER_SLOTS) {
-            surviving.push(makeOrder(cfg.colors, cfg.patienceMs));
-          }
-          return currentTier;
-        });
+        const cfg =
+          TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
+        while (surviving.length < ORDER_SLOTS) {
+          surviving.push(makeOrder(cfg.colors, cfg.patienceMs));
+        }
         setOrdersExpired((n) => n + expiredIds.length);
         setScore((s) => Math.max(0, s - EXPIRE_PENALTY * expiredIds.length));
         return surviving;
@@ -235,14 +332,122 @@ export function OrdersMode() {
     setOrdersExpired(0);
     setScore(0);
     setShipping(new Set());
+    setTools({
+      skip: INITIAL_SKIPS,
+      clear: INITIAL_CLEARS,
+      refresh: INITIAL_REFRESHES,
+    });
+    setToolMode(null);
     const first = TIER_CONFIGS[0];
     setOrders(
       Array.from({ length: ORDER_SLOTS }, () =>
         makeOrder(first.colors, first.patienceMs),
       ),
     );
-    replaceBoard(shuffleDeal(first.colors, first.emptyBottles));
+    replaceBoard(solvableDeal(first.colors, first.emptyBottles));
   }, [replaceBoard]);
+
+  const applySkipOnOrder = useCallback(
+    (orderId: number) => {
+      const tier =
+        TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
+      setOrders((prev) => {
+        const without = prev.filter((o) => o.id !== orderId);
+        while (without.length < ORDER_SLOTS) {
+          without.push(makeOrder(tier.colors, tier.patienceMs));
+        }
+        return without;
+      });
+      setTools((prev) => ({ ...prev, skip: Math.max(0, prev.skip - 1) }));
+      setToolMode(null);
+    },
+    [],
+  );
+
+  const applyClearOnBottle = useCallback(
+    (slotIndex: number) => {
+      if (bottles[slotIndex].length === 0) {
+        setToolMode(null);
+        return;
+      }
+      setBottleAt(slotIndex, []);
+      setTools((prev) => ({ ...prev, clear: Math.max(0, prev.clear - 1) }));
+      setToolMode(null);
+      void playSfx("tap");
+    },
+    [bottles, setBottleAt],
+  );
+
+  const applyRefreshOnBottle = useCallback(
+    (slotIndex: number) => {
+      if (bottles[slotIndex].length === 0) {
+        setToolMode(null);
+        return;
+      }
+      const tier =
+        TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
+      // Re-roll the bottle's contents until the resulting board is workable.
+      // Length stays the same so the player keeps the breathing room they had.
+      const length = bottles[slotIndex].length;
+      let chosen: number[] = [];
+      for (let attempt = 0; attempt < 30; attempt += 1) {
+        const tokens: number[] = [];
+        for (let k = 0; k < length; k += 1) {
+          tokens.push(Math.floor(Math.random() * tier.colors));
+        }
+        const trial = bottles.map((b, i) => (i === slotIndex ? tokens : [...b]));
+        if (isBoardWorkable(trial)) {
+          chosen = tokens;
+          break;
+        }
+        chosen = tokens;
+      }
+      setBottleAt(slotIndex, chosen);
+      setTools((prev) => ({
+        ...prev,
+        refresh: Math.max(0, prev.refresh - 1),
+      }));
+      setToolMode(null);
+      void playSfx("pour");
+    },
+    [bottles, setBottleAt],
+  );
+
+  const handleBottleClick = useCallback(
+    (i: number) => {
+      if (toolMode === "clear") {
+        applyClearOnBottle(i);
+        return;
+      }
+      if (toolMode === "refresh") {
+        applyRefreshOnBottle(i);
+        return;
+      }
+      if (toolMode === "skip") {
+        setToolMode(null);
+        return;
+      }
+      board.handleBottleClick(i);
+    },
+    [board, toolMode, applyClearOnBottle, applyRefreshOnBottle],
+  );
+
+  const activateTool = useCallback(
+    (kind: ToolKind) => {
+      if (tools[kind] <= 0) return;
+      setToolMode((prev) => (prev === kind ? null : kind));
+    },
+    [tools],
+  );
+
+  useEffect(() => {
+    if (!toolMode) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setToolMode(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toolMode]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
@@ -320,7 +525,48 @@ export function OrdersMode() {
                 ) : null}
               </AnimatePresence>
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <ToolButton
+                kind="skip"
+                count={tools.skip}
+                active={toolMode === "skip"}
+                onClick={() => activateTool("skip")}
+                label={t("mode.orders.skipTool")}
+              />
+              <ToolButton
+                kind="clear"
+                count={tools.clear}
+                active={toolMode === "clear"}
+                onClick={() => activateTool("clear")}
+                label={t("mode.orders.clearTool")}
+              />
+              <ToolButton
+                kind="refresh"
+                count={tools.refresh}
+                active={toolMode === "refresh"}
+                onClick={() => activateTool("refresh")}
+                label={t("mode.orders.refreshTool")}
+              />
+            </div>
           </div>
+
+          <AnimatePresence>
+            {toolMode ? (
+              <motion.div
+                key={toolMode}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                className="mb-3 rounded-xl border-2 border-dashed border-[#ec4899] bg-[#fdf2f8] p-2 text-center text-xs font-black text-[#a3206a]"
+              >
+                {toolMode === "skip"
+                  ? t("mode.orders.skipPrompt")
+                  : toolMode === "clear"
+                    ? t("mode.orders.clearPrompt")
+                    : t("mode.orders.refreshPrompt")}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
 
           <div className="mb-4 grid gap-2 sm:grid-cols-3">
             {orders.map((o, i) => {
@@ -329,6 +575,7 @@ export function OrdersMode() {
               const pct = Math.max(0, Math.min(1, remaining / o.patienceMs));
               const color = JUICE_COLORS[o.color];
               const isUrgent = pct < 0.3;
+              const isTarget = toolMode === "skip";
               return (
                 <motion.div
                   key={o.id}
@@ -337,8 +584,15 @@ export function OrdersMode() {
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0.4, opacity: 0, y: -12 }}
                   transition={{ type: "spring", stiffness: 320, damping: 22 }}
-                  className={`relative overflow-hidden rounded-xl border-2 bg-white/85 p-3 ${
-                    isUrgent ? "border-[#ef233c]" : "border-[#e3d6b8]"
+                  onClick={isTarget ? () => applySkipOnOrder(o.id) : undefined}
+                  role={isTarget ? "button" : undefined}
+                  tabIndex={isTarget ? 0 : undefined}
+                  className={`relative overflow-hidden rounded-xl border-2 bg-white/85 p-3 transition ${
+                    isTarget
+                      ? "cursor-pointer border-[#ec4899] ring-2 ring-[#ec4899]/40 hover:bg-[#fdf2f8] active:translate-y-[1px]"
+                      : isUrgent
+                        ? "border-[#ef233c]"
+                        : "border-[#e3d6b8]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -371,15 +625,23 @@ export function OrdersMode() {
             })}
           </div>
 
-          <BoardCanvas
-            bottles={board.bottles}
-            capacity={CAPACITY}
-            selected={board.selected}
-            pour={board.pour}
-            shipping={shipping}
-            setBottleRef={board.setBottleRef}
-            onBottleClick={board.handleBottleClick}
-          />
+          <div
+            className={
+              toolMode === "clear" || toolMode === "refresh"
+                ? "rounded-2xl ring-2 ring-[#ec4899]/40"
+                : undefined
+            }
+          >
+            <BoardCanvas
+              bottles={board.bottles}
+              capacity={CAPACITY}
+              selected={board.selected}
+              pour={board.pour}
+              shipping={shipping}
+              setBottleRef={board.setBottleRef}
+              onBottleClick={handleBottleClick}
+            />
+          </div>
           {tierUpFlash > 0 ? (
             <Confetti
               key={tierUpFlash}
@@ -405,14 +667,56 @@ export function OrdersMode() {
           </Card>
           <Card className="p-4">
             <p className="text-sm font-black text-[#a3206a]">
-              {t("mode.orders.tierTitle")}
+              {t("mode.orders.toolsTitle")}
             </p>
             <p className="mt-2 text-sm font-bold leading-6 text-[#725d42]">
-              {t("mode.orders.tierBody", { every: ORDERS_PER_TIER })}
+              {t("mode.orders.toolsBody", {
+                skip: INITIAL_SKIPS,
+                clear: INITIAL_CLEARS,
+                gift: TIER_TOOL_GIFT,
+              })}
             </p>
           </Card>
         </div>
       </div>
     </div>
+  );
+}
+
+function ToolButton({
+  count,
+  active,
+  onClick,
+  label,
+}: {
+  kind: ToolKind;
+  count: number;
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  const disabled = count <= 0;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`relative inline-flex h-11 items-center gap-2 rounded-lg border-2 px-3 text-xs font-black transition active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-45 ${
+        active
+          ? "border-[#ec4899] bg-[#fdf2f8] text-[#a3206a] shadow-[0_2px_0_rgba(236,72,153,0.4)]"
+          : "border-[#d4c9b4] bg-white/90 text-[#7a6141] hover:border-[#ec4899]/60"
+      }`}
+    >
+      {label}
+      <span
+        className={`grid h-6 min-w-[24px] place-items-center rounded-full px-1 text-[10px] font-black ${
+          disabled
+            ? "bg-[#eadfca] text-[#a89679]"
+            : "bg-[#ec4899] text-white"
+        }`}
+      >
+        {count}
+      </span>
+    </button>
   );
 }

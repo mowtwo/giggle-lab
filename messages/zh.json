@@ -327,7 +327,15 @@
         "rewardTitle": "得分规则",
         "rewardBody": "基础 {base} 分/单；尽早出货最高 {fast} 分。升档奖励 {tierBonus} 分。超时撤单 −{penalty} 分。",
         "tierTitle": "档位阶梯",
-        "tierBody": "每完成 {every} 单升一档：颜色 +1，耐心条同步收紧。"
+        "tierBody": "每完成 {every} 单升一档：颜色 +1，耐心条同步收紧。",
+        "toolsTitle": "档口道具",
+        "toolsBody": "开局每种道具各发 2 张：「弃单」「清瓶」「换瓶」。每次升档各补 {gift} 张，有上限。按 ESC 取消当前道具。",
+        "skipTool": "弃单",
+        "clearTool": "清瓶",
+        "refreshTool": "换瓶",
+        "skipPrompt": "点一张订单卡片把它退回。",
+        "clearPrompt": "点一只瓶子把里面的果汁倒掉。",
+        "refreshPrompt": "点一只非空瓶把里面的颜色重新洗一遍。"
       },
       "conveyor": {
         "tag": "街机",
