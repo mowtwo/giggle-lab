@@ -21,10 +21,10 @@ type TierConfig = {
   colors: number;
   emptyBottles: number;
   patienceMs: number;
+  slots: number;
 };
 
 const CAPACITY = 4;
-const ORDER_SLOTS = 3;
 const ORDERS_PER_TIER = 5;
 const BASE_REWARD = 20;
 const FAST_BONUS = 25;
@@ -39,13 +39,13 @@ const SHIP_REFILL_DELAY_MS = 460;
 const BEST_KEY = "islandJuiceSort.orders.best";
 
 const TIER_CONFIGS: TierConfig[] = [
-  { colors: 4, emptyBottles: 2, patienceMs: 60000 },
-  { colors: 5, emptyBottles: 2, patienceMs: 56000 },
-  { colors: 6, emptyBottles: 2, patienceMs: 52000 },
-  { colors: 7, emptyBottles: 2, patienceMs: 48000 },
-  { colors: 8, emptyBottles: 2, patienceMs: 44000 },
-  { colors: 9, emptyBottles: 3, patienceMs: 40000 },
-  { colors: 10, emptyBottles: 3, patienceMs: 36000 },
+  { colors: 4, emptyBottles: 2, patienceMs: 60000, slots: 3 },
+  { colors: 5, emptyBottles: 2, patienceMs: 56000, slots: 3 },
+  { colors: 6, emptyBottles: 2, patienceMs: 52000, slots: 4 },
+  { colors: 7, emptyBottles: 2, patienceMs: 48000, slots: 4 },
+  { colors: 8, emptyBottles: 2, patienceMs: 44000, slots: 5 },
+  { colors: 9, emptyBottles: 3, patienceMs: 40000, slots: 5 },
+  { colors: 10, emptyBottles: 3, patienceMs: 36000, slots: 6 },
 ];
 
 type ToolKind = "skip" | "clear" | "refresh";
@@ -119,13 +119,83 @@ function safeReplacement(
 }
 
 let ORDER_ID = 1;
-function makeOrder(colorCount: number, patienceMs: number): Order {
+
+function tokensPerColor(board: Bottle[]): Map<number, number> {
+  const counts = new Map<number, number>();
+  for (const b of board) {
+    for (const c of b) counts.set(c, (counts.get(c) ?? 0) + 1);
+  }
+  return counts;
+}
+
+// Pick an order colour. Strict: only colours that have at least one
+// completable bottle's worth of tokens on the board are candidates. Inside
+// that candidate set, colours already in the active queue are heavily
+// down-weighted so we don't spawn three orange in a row.
+function pickOrderColor(
+  colorCount: number,
+  queueColors: number[],
+  board: Bottle[],
+): number {
+  const inQueue = new Set(queueColors);
+  const tokens = tokensPerColor(board);
+  const candidates: number[] = [];
+  for (let c = 0; c < colorCount; c += 1) {
+    if ((tokens.get(c) ?? 0) >= CAPACITY) candidates.push(c);
+  }
+  // Board has no completable colour at all — return a sentinel so the caller
+  // can trigger a rescue instead of silently locking the player in.
+  if (candidates.length === 0) return -1;
+  const weights = candidates.map((c) => (inQueue.has(c) ? 0.08 : 1));
+  const total = weights.reduce((a, b) => a + b, 0);
+  let r = rand() * total;
+  for (let i = 0; i < candidates.length; i += 1) {
+    r -= weights[i];
+    if (r <= 0) return candidates[i];
+  }
+  return candidates[candidates.length - 1];
+}
+
+function makeOrder(
+  color: number,
+  patienceMs: number,
+): Order {
   return {
     id: ORDER_ID++,
-    color: Math.floor(rand() * colorCount),
+    color,
     patienceMs,
     spawnedAt: Date.now(),
   };
+}
+
+function spawnOrder(
+  colorCount: number,
+  patienceMs: number,
+  queue: Order[],
+  board: Bottle[],
+): Order | null {
+  const color = pickOrderColor(
+    colorCount,
+    queue.map((o) => o.color),
+    board,
+  );
+  if (color < 0) return null;
+  return makeOrder(color, patienceMs);
+}
+
+function fillQueue(
+  queue: Order[],
+  slotsTarget: number,
+  tier: TierConfig,
+  board: Bottle[],
+): Order[] {
+  const next = [...queue];
+  for (let guard = 0; guard < slotsTarget * 4 && next.length < slotsTarget; guard += 1) {
+    const fresh = spawnOrder(tier.colors, tier.patienceMs, next, board);
+    if (!fresh) break; // board has no completable colour; rescue effect handles it
+    next.push(fresh);
+  }
+  return next;
 }
 
 function findCompleteBottleByColor(board: Bottle[], color: number): number {
@@ -156,9 +226,13 @@ export function OrdersMode() {
   const [best, setBest] = useState(0);
   const [orders, setOrders] = useState<Order[]>(() => {
     const first = TIER_CONFIGS[0];
-    return Array.from({ length: ORDER_SLOTS }, () =>
-      makeOrder(first.colors, first.patienceMs),
-    );
+    // Initial board is fully populated by definition, so all colours have
+    // CAPACITY tokens — pickOrderColor will happily pick distinct ones.
+    const seedBoard: Bottle[] = [];
+    for (let c = 0; c < first.colors; c += 1) {
+      seedBoard.push(new Array(CAPACITY).fill(c));
+    }
+    return fillQueue([], first.slots, first, seedBoard);
   });
   const [shipping, setShipping] = useState<Set<number>>(new Set());
   const [now, setNow] = useState(() => Date.now());
@@ -174,6 +248,7 @@ export function OrdersMode() {
   useEffect(() => {
     tierIndexRef.current = tierIndex;
   });
+  const bottlesRef = useRef<Bottle[]>([]);
 
   const initialBottles = useMemo(
     () =>
@@ -183,6 +258,9 @@ export function OrdersMode() {
 
   const board = useJuiceBoard(initialBottles, CAPACITY);
   const { replaceBoard, setBottleAt, bottles } = board;
+  useEffect(() => {
+    bottlesRef.current = bottles;
+  });
 
   // Reward calc based on patience remaining at fulfillment time.
   const rewardForOrder = useCallback((order: Order, elapsedMs: number) => {
@@ -211,10 +289,12 @@ export function OrdersMode() {
         const without = prev.filter((o) => o.id !== order.id);
         const tier =
           TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
-        while (without.length < ORDER_SLOTS) {
-          without.push(makeOrder(tier.colors, tier.patienceMs));
-        }
-        return without;
+        // Use snapshotBoard with the shipped slot already cleared; that's the
+        // state the player will actually face right after shipping.
+        const projected = snapshotBoard.map((b, i) =>
+          i === slot ? [] : [...b],
+        );
+        return fillQueue(without, tier.slots, tier, projected);
       });
 
       setOrdersFulfilled((n) => {
@@ -244,14 +324,18 @@ export function OrdersMode() {
               ),
             }));
             void playSfx("tier-up");
-            replaceBoard(solvableDeal(nt.colors, nt.emptyBottles));
-            setOrders((prevOrders) =>
-              prevOrders.map((o) => ({
+            const freshBoard = solvableDeal(nt.colors, nt.emptyBottles);
+            replaceBoard(freshBoard);
+            setOrders((prevOrders) => {
+              // Reset timers on carry-over orders, then top up to the new
+              // tier's slot count using the fresh board for weighting.
+              const refreshed = prevOrders.map((o) => ({
                 ...o,
                 spawnedAt: Date.now(),
                 patienceMs: nt.patienceMs,
-              })),
-            );
+              }));
+              return fillQueue(refreshed, nt.slots, nt, freshBoard);
+            });
             return targetTier;
           }
           return cur;
@@ -302,6 +386,31 @@ export function OrdersMode() {
     if (stored) setBest(Number.parseInt(stored, 10) || 0);
   }, []);
 
+  // Board-stuck rescue: if NO colour on the board has CAPACITY tokens (so
+  // no bottle can ever be completed) AND nothing is currently being shipped,
+  // re-deal a fresh tier-appropriate board. Cooldown prevents thrashing.
+  const lastRescueRef = useRef(0);
+  useEffect(() => {
+    if (shipping.size > 0) return;
+    const tier =
+      TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
+    const tokens = tokensPerColor(bottles);
+    let anyCompletable = false;
+    for (let c = 0; c < tier.colors; c += 1) {
+      if ((tokens.get(c) ?? 0) >= CAPACITY) {
+        anyCompletable = true;
+        break;
+      }
+    }
+    if (anyCompletable) return;
+    if (Date.now() - lastRescueRef.current < 2000) return;
+    lastRescueRef.current = Date.now();
+    const freshBoard = solvableDeal(tier.colors, tier.emptyBottles);
+    replaceBoard(freshBoard);
+    // Reroll any queued orders that target now-irrelevant colours.
+    setOrders(() => fillQueue([], tier.slots, tier, freshBoard));
+  }, [bottles, shipping, replaceBoard]);
+
   // Tick + expiration scan inside the same interval
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -315,12 +424,9 @@ export function OrdersMode() {
         const surviving = prev.filter((o) => !expiredIds.includes(o.id));
         const cfg =
           TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
-        while (surviving.length < ORDER_SLOTS) {
-          surviving.push(makeOrder(cfg.colors, cfg.patienceMs));
-        }
         setOrdersExpired((n) => n + expiredIds.length);
         setScore((s) => Math.max(0, s - EXPIRE_PENALTY * expiredIds.length));
-        return surviving;
+        return fillQueue(surviving, cfg.slots, cfg, bottlesRef.current);
       });
     }, 120);
     return () => window.clearInterval(id);
@@ -339,12 +445,9 @@ export function OrdersMode() {
     });
     setToolMode(null);
     const first = TIER_CONFIGS[0];
-    setOrders(
-      Array.from({ length: ORDER_SLOTS }, () =>
-        makeOrder(first.colors, first.patienceMs),
-      ),
-    );
-    replaceBoard(solvableDeal(first.colors, first.emptyBottles));
+    const freshBoard = solvableDeal(first.colors, first.emptyBottles);
+    setOrders(fillQueue([], first.slots, first, freshBoard));
+    replaceBoard(freshBoard);
   }, [replaceBoard]);
 
   const applySkipOnOrder = useCallback(
@@ -353,10 +456,7 @@ export function OrdersMode() {
         TIER_CONFIGS[Math.min(tierIndexRef.current, TIER_CONFIGS.length - 1)];
       setOrders((prev) => {
         const without = prev.filter((o) => o.id !== orderId);
-        while (without.length < ORDER_SLOTS) {
-          without.push(makeOrder(tier.colors, tier.patienceMs));
-        }
-        return without;
+        return fillQueue(without, tier.slots, tier, bottlesRef.current);
       });
       setTools((prev) => ({ ...prev, skip: Math.max(0, prev.skip - 1) }));
       setToolMode(null);
@@ -568,7 +668,13 @@ export function OrdersMode() {
             ) : null}
           </AnimatePresence>
 
-          <div className="mb-4 grid gap-2 sm:grid-cols-3">
+          <div
+            className="mb-4 grid gap-2"
+            style={{
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(150px, 1fr))",
+            }}
+          >
             {orders.map((o, i) => {
               const elapsed = now - o.spawnedAt;
               const remaining = Math.max(0, o.patienceMs - elapsed);
