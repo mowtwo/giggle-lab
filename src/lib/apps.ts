@@ -39,6 +39,15 @@ export const miniApps: MiniApp[] = [
     href: "/qr-file-beam",
   },
   {
+    titleKey: "magicCamera.title",
+    slug: "magic-camera",
+    summaryKey: "magicCamera.summary",
+    status: "ready",
+    color: "purple",
+    icon: "icon-camera",
+    href: "/magic-camera",
+  },
+  {
     titleKey: "minesweeper.title",
     slug: "minesweeper",
     summaryKey: "minesweeper.summary",

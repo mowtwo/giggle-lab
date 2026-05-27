@@ -55,6 +55,10 @@
       "title": "二维码文件光束",
       "summary": "把小文件切成二维码帧，在另一台设备上用摄像头扫回完整文件。"
     },
+    "magicCamera": {
+      "title": "魔法摄像头",
+      "summary": "用手势识别、摄像头画面和 Three.js 粒子释放一点 AR 魔法。"
+    },
     "minesweeper": {
       "title": "动森扫雷",
       "summary": "经典扫雷的动物之森调色版，外加魔鬼级无尽模式：到达边界就长出新区块。"
@@ -361,6 +365,42 @@
         "pressureTitle": "节奏曲线",
         "pressureBody": "起步 {start} 秒一只新瓶，每发一货缩短 0.6 秒，最快 {min} 秒。每发 5 瓶解锁一种新颜色。"
       }
+    }
+  },
+  "MagicCamera": {
+    "metadataTitle": "魔法摄像头 - Giggle Lab",
+    "metadataDescription": "纯浏览器手势识别和 Three.js 粒子魔法小玩具。",
+    "title": "魔法摄像头",
+    "description": "打开摄像头，伸出一只或两只手，用几个简单手势在实时画面上释放粒子魔法。",
+    "statusLabel": "摄像头",
+    "gestureLabel": "手势",
+    "start": "打开摄像头",
+    "stop": "停止",
+    "loading": "加载中",
+    "mirrorOn": "镜像画面：开",
+    "mirrorOff": "镜像画面：关",
+    "liveBadge": "本地 AR",
+    "emptyStage": "打开摄像头后会加载手部模型和 WebGL 魔法图层。",
+    "statusIdle": "摄像头未开启。",
+    "statusLoading": "正在加载摄像头、手部模型和 WebGL 场景。",
+    "statusRunning": "把一只或两只手放进画面里。",
+    "statusNoHand": "没有识别到手。把手移到摄像头画面中。",
+    "statusError": "摄像头或手部模型启动失败。请使用 HTTPS / localhost，并允许摄像头权限。",
+    "assetCreditPrefix": "特效贴图素材：",
+    "assetCreditMiddle": "，作者 Kenney 与 Mikodrak/OpenGameArt，许可",
+    "assetCreditSuffix": "。",
+    "gesture": {
+      "idle": "聚集火花",
+      "pinch": "捏合蓄能",
+      "point": "指尖光束",
+      "open-palm": "掌心爆发",
+      "circle": "召唤法阵"
+    },
+    "gestureHint": {
+      "pinch": "拇指和食指捏合，蓄出一个亮光球。",
+      "open-palm": "张开手掌，释放一圈冲击波。",
+      "point": "伸出一根手指，推出一束粒子流。",
+      "circle": "用食指画圈，召唤旋转法阵。"
     }
   },
   "Devices": {

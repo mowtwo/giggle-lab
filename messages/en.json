@@ -55,6 +55,10 @@
       "title": "QR File Beam",
       "summary": "Slice a small file into QR frames, then scan it back on another device."
     },
+    "magicCamera": {
+      "title": "Magic Camera",
+      "summary": "Cast tiny AR spells with hand tracking, webcam video, and Three.js particles."
+    },
     "minesweeper": {
       "title": "Animal Crossing Minesweeper",
       "summary": "Classic minesweeper in pastel meadow colours, plus a devil endless mode that grows a new block when you reach a boundary."
@@ -361,6 +365,42 @@
         "pressureTitle": "Pressure curve",
         "pressureBody": "Interval starts at {start}s and shrinks by 0.6s per ship, down to a floor of {min}s. New colours unlock every five ships."
       }
+    }
+  },
+  "MagicCamera": {
+    "metadataTitle": "Magic Camera - Giggle Lab",
+    "metadataDescription": "Browser-only hand tracking and Three.js particle spell toy.",
+    "title": "Magic Camera",
+    "description": "Open the camera, show one or two hands, and use simple gestures to cast particle spells over the live video.",
+    "statusLabel": "Camera",
+    "gestureLabel": "Gesture",
+    "start": "Start camera",
+    "stop": "Stop",
+    "loading": "Loading",
+    "mirrorOn": "Mirror view: on",
+    "mirrorOff": "Mirror view: off",
+    "liveBadge": "Local AR",
+    "emptyStage": "Start the camera to load the hand model and summon the spell layer.",
+    "statusIdle": "Camera is off.",
+    "statusLoading": "Loading camera, hand model, and WebGL scene.",
+    "statusRunning": "Show one or two hands in frame.",
+    "statusNoHand": "No hand found. Move into the camera view.",
+    "statusError": "Could not start the camera or hand model. Use HTTPS / localhost and allow camera access.",
+    "assetCreditPrefix": "VFX textures:",
+    "assetCreditMiddle": "by Kenney and Mikodrak/OpenGameArt, licensed",
+    "assetCreditSuffix": ".",
+    "gesture": {
+      "idle": "Gathering sparks",
+      "pinch": "Pinch charge",
+      "point": "Finger beam",
+      "open-palm": "Palm burst",
+      "circle": "Spell circle"
+    },
+    "gestureHint": {
+      "pinch": "Pinch thumb and index finger to charge a bright orb.",
+      "open-palm": "Open your hand to release a shockwave.",
+      "point": "Point with one finger to push a particle beam.",
+      "circle": "Draw a circle with your index finger to summon rings."
     }
   },
   "Devices": {

@@ -1,0 +1,7 @@
+2D Spell Effects
+Author: Mikodrak
+Source: https://opengameart.org/content/2d-spell-effects
+License: CC0
+
+The original OpenGameArt page states these effects are CC0 and that the ZIP
+contains transparent PNG layers.
