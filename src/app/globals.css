@@ -73,11 +73,11 @@ canvas.hiddenCanvasElement {
 
 @keyframes github-danmaku-scroll {
   from {
-    transform: translateX(110vw);
+    transform: translateX(calc(100% + 100vw));
   }
 
   to {
-    transform: translateX(-120%);
+    transform: translateX(calc(-100vw - 100%));
   }
 }
 

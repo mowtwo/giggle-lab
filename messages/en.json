@@ -472,6 +472,7 @@
     "send": "Send",
     "followNow": "Follow now",
     "syncNow": "Sync now",
+    "playbackWindow": "Playing danmaku from the last {minutes} minutes",
     "empty": "No danmaku before this point yet"
   },
   "Devices": {

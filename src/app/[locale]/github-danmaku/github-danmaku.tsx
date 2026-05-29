@@ -34,6 +34,11 @@ type DanmakuStyle = {
   speed: "slow" | "normal" | "fast";
 };
 
+type StageMessage = DanmakuMessage & {
+  lane: number;
+  delay: number;
+};
+
 type SessionInfo = {
   user: DanmakuUser | null;
   config: {
@@ -44,6 +49,8 @@ type SessionInfo = {
 };
 
 const syncIntervalMs = 5 * 60 * 1000;
+const playbackWindowMinutes = 120;
+const laneCount = 8;
 const styleColors = ["#ffffff", "#ffe66d", "#19c8b9", "#ff7ca8", "#8ee36a", "#b692ff"];
 const sizeClass = {
   small: "text-sm sm:text-base",
@@ -74,6 +81,11 @@ function timeLabel(minutes: number) {
 
 function messageMinute(message: DanmakuMessage) {
   return minuteOfDay(new Date(message.createdAt));
+}
+
+function messageSecondOfDay(message: DanmakuMessage) {
+  const date = new Date(message.createdAt);
+  return date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
 }
 
 function pendingKey(day: string) {
@@ -179,17 +191,32 @@ export function GithubDanmaku() {
   const syncTimer = useRef<number | null>(null);
 
   const visibleMessages = useMemo(
-    () =>
-      messages
+    () => {
+      const windowStart = Math.max(0, cursorMinute - playbackWindowMinutes);
+      const windowSeconds = Math.max(1, (cursorMinute - windowStart) * 60);
+      return messages
         .filter((message) => {
           const minute = messageMinute(message);
           return (
             message.day === day &&
             minute <= cursorMinute &&
-            minute >= cursorMinute - 20
+            minute >= windowStart
           );
         })
-        .sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+        .slice(-120)
+        .map((message, index) => {
+          const secondsFromStart = Math.max(
+            0,
+            messageSecondOfDay(message) - windowStart * 60,
+          );
+          return {
+            ...message,
+            lane: index % laneCount,
+            delay: -Math.min(0.95, secondsFromStart / windowSeconds) * 14,
+          };
+        });
+    },
     [cursorMinute, day, messages],
   );
   const background = stageColors(cursorMinute);
@@ -473,7 +500,7 @@ export function GithubDanmaku() {
                   {timeLabel(cursorMinute)}
                 </h2>
               </div>
-              <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2">
                 <Button
                   type={followNow ? "primary" : "default"}
                   onClick={() => {
@@ -489,6 +516,9 @@ export function GithubDanmaku() {
                 </Button>
               </div>
             </div>
+            <p className="mt-2 text-sm font-black text-[#8a7b66]">
+              {t("playbackWindow", { minutes: playbackWindowMinutes })}
+            </p>
 
             <div className="mt-5">
               <input
@@ -534,18 +564,17 @@ export function GithubDanmaku() {
                   {t("empty")}
                 </p>
               ) : null}
-              {visibleMessages.slice(-80).map((message, index) => {
+              {visibleMessages.map((message: StageMessage) => {
                 const style = readMessageStyle(message);
-                const lane = index % 7;
                 return (
                   <div
                     key={message.clientId}
-                    className={`github-danmaku-bullet absolute flex w-max max-w-[92%] items-center gap-2 rounded-full border-2 border-white/40 bg-black/26 px-3 py-2 font-black text-white shadow-[0_2px_0_rgba(0,0,0,0.18)] backdrop-blur-sm ${sizeClass[style.size]}`}
+                    className={`github-danmaku-bullet absolute flex w-max max-w-[92%] items-center gap-2 rounded-full border-2 border-white/45 bg-black/38 px-3 py-2 font-black text-white shadow-[0_2px_0_rgba(0,0,0,0.18)] backdrop-blur-sm ${sizeClass[style.size]}`}
                     style={{
-                      top: `${8 + lane * 12}%`,
+                      top: `${6 + message.lane * 11}%`,
                       color: style.color,
                       animationDuration: speedDuration[style.speed],
-                      animationDelay: `${(index % 5) * 0.45}s`,
+                      animationDelay: `${message.delay}s`,
                       opacity: message.status === "failed" ? 0.55 : 1,
                       textShadow: "0 2px 4px rgba(0,0,0,0.6)",
                     }}
@@ -558,7 +587,7 @@ export function GithubDanmaku() {
                         className="h-7 w-7 rounded-full"
                       />
                     </a>
-                    <span className="min-w-0 truncate text-sm font-black text-[#473727]">
+                    <span className="min-w-0 truncate font-black">
                       {message.text}
                     </span>
                     {message.status !== "confirmed" ? (

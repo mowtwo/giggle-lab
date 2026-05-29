@@ -472,6 +472,7 @@
     "send": "发送",
     "followNow": "跟随当前时间",
     "syncNow": "立即同步",
+    "playbackWindow": "正在播放最近 {minutes} 分钟内的弹幕",
     "empty": "这个时间点之前还没有弹幕"
   },
   "Devices": {
