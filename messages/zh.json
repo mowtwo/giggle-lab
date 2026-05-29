@@ -59,6 +59,10 @@
       "title": "魔法摄像头",
       "summary": "用手势识别、摄像头画面和 Three.js 粒子释放一点 AR 魔法。"
     },
+    "miniOfficeWeb": {
+      "title": "迷你 Office Web",
+      "summary": "在本地预览 PDF、DOCX、XLSX 和 PPTX，并导出实用版 PDF。"
+    },
     "minesweeper": {
       "title": "动森扫雷",
       "summary": "经典扫雷的动物之森调色版，外加魔鬼级无尽模式：到达边界就长出新区块。"
@@ -402,6 +406,34 @@
       "point": "伸出一根手指，推出一束粒子流。",
       "circle": "用食指画圈，召唤旋转法阵。"
     }
+  },
+  "MiniOfficeWeb": {
+    "metadataTitle": "迷你 Office Web - Giggle Lab",
+    "metadataDescription": "纯浏览器 PDF、DOCX、XLSX、PPTX 预览和 PDF 导出工具。",
+    "title": "迷你 Office Web",
+    "description": "一个本地 Office 工作台：按需加载渲染器，预览 PDF、DOCX、XLSX、PPTX，并导出实用版 PDF。",
+    "dropTitle": "把 Office 文件拖到这里",
+    "dropHint": "支持 PDF、DOCX、XLSX、XLSM、XLS、PPTX。文件只在当前浏览器里处理。",
+    "pickFile": "选择文件",
+    "fileLabel": "当前文件",
+    "emptyPreview": "选择文档后，只会加载它需要的渲染模块。",
+    "exportSettings": "PDF 导出",
+    "settings": "设置",
+    "switchFile": "切换文件",
+    "quality": "质量",
+    "qualityScreen": "屏幕",
+    "qualityPrint": "打印",
+    "qualityArchive": "归档",
+    "pageRange": "页码范围",
+    "includeGrid": "显示表格网格线",
+    "exportPdf": "导出 PDF",
+    "exporting": "正在导出 PDF...",
+    "exportReady": "PDF 已导出。",
+    "exportError": "PDF 导出失败。",
+    "statusIdle": "等待选择文件。",
+    "unsupported": "暂不支持这个文件类型。",
+    "reading": "正在浏览器本地读取文件。",
+    "loadingRenderer": "正在按需加载对应渲染器。"
   },
   "Devices": {
     "iphone": "iPhone",

@@ -59,6 +59,10 @@
       "title": "Magic Camera",
       "summary": "Cast tiny AR spells with hand tracking, webcam video, and Three.js particles."
     },
+    "miniOfficeWeb": {
+      "title": "Mini Office Web",
+      "summary": "Preview PDF, DOCX, XLSX, and PPTX files locally, then export practical PDFs."
+    },
     "minesweeper": {
       "title": "Animal Crossing Minesweeper",
       "summary": "Classic minesweeper in pastel meadow colours, plus a devil endless mode that grows a new block when you reach a boundary."
@@ -402,6 +406,34 @@
       "point": "Point with one finger to push a particle beam.",
       "circle": "Draw a circle with your index finger to summon rings."
     }
+  },
+  "MiniOfficeWeb": {
+    "metadataTitle": "Mini Office Web - Giggle Lab",
+    "metadataDescription": "Browser-only preview and PDF export for PDF, DOCX, XLSX, and PPTX files.",
+    "title": "Mini Office Web",
+    "description": "A local office workbench for previewing PDF, DOCX, XLSX, and PPTX files with lazy renderers and practical PDF export.",
+    "dropTitle": "Drop an office file here",
+    "dropHint": "PDF, DOCX, XLSX, XLSM, XLS, or PPTX. Files stay in this browser.",
+    "pickFile": "Pick file",
+    "fileLabel": "Current file",
+    "emptyPreview": "Pick a document to load only the renderer it needs.",
+    "exportSettings": "PDF export",
+    "settings": "Settings",
+    "switchFile": "Switch file",
+    "quality": "Quality",
+    "qualityScreen": "Screen",
+    "qualityPrint": "Print",
+    "qualityArchive": "Archive",
+    "pageRange": "Page range",
+    "includeGrid": "Show spreadsheet gridlines",
+    "exportPdf": "Export PDF",
+    "exporting": "Exporting PDF...",
+    "exportReady": "PDF export is ready.",
+    "exportError": "PDF export failed.",
+    "statusIdle": "Waiting for a file.",
+    "unsupported": "Unsupported file type.",
+    "reading": "Reading file in the browser.",
+    "loadingRenderer": "Loading the matching renderer dynamically."
   },
   "Devices": {
     "iphone": "iPhone",

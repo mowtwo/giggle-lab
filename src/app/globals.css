@@ -30,3 +30,83 @@ button {
   background: rgba(255, 204, 0, 0.55);
   color: #725d42;
 }
+
+.mini-office-docx-host .mini-office-docx-wrapper {
+  background: transparent;
+}
+
+.mini-office-docx-host .docx-wrapper {
+  background: transparent;
+  padding: 12px;
+}
+
+.mini-office-docx-host .docx {
+  margin: 0 auto 16px;
+  max-width: none;
+  box-shadow: 0 3px 0 rgba(122, 97, 65, 0.16);
+}
+
+.mini-office-docx-fallback {
+  margin: 0 auto;
+  max-width: 820px;
+  border-radius: 8px;
+  background: white;
+  padding: 32px;
+  color: #473727;
+  font: 15px/1.6 system-ui, sans-serif;
+}
+
+.mini-office-preview canvas,
+.mini-office-preview img {
+  max-width: 100%;
+}
+
+canvas.hiddenCanvasElement {
+  position: fixed !important;
+  left: -10000px !important;
+  top: -10000px !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.mini-office-pdf-text-layer {
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  line-height: 1;
+  text-align: initial;
+  text-size-adjust: none;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+
+.mini-office-pdf-text-layer :is(span, br) {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  transform-origin: 0% 0%;
+}
+
+.mini-office-pdf-text-layer > :not(.markedContent),
+.mini-office-pdf-text-layer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  --scale-x: 1;
+  --rotate: 0deg;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x))
+    scale(var(--min-font-size-inv));
+}
+
+.mini-office-pdf-text-layer .markedContent {
+  display: contents;
+}
+
+.mini-office-pdf-text-layer--visible :is(span, br) {
+  color: rgba(33, 27, 20, 0.92);
+}

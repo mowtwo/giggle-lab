@@ -48,6 +48,15 @@ export const miniApps: MiniApp[] = [
     href: "/magic-camera",
   },
   {
+    titleKey: "miniOfficeWeb.title",
+    slug: "mini-office-web",
+    summaryKey: "miniOfficeWeb.summary",
+    status: "ready",
+    color: "app-blue",
+    icon: "icon-design",
+    href: "/mini-office-web",
+  },
+  {
     titleKey: "minesweeper.title",
     slug: "minesweeper",
     summaryKey: "minesweeper.summary",
