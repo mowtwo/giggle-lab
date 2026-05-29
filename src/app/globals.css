@@ -71,6 +71,23 @@ canvas.hiddenCanvasElement {
   pointer-events: none !important;
 }
 
+@keyframes github-danmaku-scroll {
+  from {
+    transform: translateX(110vw);
+  }
+
+  to {
+    transform: translateX(-120%);
+  }
+}
+
+.github-danmaku-bullet {
+  right: 0;
+  animation-name: github-danmaku-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
 .mini-office-pdf-text-layer {
   --min-font-size: 1;
   --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));

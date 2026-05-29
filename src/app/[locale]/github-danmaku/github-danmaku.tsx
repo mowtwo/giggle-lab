@@ -28,6 +28,12 @@ type DanmakuMessage = {
   extensions?: Record<string, unknown>;
 };
 
+type DanmakuStyle = {
+  color: string;
+  size: "small" | "medium" | "large";
+  speed: "slow" | "normal" | "fast";
+};
+
 type SessionInfo = {
   user: DanmakuUser | null;
   config: {
@@ -38,6 +44,17 @@ type SessionInfo = {
 };
 
 const syncIntervalMs = 5 * 60 * 1000;
+const styleColors = ["#ffffff", "#ffe66d", "#19c8b9", "#ff7ca8", "#8ee36a", "#b692ff"];
+const sizeClass = {
+  small: "text-sm sm:text-base",
+  medium: "text-base sm:text-xl",
+  large: "text-xl sm:text-3xl",
+};
+const speedDuration = {
+  slow: "18s",
+  normal: "12s",
+  fast: "7s",
+};
 
 function pad(value: number) {
   return String(value).padStart(2, "0");
@@ -79,6 +96,69 @@ function writePending(day: string, messages: DanmakuMessage[]) {
   );
 }
 
+function readMessageStyle(message: DanmakuMessage): DanmakuStyle {
+  const style = message.extensions?.style as Partial<DanmakuStyle> | undefined;
+  return {
+    color: styleColors.includes(style?.color ?? "") ? style!.color! : "#ffffff",
+    size:
+      style?.size === "small" || style?.size === "large" ? style.size : "medium",
+    speed:
+      style?.speed === "slow" || style?.speed === "fast" ? style.speed : "normal",
+  };
+}
+
+function stageColors(minutes: number) {
+  const hour = minutes / 60;
+  if (hour < 5) {
+    return {
+      sky: "linear-gradient(180deg, #070b24 0%, #182a55 52%, #3c315f 100%)",
+      sun: "#d8e7ff",
+      sunTop: "16%",
+      sunLeft: "78%",
+      glow: "rgba(160, 190, 255, 0.22)",
+      ground: "linear-gradient(180deg, rgba(28,44,65,0.2), rgba(8,35,39,0.72))",
+    };
+  }
+  if (hour < 8) {
+    return {
+      sky: "linear-gradient(180deg, #7467b8 0%, #ff9a76 58%, #ffe3a3 100%)",
+      sun: "#ffd56b",
+      sunTop: "58%",
+      sunLeft: "18%",
+      glow: "rgba(255, 191, 92, 0.42)",
+      ground: "linear-gradient(180deg, rgba(255,225,173,0.1), rgba(79,143,95,0.58))",
+    };
+  }
+  if (hour < 17) {
+    return {
+      sky: "linear-gradient(180deg, #71c8ff 0%, #b9f1e7 62%, #fff4b8 100%)",
+      sun: "#fff176",
+      sunTop: "13%",
+      sunLeft: "70%",
+      glow: "rgba(255, 241, 118, 0.5)",
+      ground: "linear-gradient(180deg, rgba(255,255,255,0.05), rgba(79,169,112,0.5))",
+    };
+  }
+  if (hour < 20) {
+    return {
+      sky: "linear-gradient(180deg, #4256a8 0%, #ff8b6b 54%, #ffd18f 100%)",
+      sun: "#ffb24f",
+      sunTop: "62%",
+      sunLeft: "82%",
+      glow: "rgba(255, 139, 107, 0.46)",
+      ground: "linear-gradient(180deg, rgba(255,181,104,0.08), rgba(63,107,92,0.62))",
+    };
+  }
+  return {
+    sky: "linear-gradient(180deg, #091231 0%, #192f5c 58%, #493763 100%)",
+    sun: "#d8e7ff",
+    sunTop: "18%",
+    sunLeft: "76%",
+    glow: "rgba(169, 194, 255, 0.26)",
+    ground: "linear-gradient(180deg, rgba(34,42,76,0.2), rgba(7,36,44,0.72))",
+  };
+}
+
 export function GithubDanmaku() {
   const t = useTranslations("GithubDanmaku");
   const tCommon = useTranslations("Common");
@@ -86,6 +166,11 @@ export function GithubDanmaku() {
   const [session, setSession] = useState<SessionInfo | null>(null);
   const [messages, setMessages] = useState<DanmakuMessage[]>([]);
   const [text, setText] = useState("");
+  const [messageStyle, setMessageStyle] = useState<DanmakuStyle>({
+    color: "#ffffff",
+    size: "medium",
+    speed: "normal",
+  });
   const [day, setDay] = useState(() => localDay());
   const [cursorMinute, setCursorMinute] = useState(() => minuteOfDay());
   const [followNow, setFollowNow] = useState(true);
@@ -96,10 +181,18 @@ export function GithubDanmaku() {
   const visibleMessages = useMemo(
     () =>
       messages
-        .filter((message) => message.day === day && messageMinute(message) <= cursorMinute)
+        .filter((message) => {
+          const minute = messageMinute(message);
+          return (
+            message.day === day &&
+            minute <= cursorMinute &&
+            minute >= cursorMinute - 20
+          );
+        })
         .sort((a, b) => a.createdAt.localeCompare(b.createdAt)),
     [cursorMinute, day, messages],
   );
+  const background = stageColors(cursorMinute);
 
   const syncMessages = useCallback(async () => {
     const response = await fetch(`/api/github-danmaku/messages?day=${day}`);
@@ -170,7 +263,7 @@ export function GithubDanmaku() {
       user: session.user,
       status: "pending",
       schemaVersion: 1,
-      extensions: {},
+      extensions: { style: messageStyle },
     };
     const nextMessages = [...messages, optimistic];
     setMessages(nextMessages);
@@ -297,6 +390,65 @@ export function GithubDanmaku() {
                   placeholder={session?.user ? t("placeholder") : t("loginFirst")}
                   className="min-h-28 resize-none rounded-lg border-2 border-[#d4c9b4] bg-white p-3 text-sm font-bold text-[#473727] outline-none focus:border-[#19c8b9]"
                 />
+                <div className="grid gap-3 rounded-lg border-2 border-[#d4c9b4] bg-white/75 p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-black text-[#8a7b66]">
+                      {t("color")}
+                    </span>
+                    {styleColors.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        aria-label={color}
+                        className="h-7 w-7 rounded-full border-2"
+                        style={{
+                          background: color,
+                          borderColor:
+                            messageStyle.color === color ? "#794f27" : "#d4c9b4",
+                        }}
+                        onClick={() =>
+                          setMessageStyle((current) => ({ ...current, color }))
+                        }
+                      />
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="grid gap-1 text-xs font-black text-[#8a7b66]">
+                      {t("fontSize")}
+                      <select
+                        value={messageStyle.size}
+                        onChange={(event) =>
+                          setMessageStyle((current) => ({
+                            ...current,
+                            size: event.target.value as DanmakuStyle["size"],
+                          }))
+                        }
+                        className="rounded-md border-2 border-[#d4c9b4] bg-white px-2 py-1 text-[#473727]"
+                      >
+                        <option value="small">{t("small")}</option>
+                        <option value="medium">{t("medium")}</option>
+                        <option value="large">{t("large")}</option>
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-xs font-black text-[#8a7b66]">
+                      {t("speed")}
+                      <select
+                        value={messageStyle.speed}
+                        onChange={(event) =>
+                          setMessageStyle((current) => ({
+                            ...current,
+                            speed: event.target.value as DanmakuStyle["speed"],
+                          }))
+                        }
+                        className="rounded-md border-2 border-[#d4c9b4] bg-white px-2 py-1 text-[#473727]"
+                      >
+                        <option value="slow">{t("slow")}</option>
+                        <option value="normal">{t("normal")}</option>
+                        <option value="fast">{t("fast")}</option>
+                      </select>
+                    </label>
+                  </div>
+                </div>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-black text-[#8a7b66]">
                     {text.length}/140
@@ -359,24 +511,43 @@ export function GithubDanmaku() {
               </div>
             </div>
 
-            <div className="relative mt-6 h-[56vh] overflow-hidden rounded-lg bg-gradient-to-b from-[#b9f1e7] via-[#fffdf2] to-[#ffd98f]">
-              <div className="absolute inset-y-0 left-0 w-px bg-[#794f27]/20" />
+            <div
+              className="relative mt-6 h-[56vh] overflow-hidden rounded-lg transition-colors duration-1000"
+              style={{ background: background.sky }}
+            >
+              <div
+                className="absolute h-24 w-24 rounded-full blur-sm transition-all duration-1000"
+                style={{
+                  top: background.sunTop,
+                  left: background.sunLeft,
+                  background: background.sun,
+                  boxShadow: `0 0 70px 30px ${background.glow}`,
+                }}
+              />
+              <div className="absolute inset-x-0 bottom-0 h-1/3" style={{ background: background.ground }} />
+              <div className="absolute left-[8%] top-[18%] h-2 w-2 animate-pulse rounded-full bg-white/80" />
+              <div className="absolute left-[24%] top-[28%] h-1.5 w-1.5 animate-pulse rounded-full bg-white/70" />
+              <div className="absolute left-[86%] top-[34%] h-1.5 w-1.5 animate-pulse rounded-full bg-white/75" />
+              <div className="absolute inset-x-0 top-1/2 border-t-2 border-dashed border-white/25" />
               {visibleMessages.length === 0 ? (
                 <p className="grid h-full place-items-center px-6 text-center text-lg font-black text-[#8a7b66]">
                   {t("empty")}
                 </p>
               ) : null}
               {visibleMessages.slice(-80).map((message, index) => {
-                const top = 8 + ((messageMinute(message) / 1440) * 84);
-                const lane = index % 6;
+                const style = readMessageStyle(message);
+                const lane = index % 7;
                 return (
                   <div
                     key={message.clientId}
-                    className="absolute flex max-w-[86%] items-center gap-2 rounded-full border-2 border-[#794f27]/20 bg-white/90 px-3 py-2 shadow-[0_2px_0_rgba(122,97,65,0.15)]"
+                    className={`github-danmaku-bullet absolute flex w-max max-w-[92%] items-center gap-2 rounded-full border-2 border-white/40 bg-black/26 px-3 py-2 font-black text-white shadow-[0_2px_0_rgba(0,0,0,0.18)] backdrop-blur-sm ${sizeClass[style.size]}`}
                     style={{
-                      top: `${top}%`,
-                      left: `${4 + lane * 11}%`,
+                      top: `${8 + lane * 12}%`,
+                      color: style.color,
+                      animationDuration: speedDuration[style.speed],
+                      animationDelay: `${(index % 5) * 0.45}s`,
                       opacity: message.status === "failed" ? 0.55 : 1,
+                      textShadow: "0 2px 4px rgba(0,0,0,0.6)",
                     }}
                   >
                     <a href={message.user.htmlUrl} target="_blank" rel="noreferrer">
