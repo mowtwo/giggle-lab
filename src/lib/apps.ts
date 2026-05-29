@@ -57,6 +57,15 @@ export const miniApps: MiniApp[] = [
     href: "/mini-office-web",
   },
   {
+    titleKey: "githubDanmaku.title",
+    slug: "github-danmaku",
+    summaryKey: "githubDanmaku.summary",
+    status: "ready",
+    color: "app-teal",
+    icon: "icon-chat",
+    href: "/github-danmaku",
+  },
+  {
     titleKey: "minesweeper.title",
     slug: "minesweeper",
     summaryKey: "minesweeper.summary",

@@ -63,6 +63,10 @@
       "title": "迷你 Office Web",
       "summary": "在本地预览 PDF、DOCX、XLSX 和 PPTX，并导出实用版 PDF。"
     },
+    "githubDanmaku": {
+      "title": "GitHub 时间弹幕",
+      "summary": "用 GitHub 登录发纯文本弹幕，按本地 24 小时时间轴回放。"
+    },
     "minesweeper": {
       "title": "动森扫雷",
       "summary": "经典扫雷的动物之森调色版，外加魔鬼级无尽模式：到达边界就长出新区块。"
@@ -434,6 +438,32 @@
     "unsupported": "暂不支持这个文件类型。",
     "reading": "正在浏览器本地读取文件。",
     "loadingRenderer": "正在按需加载对应渲染器。"
+  },
+  "GithubDanmaku": {
+    "metadataTitle": "GitHub 时间弹幕 - Giggle Lab",
+    "metadataDescription": "用 GitHub Issue 评论保存纯文本弹幕，并按本地时区 24 小时时间轴播放。",
+    "eyebrow": "GitHub backed",
+    "title": "时间弹幕",
+    "description": "登录 GitHub 后发送一条纯文本弹幕。页面会先本地显示，再写入当天的 GitHub issue 评论，之后每 5 分钟同步一次。",
+    "syncNote": "默认只同步你当前时区当天的弹幕；拖动时间轴可以回看更早时间。",
+    "repo": "存储仓库",
+    "lastSync": "上次同步 {time}",
+    "booting": "正在启动",
+    "ready": "准备就绪",
+    "synced": "已同步",
+    "sending": "正在发送到 GitHub",
+    "sent": "已发送",
+    "sendFailed": "发送失败",
+    "sessionFailed": "登录状态读取失败",
+    "missingAuth": "缺少 GitHub OAuth 环境变量",
+    "missingWrite": "缺少 GitHub 写入 token，当前只能显示本地缓存",
+    "login": "用 GitHub 登录",
+    "loginFirst": "先用 GitHub 登录后再发送",
+    "placeholder": "写一条 140 字以内的弹幕",
+    "send": "发送",
+    "followNow": "跟随当前时间",
+    "syncNow": "立即同步",
+    "empty": "这个时间点之前还没有弹幕"
   },
   "Devices": {
     "iphone": "iPhone",

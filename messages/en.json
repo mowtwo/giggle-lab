@@ -63,6 +63,10 @@
       "title": "Mini Office Web",
       "summary": "Preview PDF, DOCX, XLSX, and PPTX files locally, then export practical PDFs."
     },
+    "githubDanmaku": {
+      "title": "GitHub Timeline Danmaku",
+      "summary": "Sign in with GitHub, send plain-text danmaku, and replay it on a local 24-hour timeline."
+    },
     "minesweeper": {
       "title": "Animal Crossing Minesweeper",
       "summary": "Classic minesweeper in pastel meadow colours, plus a devil endless mode that grows a new block when you reach a boundary."
@@ -434,6 +438,32 @@
     "unsupported": "Unsupported file type.",
     "reading": "Reading file in the browser.",
     "loadingRenderer": "Loading the matching renderer dynamically."
+  },
+  "GithubDanmaku": {
+    "metadataTitle": "GitHub Timeline Danmaku - Giggle Lab",
+    "metadataDescription": "Store plain-text danmaku as GitHub issue comments and replay them on a local-time 24-hour timeline.",
+    "eyebrow": "GitHub backed",
+    "title": "Timeline Danmaku",
+    "description": "Sign in with GitHub and send a plain-text danmaku. The page shows it locally first, then writes it to today's GitHub issue comment thread and syncs every 5 minutes.",
+    "syncNote": "Only today's messages in your current browser timezone are synced by default. Drag the timeline to replay earlier messages.",
+    "repo": "Storage repo",
+    "lastSync": "Last sync {time}",
+    "booting": "Booting",
+    "ready": "Ready",
+    "synced": "Synced",
+    "sending": "Sending to GitHub",
+    "sent": "Sent",
+    "sendFailed": "Send failed",
+    "sessionFailed": "Could not read session",
+    "missingAuth": "Missing GitHub OAuth environment variables",
+    "missingWrite": "Missing GitHub write token; showing local cache only",
+    "login": "Sign in with GitHub",
+    "loginFirst": "Sign in with GitHub before sending",
+    "placeholder": "Write a danmaku under 140 characters",
+    "send": "Send",
+    "followNow": "Follow now",
+    "syncNow": "Sync now",
+    "empty": "No danmaku before this point yet"
   },
   "Devices": {
     "iphone": "iPhone",
