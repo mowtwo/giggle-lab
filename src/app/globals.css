@@ -86,6 +86,17 @@ canvas.hiddenCanvasElement {
   animation-name: github-danmaku-scroll;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  outline: none;
+}
+
+.github-danmaku-bullet:hover,
+.github-danmaku-bullet:focus,
+.github-danmaku-bullet:focus-within,
+.github-danmaku-bullet:active {
+  z-index: 20;
+  animation-play-state: paused;
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .mini-office-pdf-text-layer {

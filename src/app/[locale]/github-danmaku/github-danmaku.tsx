@@ -71,6 +71,11 @@ function localDay(date = new Date()) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
+function nowSnapshot() {
+  const now = new Date();
+  return { day: localDay(now), minute: minuteOfDay(now) };
+}
+
 function minuteOfDay(date = new Date()) {
   return date.getHours() * 60 + date.getMinutes();
 }
@@ -197,12 +202,11 @@ export function GithubDanmaku() {
   });
   const [day, setDay] = useState(() => localDay());
   const [cursorMinute, setCursorMinute] = useState(() => minuteOfDay());
+  const [now, setNow] = useState(() => nowSnapshot());
   const [status, setStatus] = useState(t("booting"));
   const [lastSync, setLastSync] = useState<string | null>(null);
   const syncTimer = useRef<number | null>(null);
-  const today = localDay();
-  const nowMinute = minuteOfDay();
-  const maxCursorMinute = day === today ? nowMinute : 1439;
+  const maxCursorMinute = day === now.day ? now.minute : 1439;
 
   const visibleMessages = useMemo(
     () => {
@@ -284,22 +288,27 @@ export function GithubDanmaku() {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      const now = new Date();
-      const currentDay = localDay(now);
-      const currentMinute = minuteOfDay(now);
+      const nextNow = nowSnapshot();
+      setNow(nextNow);
       setDay((currentDayValue) => {
-        if (currentDayValue !== currentDay && cursorMinute >= 1439) {
-          return currentDay;
+        if (currentDayValue !== nextNow.day && cursorMinute >= 1439) {
+          return nextNow.day;
         }
         return currentDayValue;
       });
       setCursorMinute((currentMinuteValue) => {
-        const maxMinute = day === currentDay ? currentMinute : 1439;
+        const maxMinute = day === nextNow.day ? nextNow.minute : 1439;
         return Math.min(maxMinute, currentMinuteValue + 1);
       });
-    }, 60_000);
+    }, 15_000);
     return () => window.clearInterval(timer);
   }, [cursorMinute, day]);
+
+  useEffect(() => {
+    if (day === now.day && cursorMinute > now.minute) {
+      window.queueMicrotask(() => setCursorMinute(now.minute));
+    }
+  }, [cursorMinute, day, now.day, now.minute]);
 
   async function sendMessage() {
     if (!session?.user || !text.trim()) return;
@@ -526,10 +535,12 @@ export function GithubDanmaku() {
               </div>
               <div className="flex flex-wrap gap-2">
                 <Button
-                  type={cursorMinute >= nowMinute && day === today ? "primary" : "default"}
+                  type={cursorMinute >= now.minute && day === now.day ? "primary" : "default"}
                   onClick={() => {
-                    setDay(localDay());
-                    setCursorMinute(minuteOfDay());
+                    const nextNow = nowSnapshot();
+                    setNow(nextNow);
+                    setDay(nextNow.day);
+                    setCursorMinute(nextNow.minute);
                   }}
                 >
                   {t("followNow")}
@@ -591,6 +602,7 @@ export function GithubDanmaku() {
                 return (
                   <div
                     key={message.clientId}
+                    tabIndex={0}
                     className={`github-danmaku-bullet absolute flex w-max max-w-[92%] items-center gap-2 rounded-full border-2 border-white/45 bg-black/38 px-3 py-2 font-black text-white shadow-[0_2px_0_rgba(0,0,0,0.18)] backdrop-blur-sm ${sizeClass[style.size]}`}
                     style={{
                       top: `${6 + message.lane * 11}%`,
