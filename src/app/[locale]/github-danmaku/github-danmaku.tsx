@@ -207,6 +207,9 @@ export function GithubDanmaku() {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const syncTimer = useRef<number | null>(null);
   const maxCursorMinute = day === now.day ? now.minute : 1439;
+  const tickMinutes = [0, 0.25, 0.5, 0.75, 1].map((ratio) =>
+    Math.round(maxCursorMinute * ratio),
+  );
 
   const visibleMessages = useMemo(
     () => {
@@ -566,11 +569,9 @@ export function GithubDanmaku() {
                 className="w-full accent-[#19c8b9]"
               />
               <div className="mt-1 flex justify-between text-xs font-black text-[#8a7b66]">
-                <span>00:00</span>
-                <span>06:00</span>
-                <span>12:00</span>
-                <span>18:00</span>
-                <span>24:00</span>
+                {tickMinutes.map((minute, index) => (
+                  <span key={`${minute}-${index}`}>{timeLabel(minute)}</span>
+                ))}
               </div>
             </div>
 
