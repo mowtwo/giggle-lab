@@ -207,9 +207,7 @@ export function GithubDanmaku() {
   const [lastSync, setLastSync] = useState<string | null>(null);
   const syncTimer = useRef<number | null>(null);
   const maxCursorMinute = day === now.day ? now.minute : 1439;
-  const tickMinutes = [0, 0.25, 0.5, 0.75, 1].map((ratio) =>
-    Math.round(maxCursorMinute * ratio),
-  );
+  const playableWidth = `${Math.max(2, (maxCursorMinute / 1439) * 100)}%`;
 
   const visibleMessages = useMemo(
     () => {
@@ -558,20 +556,31 @@ export function GithubDanmaku() {
             </p>
 
             <div className="mt-5">
-              <input
-                type="range"
-                min={0}
-                max={maxCursorMinute}
-                value={Math.min(cursorMinute, maxCursorMinute)}
-                onChange={(event) => {
-                  setCursorMinute(Number(event.target.value));
-                }}
-                className="w-full accent-[#19c8b9]"
-              />
+              <div className="relative h-9">
+                <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-[#d4c9b4]" />
+                <div
+                  className="absolute right-0 top-1/2 h-2 -translate-y-1/2 rounded-r-full bg-[repeating-linear-gradient(45deg,rgba(122,79,39,0.18)_0_6px,rgba(255,255,255,0.28)_6px_12px)]"
+                  style={{ left: playableWidth }}
+                />
+                <div className="absolute left-0 top-0" style={{ width: playableWidth }}>
+                  <input
+                    type="range"
+                    min={0}
+                    max={maxCursorMinute}
+                    value={Math.min(cursorMinute, maxCursorMinute)}
+                    onChange={(event) => {
+                      setCursorMinute(Number(event.target.value));
+                    }}
+                    className="github-danmaku-range w-full accent-[#19c8b9]"
+                  />
+                </div>
+              </div>
               <div className="mt-1 flex justify-between text-xs font-black text-[#8a7b66]">
-                {tickMinutes.map((minute, index) => (
-                  <span key={`${minute}-${index}`}>{timeLabel(minute)}</span>
-                ))}
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>24:00</span>
               </div>
             </div>
 
