@@ -73,7 +73,7 @@ canvas.hiddenCanvasElement {
 
 @keyframes github-danmaku-scroll {
   from {
-    transform: translateX(calc(100% + 100vw));
+    transform: translateX(var(--danmaku-start, calc(100% + 100vw)));
   }
 
   to {
@@ -82,11 +82,16 @@ canvas.hiddenCanvasElement {
 }
 
 .github-danmaku-bullet {
+  --danmaku-start: calc(100% + 100vw);
   right: 0;
   animation-name: github-danmaku-scroll;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   outline: none;
+}
+
+.github-danmaku-bullet--instant {
+  --danmaku-start: calc(100% + 24px);
 }
 
 .github-danmaku-bullet:hover,

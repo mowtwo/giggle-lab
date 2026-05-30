@@ -44,6 +44,7 @@ type DanmakuStyle = {
 type StageMessage = DanmakuMessage & {
   lane: number;
   delay: number;
+  instant: boolean;
 };
 
 type SessionInfo = {
@@ -245,7 +246,11 @@ export function GithubDanmaku() {
           return {
             ...message,
             lane: index % laneCount,
-            delay: -Math.min(0.95, secondsUntilCursor / windowSeconds) * 14,
+            delay:
+              message.status === "pending"
+                ? 0
+                : -Math.min(0.95, secondsUntilCursor / windowSeconds) * 14,
+            instant: message.status === "pending",
           };
         });
     },
@@ -679,7 +684,7 @@ export function GithubDanmaku() {
                   <div
                     key={message.clientId}
                     tabIndex={0}
-                    className={`github-danmaku-bullet absolute flex w-max max-w-[92%] items-center gap-2 rounded-full border-2 border-white/45 bg-black/38 px-3 py-2 font-black text-white shadow-[0_2px_0_rgba(0,0,0,0.18)] backdrop-blur-sm ${sizeClass[style.size]}`}
+                    className={`github-danmaku-bullet ${message.instant ? "github-danmaku-bullet--instant" : ""} absolute flex w-max max-w-[92%] items-center gap-2 rounded-full border-2 border-white/45 bg-black/38 px-3 py-2 font-black text-white shadow-[0_2px_0_rgba(0,0,0,0.18)] backdrop-blur-sm ${sizeClass[style.size]}`}
                     style={{
                       top: `${6 + message.lane * 11}%`,
                       color: style.color,
