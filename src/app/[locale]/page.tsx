@@ -13,6 +13,7 @@ export default function Home() {
   const { navigate } = useAppNavigation();
   const tCommon = useTranslations("Common");
   const tHome = useTranslations("Home");
+  const featuredApp = miniApps.find((app) => app.slug === "github-danmaku");
 
   return (
     <Cursor>
@@ -71,8 +72,8 @@ export default function Home() {
                 type="primary"
                 size="large"
                 onClick={() => {
-                  if (miniApps[0]?.href) {
-                    navigate(miniApps[0].href);
+                  if (featuredApp?.href) {
+                    navigate(featuredApp.href);
                   }
                 }}
               >
@@ -93,7 +94,7 @@ export default function Home() {
           <Card type="title" color="app-teal" className="p-6">
             <div className="space-y-5">
               <div className="flex items-center gap-4">
-                <Icon name="icon-diy" size={72} bounce />
+                <Icon name="icon-chat" size={72} bounce />
                 <div>
                   <p className="text-sm font-black text-[#00766d]">
                     {tHome("sampleLabel")}

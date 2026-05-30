@@ -33,11 +33,11 @@
   "Home": {
     "todayOpen": "Open today",
     "heroTitle": "Mostly useless. Pretty funny.",
-    "heroBody": "A shelf for tiny frontend apps. It may check whether your computer is on, or turn your personal preferences into a heart-shaped poster.",
+    "heroBody": "A shelf for browser experiments. The latest one uses GitHub Issues as storage for a 24-hour timeline danmaku wall.",
     "sampleLabel": "Today's sample",
-    "sampleTitle": "Heart Block Editor",
-    "sampleBody": "Put your birthday, drink, portrait, MBTI, and places to go into blocks, then make a very direct heart.",
-    "motto": "Frontend only. Editable. Very screenshot-friendly.",
+    "sampleTitle": "GitHub Timeline Danmaku",
+    "sampleBody": "Sign in with GitHub, write plain-text danmaku into public issue comments, and replay messages on a local 24-hour timeline.",
+    "motto": "GitHub as storage, Vercel as proxy, the browser as the danmaku player.",
     "shelfEyebrow": "Frontend toy",
     "shelfTitle": "Toy shelf",
     "shelfCount": "{count} published"

@@ -33,11 +33,11 @@
   "Home": {
     "todayOpen": "今日营业中",
     "heroTitle": "没什么用，但挺好笑。",
-    "heroBody": "这里收一些纯前端小 app。可能会帮你确认电脑开没开机，也可能会帮你把个人偏好拼成一颗爱心。",
+    "heroBody": "这里收一些浏览器里的小实验。最新的是一个用 GitHub Issue 当存储的时间弹幕，可以登录 GitHub 后往 24 小时时间轴里发消息。",
     "sampleLabel": "今日样例",
-    "sampleTitle": "爱心小方块编辑器",
-    "sampleBody": "把生日、奶茶、头像、MBTI 和想去的地方塞进方块里，最后拼成一颗坦坦荡荡的爱心。",
-    "motto": "纯前端、可编辑、很适合截图。",
+    "sampleTitle": "GitHub 时间弹幕",
+    "sampleBody": "用 GitHub 登录，把纯文本弹幕写入公开仓库的 issue 评论；页面按本地 24 小时时间轴播放，回看过去也会继续自动向前。",
+    "motto": "GitHub 当数据库、Vercel 当代理、浏览器当弹幕播放器。",
     "shelfEyebrow": "Frontend toy",
     "shelfTitle": "小程序货架",
     "shelfCount": "{count} 个已上架"
