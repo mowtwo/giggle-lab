@@ -240,7 +240,6 @@ export async function createIssueMessage(message: DanmakuMessage) {
   return {
     ...message,
     id: String(comment.id),
-    createdAt: comment.created_at,
     status: "confirmed" as const,
   };
 }

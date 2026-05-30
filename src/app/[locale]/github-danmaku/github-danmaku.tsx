@@ -75,6 +75,18 @@ function minuteOfDay(date = new Date()) {
   return date.getHours() * 60 + date.getMinutes();
 }
 
+function dateAtLocalMinute(day: string, minutes: number) {
+  const [year, month, date] = day.split("-").map(Number);
+  return new Date(
+    year,
+    month - 1,
+    date,
+    Math.floor(minutes / 60),
+    minutes % 60,
+    0,
+  );
+}
+
 function timeLabel(minutes: number) {
   return `${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`;
 }
@@ -185,10 +197,12 @@ export function GithubDanmaku() {
   });
   const [day, setDay] = useState(() => localDay());
   const [cursorMinute, setCursorMinute] = useState(() => minuteOfDay());
-  const [followNow, setFollowNow] = useState(true);
   const [status, setStatus] = useState(t("booting"));
   const [lastSync, setLastSync] = useState<string | null>(null);
   const syncTimer = useRef<number | null>(null);
+  const today = localDay();
+  const nowMinute = minuteOfDay();
+  const maxCursorMinute = day === today ? nowMinute : 1439;
 
   const visibleMessages = useMemo(
     () => {
@@ -271,15 +285,25 @@ export function GithubDanmaku() {
   useEffect(() => {
     const timer = window.setInterval(() => {
       const now = new Date();
-      if (localDay(now) !== day && followNow) setDay(localDay(now));
-      if (followNow) setCursorMinute(minuteOfDay(now));
-    }, 15_000);
+      const currentDay = localDay(now);
+      const currentMinute = minuteOfDay(now);
+      setDay((currentDayValue) => {
+        if (currentDayValue !== currentDay && cursorMinute >= 1439) {
+          return currentDay;
+        }
+        return currentDayValue;
+      });
+      setCursorMinute((currentMinuteValue) => {
+        const maxMinute = day === currentDay ? currentMinute : 1439;
+        return Math.min(maxMinute, currentMinuteValue + 1);
+      });
+    }, 60_000);
     return () => window.clearInterval(timer);
-  }, [day, followNow]);
+  }, [cursorMinute, day]);
 
   async function sendMessage() {
     if (!session?.user || !text.trim()) return;
-    const createdAt = new Date();
+    const createdAt = dateAtLocalMinute(day, Math.min(cursorMinute, maxCursorMinute));
     const optimistic: DanmakuMessage = {
       id: crypto.randomUUID(),
       clientId: crypto.randomUUID(),
@@ -500,11 +524,10 @@ export function GithubDanmaku() {
                   {timeLabel(cursorMinute)}
                 </h2>
               </div>
-                  <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button
-                  type={followNow ? "primary" : "default"}
+                  type={cursorMinute >= nowMinute && day === today ? "primary" : "default"}
                   onClick={() => {
-                    setFollowNow(true);
                     setDay(localDay());
                     setCursorMinute(minuteOfDay());
                   }}
@@ -524,10 +547,9 @@ export function GithubDanmaku() {
               <input
                 type="range"
                 min={0}
-                max={1439}
-                value={cursorMinute}
+                max={maxCursorMinute}
+                value={Math.min(cursorMinute, maxCursorMinute)}
                 onChange={(event) => {
-                  setFollowNow(false);
                   setCursorMinute(Number(event.target.value));
                 }}
                 className="w-full accent-[#19c8b9]"
