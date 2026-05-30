@@ -99,27 +99,6 @@ canvas.hiddenCanvasElement {
   background: rgba(0, 0, 0, 0.5);
 }
 
-.github-danmaku-range {
-  height: 36px;
-  background: transparent;
-}
-
-.github-danmaku-range::-webkit-slider-runnable-track {
-  height: 8px;
-  border-radius: 999px;
-  background: #19c8b9;
-}
-
-.github-danmaku-range::-webkit-slider-thumb {
-  margin-top: -8px;
-}
-
-.github-danmaku-range::-moz-range-track {
-  height: 8px;
-  border-radius: 999px;
-  background: #19c8b9;
-}
-
 .mini-office-pdf-text-layer {
   --min-font-size: 1;
   --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));

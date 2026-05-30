@@ -2,7 +2,14 @@
 
 import { Button, Card, Cursor, Icon } from "animal-island-ui";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent,
+} from "react";
 
 import { LocaleSwitch } from "@/components/locale-switch";
 import { useAppNavigation } from "@/components/navigation-provider";
@@ -80,7 +87,7 @@ function minuteOfDay(date = new Date()) {
   return date.getHours() * 60 + date.getMinutes();
 }
 
-function dateAtLocalMinute(day: string, minutes: number) {
+function dateAtLocalMinute(day: string, minutes: number, source = new Date()) {
   const [year, month, date] = day.split("-").map(Number);
   return new Date(
     year,
@@ -88,7 +95,8 @@ function dateAtLocalMinute(day: string, minutes: number) {
     date,
     Math.floor(minutes / 60),
     minutes % 60,
-    0,
+    source.getSeconds(),
+    source.getMilliseconds(),
   );
 }
 
@@ -206,8 +214,13 @@ export function GithubDanmaku() {
   const [status, setStatus] = useState(t("booting"));
   const [lastSync, setLastSync] = useState<string | null>(null);
   const syncTimer = useRef<number | null>(null);
+  const timelineRef = useRef<HTMLDivElement | null>(null);
   const maxCursorMinute = day === now.day ? now.minute : 1439;
-  const playableWidth = `${Math.max(2, (maxCursorMinute / 1439) * 100)}%`;
+  const playablePercent = Math.max(0, Math.min(100, (maxCursorMinute / 1439) * 100));
+  const cursorPercent = Math.max(
+    0,
+    Math.min(100, (Math.min(cursorMinute, maxCursorMinute) / 1439) * 100),
+  );
 
   const visibleMessages = useMemo(
     () => {
@@ -225,14 +238,14 @@ export function GithubDanmaku() {
         .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
         .slice(-120)
         .map((message, index) => {
-          const secondsFromStart = Math.max(
+          const secondsUntilCursor = Math.max(
             0,
-            messageSecondOfDay(message) - windowStart * 60,
+            cursorMinute * 60 - messageSecondOfDay(message),
           );
           return {
             ...message,
             lane: index % laneCount,
-            delay: -Math.min(0.95, secondsFromStart / windowSeconds) * 14,
+            delay: -Math.min(0.95, secondsUntilCursor / windowSeconds) * 14,
           };
         });
     },
@@ -311,9 +324,20 @@ export function GithubDanmaku() {
     }
   }, [cursorMinute, day, now.day, now.minute]);
 
+  function seekTimeline(event: PointerEvent<HTMLDivElement>) {
+    const rect = timelineRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    const requestedMinute = Math.round(ratio * 1439);
+    setCursorMinute(Math.min(requestedMinute, maxCursorMinute));
+  }
+
   async function sendMessage() {
     if (!session?.user || !text.trim()) return;
-    const createdAt = dateAtLocalMinute(day, Math.min(cursorMinute, maxCursorMinute));
+    const createdAt = dateAtLocalMinute(
+      day,
+      Math.min(cursorMinute, maxCursorMinute),
+    );
     const optimistic: DanmakuMessage = {
       id: crypto.randomUUID(),
       clientId: crypto.randomUUID(),
@@ -556,22 +580,56 @@ export function GithubDanmaku() {
             </p>
 
             <div className="mt-5">
-              <div className="relative h-9">
-                <div className="absolute left-0 right-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-[#d4c9b4]" />
+              <div className="relative h-10">
                 <div
-                  className="absolute right-0 top-1/2 h-2 -translate-y-1/2 rounded-r-full bg-[repeating-linear-gradient(45deg,rgba(122,79,39,0.18)_0_6px,rgba(255,255,255,0.28)_6px_12px)]"
-                  style={{ left: playableWidth }}
-                />
-                <div className="absolute left-0 top-0" style={{ width: playableWidth }}>
-                  <input
-                    type="range"
-                    min={0}
-                    max={maxCursorMinute}
-                    value={Math.min(cursorMinute, maxCursorMinute)}
-                    onChange={(event) => {
-                      setCursorMinute(Number(event.target.value));
-                    }}
-                    className="github-danmaku-range w-full accent-[#19c8b9]"
+                  ref={timelineRef}
+                  role="slider"
+                  tabIndex={0}
+                  aria-valuemin={0}
+                  aria-valuemax={maxCursorMinute}
+                  aria-valuenow={Math.min(cursorMinute, maxCursorMinute)}
+                  aria-valuetext={timeLabel(Math.min(cursorMinute, maxCursorMinute))}
+                  className="absolute left-0 right-0 top-0 h-10 cursor-pointer rounded-full outline-none focus-visible:ring-4 focus-visible:ring-[#19c8b9]/40"
+                  onPointerDown={(event) => {
+                    seekTimeline(event);
+                    event.currentTarget.setPointerCapture(event.pointerId);
+                  }}
+                  onPointerMove={(event) => {
+                    if (event.buttons === 1) seekTimeline(event);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "ArrowLeft") {
+                      event.preventDefault();
+                      setCursorMinute((current) => Math.max(0, current - 5));
+                    }
+                    if (event.key === "ArrowRight") {
+                      event.preventDefault();
+                      setCursorMinute((current) =>
+                        Math.min(maxCursorMinute, current + 5),
+                      );
+                    }
+                    if (event.key === "Home") {
+                      event.preventDefault();
+                      setCursorMinute(0);
+                    }
+                    if (event.key === "End") {
+                      event.preventDefault();
+                      setCursorMinute(maxCursorMinute);
+                    }
+                  }}
+                >
+                  <div className="absolute left-0 right-0 top-4 h-2 rounded-full bg-[#d4c9b4]" />
+                  <div
+                    className="absolute left-0 top-4 h-2 rounded-l-full bg-[#19c8b9]"
+                    style={{ width: `${playablePercent}%` }}
+                  />
+                  <div
+                    className="absolute right-0 top-4 h-2 rounded-r-full bg-[repeating-linear-gradient(45deg,rgba(122,79,39,0.18)_0_6px,rgba(255,255,255,0.28)_6px_12px)]"
+                    style={{ left: `${playablePercent}%` }}
+                  />
+                  <div
+                    className="absolute top-2 h-6 w-6 -translate-x-1/2 rounded-full border-4 border-[#794f27] bg-white shadow-[0_2px_0_rgba(122,97,65,0.2)]"
+                    style={{ left: `${cursorPercent}%` }}
                   />
                 </div>
               </div>
