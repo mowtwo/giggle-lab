@@ -334,10 +334,12 @@ export function GithubDanmaku() {
 
   async function sendMessage() {
     if (!session?.user || !text.trim()) return;
-    const createdAt = dateAtLocalMinute(
-      day,
-      Math.min(cursorMinute, maxCursorMinute),
-    );
+    const nextNow = nowSnapshot();
+    setNow(nextNow);
+    setDay(nextNow.day);
+    setCursorMinute(nextNow.minute);
+
+    const createdAt = dateAtLocalMinute(nextNow.day, nextNow.minute);
     const optimistic: DanmakuMessage = {
       id: crypto.randomUUID(),
       clientId: crypto.randomUUID(),
@@ -472,6 +474,12 @@ export function GithubDanmaku() {
                   maxLength={140}
                   disabled={!session?.user}
                   onChange={(event) => setText(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      sendMessage();
+                    }
+                  }}
                   placeholder={session?.user ? t("placeholder") : t("loginFirst")}
                   className="min-h-28 resize-none rounded-lg border-2 border-[#d4c9b4] bg-white p-3 text-sm font-bold text-[#473727] outline-none focus:border-[#19c8b9]"
                 />
