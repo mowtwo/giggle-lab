@@ -9,6 +9,7 @@ type CellValue = string | number | boolean | null;
 type CellData = {
   value: CellValue;
   href?: string;
+  formula?: string;
   images: SheetImage[];
 };
 
@@ -29,6 +30,7 @@ type SheetView = {
 };
 
 type XlsxCell = {
+  f?: string;
   w?: string;
   v?: string | number | boolean | Date | null;
   l?: {
@@ -284,6 +286,7 @@ export function XlsxRenderer({
           row.push({
             value: value instanceof Date ? value.toLocaleDateString() : value,
             href: cell?.l?.Target,
+            formula: cell?.f,
             images: imageMap.get(`${rowIndex}:${colIndex}`) ?? [],
           });
         }
@@ -376,7 +379,11 @@ export function XlsxRenderer({
                     className={`max-w-72 px-2 py-1 align-top text-[#473727] ${
                       options.includeGrid ? "border border-[#eee4cf]" : ""
                     }`}
-                    title={cellToText(row[colIndex])}
+                    title={
+                      row[colIndex]?.formula
+                        ? `=${row[colIndex].formula}`
+                        : cellToText(row[colIndex])
+                    }
                   >
                     <div className="grid gap-2">
                       {row[colIndex]?.href ? (
@@ -389,7 +396,17 @@ export function XlsxRenderer({
                           {cellToText(row[colIndex]) || row[colIndex].href}
                         </a>
                       ) : (
-                        <span className="truncate">{cellToText(row[colIndex])}</span>
+                        <span className="flex min-w-0 items-center gap-1">
+                          <span className="truncate">{cellToText(row[colIndex])}</span>
+                          {row[colIndex]?.formula ? (
+                            <span
+                              title={`=${row[colIndex].formula}`}
+                              className="rounded border border-[#19c8b9] bg-[#dcfbf7] px-1 text-[10px] font-black leading-4 text-[#087d76]"
+                            >
+                              fx
+                            </span>
+                          ) : null}
+                        </span>
                       )}
                       {row[colIndex]?.images.map((image) => (
                         // eslint-disable-next-line @next/next/no-img-element
