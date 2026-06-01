@@ -242,7 +242,7 @@ export function MiniOfficeWeb() {
 
         {!officeFile ? (
           <section className="mx-auto grid min-h-[calc(100svh-120px)] max-w-3xl place-items-center py-8">
-            <Card type="title" color="app-teal" className="w-full p-6 text-center sm:p-8">
+            <Card type="default" color="app-teal" className="w-full p-6 text-center sm:p-8">
               <div className="grid justify-items-center gap-5">
                 <Icon name="icon-design" size={82} bounce />
                 <div className="space-y-3">

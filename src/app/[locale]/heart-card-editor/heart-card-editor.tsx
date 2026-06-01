@@ -1616,7 +1616,7 @@ export function HeartCardEditor() {
           </Card>
 
           <Card
-            type="title"
+            type="default"
             color="app-yellow"
             className="flex min-h-0 flex-col p-5"
           >

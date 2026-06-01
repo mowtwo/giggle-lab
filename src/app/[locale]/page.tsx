@@ -91,7 +91,7 @@ export default function Home() {
             </div>
           </div>
 
-          <Card type="title" color="app-teal" className="p-6">
+          <Card type="default" color="app-teal" className="p-6">
             <div className="space-y-5">
               <div className="flex items-center gap-4">
                 <Icon name="icon-chat" size={72} bounce />

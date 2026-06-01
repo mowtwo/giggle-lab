@@ -206,7 +206,7 @@ export function MagicCamera() {
         </div>
 
         <section className="mx-auto grid max-w-7xl gap-5 py-7 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)] lg:items-start">
-          <Card type="title" color="purple" className="p-5 sm:p-6">
+          <Card type="default" color="purple" className="p-5 sm:p-6">
             <div className="grid gap-5">
               <div className="flex items-center gap-4">
                 <Icon name="icon-camera" size={64} bounce />

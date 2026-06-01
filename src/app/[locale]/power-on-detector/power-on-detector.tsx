@@ -185,7 +185,7 @@ export function PowerOnDetector() {
 
         <section className="mx-auto grid min-h-[calc(100svh-144px)] max-w-5xl place-items-center py-10">
           <Card
-            type="title"
+            type="default"
             color="app-yellow"
             className="grid w-full max-w-2xl justify-items-center gap-7 p-8 text-center sm:p-12"
           >

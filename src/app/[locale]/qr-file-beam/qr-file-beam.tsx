@@ -1084,7 +1084,7 @@ export function QrFileBeam() {
 
         <section className="mx-auto grid max-w-6xl gap-6 py-8 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
           <div className="space-y-5">
-            <Card type="title" color="app-teal" className="p-6">
+            <Card type="default" color="app-teal" className="p-6">
               <div className="space-y-5">
                 <div className="flex flex-wrap items-center gap-4">
                   <Icon name="icon-camera" size={64} bounce />

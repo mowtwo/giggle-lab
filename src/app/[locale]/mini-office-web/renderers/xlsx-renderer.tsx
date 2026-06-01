@@ -221,6 +221,22 @@ export function XlsxRenderer({
 }) {
   const [view, setView] = useState<SheetView | null>(null);
   const [activeSheet, setActiveSheet] = useState("");
+  const [formulaTip, setFormulaTip] = useState<{
+    formula: string;
+    left: number;
+    top: number;
+  } | null>(null);
+
+  function showFormulaTip(formula: string, element: HTMLElement) {
+    const rect = element.getBoundingClientRect();
+    const maxLeft = Math.max(12, window.innerWidth - 360);
+    const top = rect.top > 86 ? rect.top - 68 : rect.bottom + 28;
+    setFormulaTip({
+      formula,
+      left: Math.min(Math.max(12, rect.left + 18), maxLeft),
+      top: Math.min(Math.max(12, top), window.innerHeight - 96),
+    });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -379,11 +395,7 @@ export function XlsxRenderer({
                     className={`max-w-72 px-2 py-1 align-top text-[#473727] ${
                       options.includeGrid ? "border border-[#eee4cf]" : ""
                     }`}
-                    title={
-                      row[colIndex]?.formula
-                        ? `=${row[colIndex].formula}`
-                        : cellToText(row[colIndex])
-                    }
+                    title={row[colIndex]?.formula ? undefined : cellToText(row[colIndex])}
                   >
                     <div className="grid gap-2">
                       {row[colIndex]?.href ? (
@@ -400,8 +412,16 @@ export function XlsxRenderer({
                           <span className="truncate">{cellToText(row[colIndex])}</span>
                           {row[colIndex]?.formula ? (
                             <span
-                              title={`=${row[colIndex].formula}`}
-                              className="rounded border border-[#19c8b9] bg-[#dcfbf7] px-1 text-[10px] font-black leading-4 text-[#087d76]"
+                              tabIndex={0}
+                              onMouseEnter={(event) =>
+                                showFormulaTip(row[colIndex].formula!, event.currentTarget)
+                              }
+                              onMouseLeave={() => setFormulaTip(null)}
+                              onFocus={(event) =>
+                                showFormulaTip(row[colIndex].formula!, event.currentTarget)
+                              }
+                              onBlur={() => setFormulaTip(null)}
+                              className="rounded border border-[#19c8b9] bg-[#dcfbf7] px-1 text-[10px] font-black leading-4 text-[#087d76] outline-none"
                             >
                               fx
                             </span>
@@ -426,6 +446,14 @@ export function XlsxRenderer({
           </tbody>
         </table>
       </div>
+      {formulaTip ? (
+        <div
+          className="pointer-events-none fixed z-[1301] max-w-[min(22rem,calc(100vw-1.5rem))] whitespace-pre-wrap rounded-md border-2 border-[#794f27] bg-[#fffdf2] px-3 py-2 text-left text-xs font-black leading-5 text-[#473727] shadow-[0_4px_0_rgba(122,97,65,0.22)]"
+          style={{ left: formulaTip.left, top: formulaTip.top }}
+        >
+          ={formulaTip.formula}
+        </div>
+      ) : null}
     </div>
   );
 }

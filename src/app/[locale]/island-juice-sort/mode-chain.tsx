@@ -94,7 +94,7 @@ export function ChainMode() {
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:items-start">
       <div className="space-y-5">
-        <Card type="title" color="app-teal" className="p-6">
+        <Card type="default" color="app-teal" className="p-6">
           <div className="space-y-5">
             <div className="space-y-2">
               <p className="text-sm font-black uppercase tracking-[0.12em] text-[#00766d]">

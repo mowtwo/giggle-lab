@@ -9,4 +9,4 @@ ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
 minimumReleaseAgeExclude:
-  - animal-island-ui@0.9.3
+  - animal-island-ui
