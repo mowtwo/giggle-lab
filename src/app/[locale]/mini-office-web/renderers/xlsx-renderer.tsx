@@ -9,6 +9,14 @@ type CellValue = string | number | boolean | null;
 type CellData = {
   value: CellValue;
   href?: string;
+  images: SheetImage[];
+};
+
+type SheetImage = {
+  src: string;
+  name: string;
+  row: number;
+  col: number;
 };
 
 type SheetView = {
@@ -29,8 +37,23 @@ type XlsxCell = {
   };
 };
 
+type ZipEntry = {
+  async(type: "text"): Promise<string>;
+  async(type: "base64"): Promise<string>;
+};
+
+type ZipArchive = {
+  file(path: string): ZipEntry | null;
+};
+
+type Relationship = {
+  target: string;
+  type: string;
+};
+
 const MAX_ROWS = 80;
 const MAX_COLS = 20;
+const REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
 function cellToText(cell: CellData | undefined) {
   if (!cell || cell.value === null || cell.value === undefined) return "";
@@ -42,6 +65,145 @@ function readDenseCell(sheet: unknown, rowIndex: number, colIndex: number) {
   const row = sheet[rowIndex];
   if (!Array.isArray(row)) return undefined;
   return row[colIndex] as XlsxCell | undefined;
+}
+
+function parseXml(xml: string) {
+  return new DOMParser().parseFromString(xml, "application/xml");
+}
+
+function normalizeZipPath(path: string) {
+  const parts: string[] = [];
+  for (const part of path.split("/")) {
+    if (!part || part === ".") continue;
+    if (part === "..") {
+      parts.pop();
+      continue;
+    }
+    parts.push(part);
+  }
+  return parts.join("/");
+}
+
+function resolveTarget(ownerPath: string, target: string) {
+  if (/^[a-z]+:/i.test(target)) return target;
+  if (target.startsWith("/")) return normalizeZipPath(target.slice(1));
+  const directory = ownerPath.slice(0, ownerPath.lastIndexOf("/"));
+  return normalizeZipPath(`${directory}/${target}`);
+}
+
+function elementsByLocalName(node: ParentNode, localName: string) {
+  return Array.from(node.querySelectorAll("*")).filter(
+    (element) => element.localName === localName,
+  );
+}
+
+function firstByLocalName(node: ParentNode, localName: string) {
+  return elementsByLocalName(node, localName)[0];
+}
+
+function childTextByLocalName(node: ParentNode | undefined, localName: string) {
+  if (!node) return "";
+  return firstByLocalName(node, localName)?.textContent ?? "";
+}
+
+function mediaMime(path: string) {
+  if (/\.jpe?g$/i.test(path)) return "image/jpeg";
+  if (/\.gif$/i.test(path)) return "image/gif";
+  if (/\.webp$/i.test(path)) return "image/webp";
+  return "image/png";
+}
+
+async function readRelationships(zip: ZipArchive, ownerPath: string) {
+  const directory = ownerPath.slice(0, ownerPath.lastIndexOf("/"));
+  const basename = ownerPath.slice(ownerPath.lastIndexOf("/") + 1);
+  const relsPath = `${directory}/_rels/${basename}.rels`;
+  const xml = await zip.file(relsPath)?.async("text");
+  const relationships = new Map<string, Relationship>();
+  if (!xml) return relationships;
+
+  const doc = parseXml(xml);
+  for (const rel of Array.from(doc.getElementsByTagName("Relationship"))) {
+    const id = rel.getAttribute("Id");
+    const target = rel.getAttribute("Target");
+    const type = rel.getAttribute("Type") ?? "";
+    if (!id || !target) continue;
+    relationships.set(id, { target: resolveTarget(ownerPath, target), type });
+  }
+  return relationships;
+}
+
+async function readWorkbookSheetPaths(zip: ZipArchive) {
+  const workbookXml = await zip.file("xl/workbook.xml")?.async("text");
+  const workbookRels = await readRelationships(zip, "xl/workbook.xml");
+  const paths = new Map<string, string>();
+  if (!workbookXml) return paths;
+
+  const workbook = parseXml(workbookXml);
+  for (const sheet of elementsByLocalName(workbook, "sheet")) {
+    const name = sheet.getAttribute("name");
+    const relId = sheet.getAttribute("r:id") ?? sheet.getAttributeNS(REL_NS, "id");
+    const target = relId ? workbookRels.get(relId)?.target : undefined;
+    if (name && target) paths.set(name, target);
+  }
+  return paths;
+}
+
+async function readSheetImages(
+  zip: ZipArchive,
+  sheetPath: string | undefined,
+  sheetName: string,
+) {
+  const fallbackPath =
+    sheetPath ?? `xl/worksheets/sheet${Math.max(1, Number(sheetName.match(/\d+/)?.[0] ?? 1))}.xml`;
+  const sheetXml = await zip.file(fallbackPath)?.async("text");
+  if (!sheetXml) return [];
+
+  const sheetDoc = parseXml(sheetXml);
+  const drawing = elementsByLocalName(sheetDoc, "drawing")[0];
+  const drawingRelId =
+    drawing?.getAttribute("r:id") ?? drawing?.getAttributeNS(REL_NS, "id");
+  if (!drawingRelId) return [];
+
+  const sheetRels = await readRelationships(zip, fallbackPath);
+  const drawingPath = sheetRels.get(drawingRelId)?.target;
+  const drawingXml = drawingPath ? await zip.file(drawingPath)?.async("text") : undefined;
+  if (!drawingXml || !drawingPath) return [];
+
+  const drawingRels = await readRelationships(zip, drawingPath);
+  const drawingDoc = parseXml(drawingXml);
+  const anchors = elementsByLocalName(drawingDoc, "twoCellAnchor").concat(
+    elementsByLocalName(drawingDoc, "oneCellAnchor"),
+  );
+  const images: SheetImage[] = [];
+
+  for (const anchor of anchors) {
+    const from = firstByLocalName(anchor, "from");
+    const row = Number(childTextByLocalName(from, "row"));
+    const col = Number(childTextByLocalName(from, "col"));
+    if (!Number.isFinite(row) || !Number.isFinite(col)) continue;
+
+    const pic = firstByLocalName(anchor, "pic");
+    const blip = pic ? firstByLocalName(pic, "blip") : undefined;
+    const embedId =
+      blip?.getAttribute("r:embed") ?? blip?.getAttributeNS(REL_NS, "embed");
+    const target = embedId ? drawingRels.get(embedId)?.target : undefined;
+    const file = target ? zip.file(target) : null;
+    if (!target || !file) continue;
+
+    const name =
+      firstByLocalName(anchor, "cNvPr")?.getAttribute("name") ??
+      firstByLocalName(anchor, "cNvPr")?.getAttribute("descr") ??
+      "Workbook image";
+    const base64 = await file.async("base64");
+    images.push({
+      row,
+      col,
+      name,
+      src: `data:${mediaMime(target)};base64,${base64}`,
+    });
+  }
+
+  return images;
 }
 
 export function XlsxRenderer({
@@ -62,7 +224,12 @@ export function XlsxRenderer({
     let cancelled = false;
 
     async function load() {
-      const XLSX = await import("xlsx");
+      const [{ default: JSZip }, XLSX] = await Promise.all([
+        import("jszip"),
+        import("xlsx"),
+      ]);
+      const zip = await JSZip.loadAsync(officeFile.buffer.slice(0));
+      const sheetPaths = await readWorkbookSheetPaths(zip);
       const workbook = XLSX.read(officeFile.buffer, {
         type: "array",
         dense: true,
@@ -74,8 +241,37 @@ export function XlsxRenderer({
       const sheetName = activeSheet || workbook.SheetNames[0] || "";
       const sheet = workbook.Sheets[sheetName];
       const decoded = XLSX.utils.decode_range(sheet?.["!ref"] ?? "A1");
-      const totalRows = decoded.e.r + 1;
-      const totalCols = decoded.e.c + 1;
+      const images = await readSheetImages(zip, sheetPaths.get(sheetName), sheetName);
+      const imageMap = new Map<string, SheetImage[]>();
+      for (const image of images) {
+        const key = `${image.row}:${image.col}`;
+        imageMap.set(key, [...(imageMap.get(key) ?? []), image]);
+      }
+      const denseRows = Array.isArray(sheet) ? sheet.length : 0;
+      const denseCols = Array.isArray(sheet)
+        ? Math.max(0, ...sheet.map((row) => (Array.isArray(row) ? row.length : 0)))
+        : 0;
+      const addressExtent = Object.keys((sheet as Record<string, unknown>) ?? {})
+        .filter((key) => /^[A-Z]+\d+$/.test(key))
+        .reduce(
+          (extent, address) => {
+            const cell = XLSX.utils.decode_cell(address);
+            return {
+              rows: Math.max(extent.rows, cell.r + 1),
+              cols: Math.max(extent.cols, cell.c + 1),
+            };
+          },
+          { rows: 0, cols: 0 },
+        );
+      const imageExtent = images.reduce(
+        (extent, image) => ({
+          rows: Math.max(extent.rows, image.row + 1),
+          cols: Math.max(extent.cols, image.col + 1),
+        }),
+        { rows: 0, cols: 0 },
+      );
+      const totalRows = Math.max(decoded.e.r + 1, denseRows, addressExtent.rows, imageExtent.rows);
+      const totalCols = Math.max(decoded.e.c + 1, denseCols, addressExtent.cols, imageExtent.cols);
       const rows: CellData[][] = [];
       for (let rowIndex = 0; rowIndex < Math.min(totalRows, MAX_ROWS); rowIndex += 1) {
         const row: CellData[] = [];
@@ -88,6 +284,7 @@ export function XlsxRenderer({
           row.push({
             value: value instanceof Date ? value.toLocaleDateString() : value,
             href: cell?.l?.Target,
+            images: imageMap.get(`${rowIndex}:${colIndex}`) ?? [],
           });
         }
         rows.push(row);
@@ -103,7 +300,7 @@ export function XlsxRenderer({
         totalCols,
       });
       onReady(
-        `${workbook.SheetNames.length} sheets loaded; performance preview shows cached formula results`,
+        `${workbook.SheetNames.length} sheets loaded; ${images.length} images found; performance preview shows cached formula results`,
       );
     }
 
@@ -176,23 +373,35 @@ export function XlsxRenderer({
                 {Array.from({ length: columnCount }, (_, colIndex) => (
                   <td
                     key={colIndex}
-                    className={`max-w-64 truncate px-2 py-1 text-[#473727] ${
+                    className={`max-w-72 px-2 py-1 align-top text-[#473727] ${
                       options.includeGrid ? "border border-[#eee4cf]" : ""
                     }`}
                     title={cellToText(row[colIndex])}
                   >
-                    {row[colIndex]?.href ? (
-                      <a
-                        href={row[colIndex].href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-black text-[#087d76] underline decoration-2 underline-offset-2"
-                      >
-                        {cellToText(row[colIndex]) || row[colIndex].href}
-                      </a>
-                    ) : (
-                      cellToText(row[colIndex])
-                    )}
+                    <div className="grid gap-2">
+                      {row[colIndex]?.href ? (
+                        <a
+                          href={row[colIndex].href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="truncate font-black text-[#087d76] underline decoration-2 underline-offset-2"
+                        >
+                          {cellToText(row[colIndex]) || row[colIndex].href}
+                        </a>
+                      ) : (
+                        <span className="truncate">{cellToText(row[colIndex])}</span>
+                      )}
+                      {row[colIndex]?.images.map((image) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={`${image.row}-${image.col}-${image.name}`}
+                          src={image.src}
+                          alt={image.name}
+                          title={image.name}
+                          className="max-h-36 min-h-16 w-full rounded-md border border-[#d4c9b4] object-contain"
+                        />
+                      ))}
+                    </div>
                   </td>
                 ))}
               </tr>
