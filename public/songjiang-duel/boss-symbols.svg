@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="256" viewBox="0 0 512 256">
+  <defs>
+    <filter id="stampRough">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="61"/>
+      <feDisplacementMap in="SourceGraphic" scale="3"/>
+    </filter>
+  </defs>
+  <rect width="512" height="256" fill="#f0dfbd"/>
+  <g filter="url(#stampRough)">
+    <circle cx="90" cy="104" r="58" fill="#d84b37" stroke="#22140d" stroke-width="8"/>
+    <text x="90" y="122" text-anchor="middle" font-family="serif" font-size="48" font-weight="900" fill="#ffe6b0">官</text>
+    <rect x="190" y="46" width="116" height="116" rx="18" fill="#ead095" stroke="#22140d" stroke-width="8"/>
+    <text x="248" y="119" text-anchor="middle" font-family="serif" font-size="54" font-weight="900" fill="#2b1a12">令</text>
+    <path d="M366 154c-30-34-32-69-4-104 28 34 31 69 4 104z" fill="#8159bf" stroke="#22140d" stroke-width="7"/>
+    <path d="M411 160c-28-23-35-55-20-96 35 25 41 57 20 96z" fill="#4d8ed6" stroke="#22140d" stroke-width="7"/>
+    <path d="M330 183c38 15 81 16 130 0" fill="none" stroke="#22140d" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <text x="256" y="225" text-anchor="middle" font-family="serif" font-size="30" font-weight="900" fill="#8b3128">BOSS 出场</text>
+</svg>

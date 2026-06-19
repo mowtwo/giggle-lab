@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "theme": "paper-ink-shuihu",
+  "assets": [
+    {
+      "id": "paperFrame",
+      "src": "/songjiang-duel/paper-frame.svg",
+      "role": "battlefield paper frame"
+    },
+    {
+      "id": "tileKit",
+      "src": "/songjiang-duel/tile-kit.svg",
+      "role": "hand drawn board tile reference"
+    },
+    {
+      "id": "songjiangTarget",
+      "src": "/songjiang-duel/songjiang-target.svg",
+      "role": "Song Jiang endpoint marker"
+    },
+    {
+      "id": "propsSheet",
+      "src": "/songjiang-duel/props-sheet.svg",
+      "role": "paper prop icons"
+    },
+    {
+      "id": "bossSymbols",
+      "src": "/songjiang-duel/boss-symbols.svg",
+      "role": "boss warning and official seal symbols"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useAudio } from "@/lib/audio/provider";
@@ -11,6 +12,7 @@ const STAY_MS = 10_000;
 const BYE_HOLD_MS = 1_500;
 
 export function TanukiCompanion() {
+  const pathname = usePathname();
   const { mounted, enabled } = useAudio();
   const [variant, setVariant] = useState<TanukiAvatarVariant>("talk");
   const [visible, setVisible] = useState(false);
@@ -61,7 +63,7 @@ export function TanukiCompanion() {
     }
   }, [enabled, visible]);
 
-  if (!mounted) return null;
+  if (!mounted || pathname.includes("/songjiang-duel")) return null;
 
   return (
     <div

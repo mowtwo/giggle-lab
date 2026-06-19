@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { useAudio } from "@/lib/audio/provider";
@@ -94,6 +95,7 @@ function RangeSlider({
 
 export function AudioToggle() {
   const t = useTranslations("Audio");
+  const pathname = usePathname();
   const {
     enabled,
     mounted,
@@ -122,7 +124,7 @@ export function AudioToggle() {
     return () => window.removeEventListener("mousedown", onDocClick);
   }, [panelOpen]);
 
-  if (!mounted) return null;
+  if (!mounted || pathname.includes("/songjiang-duel")) return null;
 
   return (
     <div

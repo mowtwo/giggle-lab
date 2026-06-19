@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource/ma-shan-zheng": "^5.2.9",
     "@fontsource/noto-sans-sc": "^5.2.9",
     "@fontsource/nunito": "^5.2.7",
     "@fontsource/zen-maru-gothic": "^5.2.8",
@@ -29,6 +30,7 @@
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.7.284",
     "pinyin-pro": "^3.28.1",
+    "pixi.js": "^8.19.0",
     "qrcode": "^1.5.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="256" viewBox="0 0 768 256">
+  <defs>
+    <filter id="ink">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="41"/>
+      <feDisplacementMap in="SourceGraphic" scale="2.5"/>
+    </filter>
+  </defs>
+  <rect width="768" height="256" fill="#f0dfbd"/>
+  <g filter="url(#ink)" stroke="#21140d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="translate(30 28)">
+      <rect width="84" height="84" rx="16" fill="#f4dda3"/>
+      <path d="M30 18l34 42M65 30L42 67M22 66h44" fill="none"/>
+      <text x="42" y="122" text-anchor="middle" font-size="26" font-weight="900" font-family="serif">铲</text>
+    </g>
+    <g transform="translate(154 28)">
+      <rect width="84" height="84" rx="16" fill="#ecd08f"/>
+      <path d="M24 58c21-19 39-24 56-15M22 36c28-10 47-9 58 2" fill="none"/>
+      <circle cx="31" cy="68" r="8" fill="#ad3c2c"/>
+      <circle cx="64" cy="68" r="8" fill="#ad3c2c"/>
+      <text x="42" y="122" text-anchor="middle" font-size="26" font-weight="900" font-family="serif">车</text>
+    </g>
+    <g transform="translate(278 28)">
+      <rect width="84" height="84" rx="16" fill="#f3e0b1"/>
+      <path d="M22 66c26-24 43-42 52-58M54 20l17 15" fill="none"/>
+      <path d="M21 70c16 5 31 3 45-7" fill="none" stroke="#a3342b"/>
+      <text x="42" y="122" text-anchor="middle" font-size="26" font-weight="900" font-family="serif">笔</text>
+    </g>
+    <g transform="translate(402 28)">
+      <rect width="84" height="84" rx="16" fill="#e6d3a2"/>
+      <path d="M26 25h38l8 39-29 13-29-13z" fill="#b84d35"/>
+      <path d="M33 30c15 6 29 6 42 0" fill="none" stroke="#f7d88a"/>
+      <text x="42" y="122" text-anchor="middle" font-size="26" font-weight="900" font-family="serif">酒</text>
+    </g>
+    <g transform="translate(526 28)">
+      <rect width="84" height="84" rx="16" fill="#e5dbb4"/>
+      <path d="M18 55c18-16 39-16 62 0M26 68c14-10 32-10 50 0" fill="none" stroke="#2d5c83"/>
+      <text x="42" y="122" text-anchor="middle" font-size="26" font-weight="900" font-family="serif">墨</text>
+    </g>
+    <g transform="translate(650 28)">
+      <rect width="84" height="84" rx="16" fill="#eed49b"/>
+      <path d="M22 22h40l-7 58H29zM58 22l13 14" fill="none"/>
+      <path d="M30 42h22M28 57h25" fill="none" stroke="#a3342b"/>
+      <text x="42" y="122" text-anchor="middle" font-size="26" font-weight="900" font-family="serif">令</text>
+    </g>
+  </g>
+</svg>

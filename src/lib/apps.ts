@@ -84,6 +84,15 @@ export const miniApps: MiniApp[] = [
     href: "/island-juice-sort",
   },
   {
+    titleKey: "songjiangDuel.title",
+    slug: "songjiang-duel",
+    summaryKey: "songjiangDuel.summary",
+    status: "ready",
+    color: "app-yellow",
+    icon: "icon-diy",
+    href: "/songjiang-duel",
+  },
+  {
     titleKey: "gifEditor.title",
     slug: "gif-editor",
     summaryKey: "gifEditor.summary",

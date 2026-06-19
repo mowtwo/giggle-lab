@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-06-19T03:53:45.701Z",
+  "sourceBase": "https://sda.4399.com/4399swf/upload_swf/ftp54/huangcijin/20260610/01/",
+  "outputRoot": "public/songjiang-duel/original",
+  "downloaded": 230,
+  "atlasFrames": 937,
+  "extractedFrames": 0,
+  "failed": [
+    {
+      "path": "shader/basicShader.shader",
+      "error": "Error: Fetch failed 404 for shader/basicShader.shader"
+    },
+    {
+      "path": "shader/buttonShapeGlow.shader",
+      "error": "Error: Fetch failed 404 for shader/buttonShapeGlow.shader"
+    },
+    {
+      "path": "shader/sweepLight.shader",
+      "error": "Error: Fetch failed 404 for shader/sweepLight.shader"
+    }
+  ]
+}
