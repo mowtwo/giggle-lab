@@ -12,6 +12,15 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".layaair-cache/**",
+    ".laya-build/**",
+    "public/adou-laya/**",
+    "apps/adou-laya/bin/**",
+    "apps/adou-laya/engine/**",
+    "apps/adou-laya/library/**",
+    "apps/adou-laya/local/**",
+    "apps/adou-laya/release/**",
+    "apps/adou-laya/temp/**",
   ]),
 ]);
 

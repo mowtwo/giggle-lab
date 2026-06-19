@@ -75,7 +75,7 @@
       "title": "Island Juice Sort",
       "summary": "Sort layered fruit juice back into matching glass bottles with random, verified-solvable puzzles."
     },
-    "songjiangDuel": {
+    "adouDuel": {
       "title": "Wobbly Adou",
       "summary": "An Adou-guard word-defense game with soldier glyphs, skills, weapons, and general merging."
     },
@@ -180,48 +180,9 @@
     "metadataTitle": "Power-on Detector - Giggle Lab",
     "metadataDescription": "Seriously check whether your current device is powered on."
   },
-  "SongjiangDuel": {
+  "AdouDuel": {
     "metadataTitle": "Wobbly Adou - Giggle Lab",
-    "metadataDescription": "An Adou-guard word-defense game with brush-letter generals, active skills, passive skills, and weapons.",
-    "eyebrow": "Adou guard grid",
-    "title": "Wobbly Adou",
-    "assetLoading": "Loading assets",
-    "assetReady": "Dynamic assets loaded",
-    "assetError": "Fallback rendering",
-    "round": "Wave",
-    "time": "Time",
-    "songjiangHp": "Adou HP",
-    "opponentHp": "Rival base",
-    "grain": "Buns",
-    "inspector": "Inspector",
-    "use": "Use",
-    "bulldozer": "Cart",
-    "endMatch": "End",
-    "reroll": "Reroll",
-    "cost": "Cost",
-    "map": "Map",
-    "noSelection": "Reroll to recruit, then drag a word tile.",
-    "dragToBoard": "Drag to board",
-    "unitSelected": "Drag or inspect range",
-    "activeSkill": "Active",
-    "passiveSkill": "Passive",
-    "weapon": "Weapon",
-    "skillsTab": "Skills",
-    "generalsTab": "Generals",
-    "weaponsTab": "Weapons",
-    "activeSlots": "Active skills",
-    "passiveSlots": "Passive skills",
-    "parts": "Parts",
-    "stats": "Codex",
-    "emptySlot": "Empty",
-    "ready": "Ready",
-    "startGame": "Start",
-    "returnTitle": "Title",
-    "restart": "Restart",
-    "cancel": "Cancel",
-    "victory": "Adou holds steady. Guard duty succeeds.",
-    "defeat": "Adou buckles. The enemy breaks through.",
-    "draw": "Both sides collapse into glorious chaos."
+    "metadataDescription": "An Adou-guard word-defense game with brush-letter generals, active skills, passive skills, and weapons."
   },
   "QrFileBeam": {
     "metadataTitle": "QR File Beam - Giggle Lab",

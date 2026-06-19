@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm build:laya && pnpm build:next",
+    "build:next": "next build",
+    "build:laya": "node scripts/build-adou-laya.mjs",
     "start": "next start",
     "lint": "eslint"
   },

@@ -124,7 +124,9 @@ export function AudioToggle() {
     return () => window.removeEventListener("mousedown", onDocClick);
   }, [panelOpen]);
 
-  if (!mounted || pathname.includes("/songjiang-duel")) return null;
+  if (!mounted || pathname.includes("/adou-duel")) {
+    return null;
+  }
 
   return (
     <div
