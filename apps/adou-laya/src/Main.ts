@@ -59,6 +59,7 @@ import { BaseSoldier } from "./battle/base-soldier";
 import { HitStrategy, HitEnemyStrategy, HitStrategyFactory } from "./battle/hit-strategy";
 import { BulletMovementBase, DefaultBulletMovement, BulletEvent } from "./battle/bullet-movement";
 import { Bullet, SimpleDynamicArrow } from "./battle/bullet";
+import { SimpleHitAreaBullet, PikeBullet, KnifeBullet } from "./battle/bullets-area";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -124,6 +125,9 @@ const ported = {
   BulletEvent,
   Bullet,
   SimpleDynamicArrow,
+  SimpleHitAreaBullet,
+  PikeBullet,
+  KnifeBullet,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
