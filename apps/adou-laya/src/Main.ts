@@ -39,6 +39,7 @@ import { EffectRelation } from "./battle/effect-relation";
 import { AttrType, SpecialIndex } from "./battle/attr-type";
 import { GameMgr } from "./core/game-mgr";
 import { PreloadMgr } from "./core/preload-mgr";
+import { TipMgr } from "./core/tip-mgr";
 import * as FrameAnim from "./battle/frame-anim";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
@@ -75,6 +76,7 @@ const ported = {
   SpecialIndex,
   GameMgr,
   PreloadMgr,
+  TipMgr,
   FrameAnim,
 };
 
