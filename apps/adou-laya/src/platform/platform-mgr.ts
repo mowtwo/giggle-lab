@@ -20,4 +20,22 @@ export class PlatformMgr extends Singleton {
   exit(): void {
     console.warn("[PlatformMgr] exit() is a no-op in the static web build.");
   }
+
+  /**
+   * Preload platform tasks during LoadScene (`ou`). The original ran 4399 SDK
+   * preload work and reported progress(loaded, total); the static build has no
+   * platform tasks, so report complete and resolve immediately.
+   */
+  preloadTasks(onProgress?: (loaded: number, total: number) => void): Promise<void> {
+    if (onProgress) onProgress(1, 1);
+    return Promise.resolve();
+  }
+
+  /**
+   * Startup platform tasks after the privacy gate (`lu`) — login / server time
+   * / config in the original. Removed for the static build; resolves immediately.
+   */
+  startupTasks(): Promise<void> {
+    return Promise.resolve();
+  }
 }
