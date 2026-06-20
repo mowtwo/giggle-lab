@@ -62,6 +62,7 @@ import { Bullet, SimpleDynamicArrow } from "./battle/bullet";
 import { SimpleHitAreaBullet, PikeBullet, KnifeBullet } from "./battle/bullets-area";
 import { Prop } from "./battle/prop";
 import { DamageStatsMgr } from "./battle/dps-mgr";
+import { WeaponFactory, WeaponMgr } from "./battle/weapon-factory";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -132,6 +133,8 @@ const ported = {
   KnifeBullet,
   Prop,
   DamageStatsMgr,
+  WeaponFactory,
+  WeaponMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
