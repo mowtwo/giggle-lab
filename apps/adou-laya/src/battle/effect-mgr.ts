@@ -26,12 +26,16 @@ import { GameEvent } from "../core/game-event";
 import { LayerZ } from "../core/layer-z";
 import { MathE } from "../core/math-e";
 import { PrefabFactory } from "./prefab-factory";
+import { UpdateMgr } from "../core/update-mgr";
+import { GameMgr } from "../core/game-mgr";
 
 const z = () => PrefabFactory.instance();
-const y = EventMgr.instance;
+const evt = EventMgr.instance;
 const u = GameEvent;
 const X = LayerZ;
 const $ = () => AudioMgr.instance();
+const j = () => UpdateMgr.instance();
+const F = () => GameMgr.instance();
 
 export class EffectMgr extends Singleton {
   // Battle layer / overlay references (assigned by BattleScene).
@@ -132,7 +136,7 @@ export class EffectMgr extends Singleton {
     const e = z().getItem("textEff", this);
     e.text = text;
     e.color = blue ? "#2083EA" : "#FFF83D";
-    y.event(u.Ut, e, X.Cr);
+    evt.event(u.Ut, e, X.Cr);
     target.localToGlobal(Laya.Point.TEMP.setTo(target.width / 2, 0));
     if (e.parent) e.parent.globalToLocal(Laya.Point.TEMP);
     e.pos(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
@@ -696,5 +700,135 @@ export class EffectMgr extends Singleton {
         );
       }),
     );
+  }
+
+  /** Floating "+gold" popup (image when amount===1, else with +N text). (`zl`) */
+  playGoldUp(x: number, y: number, amount = 1, scale = 1): void {
+    const imageOnly = amount === 1;
+    const poolName = imageOnly ? "goldUpImg" : "goldUp";
+    const n = z().getItem(poolName, this);
+    n.alpha = 1;
+    n.scale(scale, scale);
+    evt.event(u.Ut, n, X.Fr);
+    this.Mo.x = x;
+    this.Mo.y = y;
+    n.parent.globalToLocal(this.Mo);
+    n.pos(this.Mo.x, this.Mo.y);
+    const baseY = n.y;
+    if (!imageOnly) n.getChildByName("txt").text = "+" + amount;
+    const now = j().elapsed;
+    if (now - this.bo > 100) this.bo = now;
+    Laya.Tween.create(n)
+      .to("y", baseY - 30)
+      .duration(400)
+      .chain()
+      .to("y", baseY - 20)
+      .to("alpha", 0)
+      .duration(300)
+      .then(() => this.recoverEffect(n, poolName, scale));
+  }
+
+  /** Reset + recover a pooled effect node. (`jl`) */
+  recoverEffect(node: any, poolName: string, scale: number): void {
+    node.alpha = 1;
+    node.scale(scale, scale);
+    node.removeSelf();
+    z().recover(poolName, node);
+  }
+
+  /** Grow grass back over a tile via an animated mask reveal (~10s). (`ql`) */
+  growGrass(parent: any, grassSkin: string, x: number, y: number): void {
+    const id = (this.So += 1);
+    const a = z().getItem("shovelGrass", this);
+    a.zIndex = X.lr;
+    const grass = a.getChildByName("grass");
+    grass.skin = grassSkin;
+    const mask = grass.getChildByName("maskSp");
+    const shovel = a.getChildByName("shovel");
+    mask.graphics.clear();
+    mask.graphics.drawRect(0, 0, 0, 0, "#fff");
+    parent.addChild(a);
+    a.pos(x, y);
+    shovel.visible = false;
+    let elapsed = 0;
+    j().register("growGrass" + id, this, (delta: number) => {
+      elapsed += delta;
+      mask.graphics.clear();
+      mask.graphics.drawRect(0, 0, F().map.gridWid * ((10000 - elapsed) / 10000), F().map.gridHei, "#fff");
+      if (elapsed >= 10000) {
+        j().unregister("growGrass" + id);
+        mask.graphics.clear();
+        mask.graphics.drawRect(0, 0, F().map.gridWid, F().map.gridHei, "#fff");
+        a.removeSelf();
+        shovel.visible = true;
+        z().recover("shovelGrass", a);
+      }
+    });
+  }
+
+  /** Toggle the drag target-range circle indicator. (`Vl`) */
+  toggleTargetCircle(show: boolean | null, radius: number, x: number, y: number): void {
+    if (!this.No) {
+      this.No = new Laya.Sprite();
+      this.No.alpha = 0.2;
+      this.No.visible = false;
+      evt.event(u.Ut, this.No, X.yr);
+    }
+    if (show == null) show = !this.No.visible;
+    if (show) {
+      if (this.No.visible && x === this.Ro && y === this.Co) {
+        this.No.visible = false;
+        return;
+      }
+      this.Ro = x;
+      this.Co = y;
+      this.No.graphics.clear();
+      this.No.graphics.drawCircle(0, 0, radius, "#fff", "#000", 3);
+      this.Mo.x = x;
+      this.Mo.y = y;
+      this.No.parent.globalToLocal(this.Mo);
+      this.No.pos(this.Mo.x, this.Mo.y);
+      this.No.visible = true;
+    } else {
+      this.No.visible = false;
+    }
+  }
+
+  /** Spawn a 2D trail that arcs from (x1,y1) to (x2,y2). (`Ql`) */
+  spawnTrail(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    arcHeight: number,
+    onDone: any,
+    skin = "",
+    color = "#ffffff",
+    parent: any = null,
+  ): void {
+    const l = z().getItem("trail", this);
+    const head = l.getChildAt(0);
+    head.skin = skin;
+    head.skin.includes("generalParts") ? (head.color = "#cd8831") : (head.color = "#ffffff");
+    const trail = l.getComponent(Laya.Trail2DRender);
+    trail.clear();
+    trail.enabled = true;
+    trail.widthMultiplier = l.getChildAt(0).width / 2;
+    trail.time = 0.3;
+    const c = new Laya.ColorUtils(color).arrColor;
+    trail.color = new Laya.Color(c[0], c[1], c[2], 0.5);
+    if (parent) parent.addChild(l);
+    else evt.event(u.Ut, l, X.kr);
+    this.Mo.x = x1;
+    this.Mo.y = y1;
+    l.parent.globalToLocal(this.Mo);
+    l.pos(this.Mo.x, this.Mo.y);
+    const start = { x: this.Mo.x, y: this.Mo.y };
+    this.Mo.x = x2;
+    this.Mo.y = y2;
+    l.parent.globalToLocal(this.Mo);
+    const end = { x: this.Mo.x, y: this.Mo.y };
+    const ctrl = { x: start.x + (end.x - start.x) / 2, y: start.y - arcHeight };
+    this.Uo.push({ Zl: l, Gl: start, p1: ctrl, p2: end, time: 0, Kl: onDone });
   }
 }
