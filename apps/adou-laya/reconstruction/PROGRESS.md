@@ -32,7 +32,10 @@ See `CLASS-MAP.md` for the full UUID→class map.
 - [x] `LayerZ` zIndex/layer constants (`X`/`Y`)
 - [x] `GameEvent` event-name registry (`u`/`c`, 70 keys)
 - [x] `SaveMgr` player save data (`E`) — LocalStorage-backed
+- [x] `UpdateMgr` (`j`) — central frame-loop ticker / update registrar
 - [ ] TipMgr + loading-mask (`tt`, `J`)
+- [ ] Game hub (`F`) exposing player/managers
+- [ ] PlatMgr load-flow ("启动主流程", preload tasks)
 - [ ] EffectMgr / button-feedback manager (`N`/`q`)
 - [ ] Data-table loaders + game-state/entity managers (`U`, `A`, `P`, ...)
 - [ ] Data-table loaders (weapon.json / weaponTxt.json / rank.json; Map(54)/Map(44))
