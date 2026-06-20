@@ -246,7 +246,7 @@ export abstract class Soldier extends DraggableObject {
   }
 
   /** Change the unit's level (clamped 1..5), refresh data + level-up visual. (`cL`) */
-  protected changeLevel(delta = 1, playEffect = true): void {
+  protected cL(delta = 1, playEffect = true): void {
     const leveledUp = delta > 0;
     this.level = Math.min(5, Math.max(this.level + delta, 1));
     this.Id = this.dg.generals.Wa[this.level - 1];
@@ -296,10 +296,6 @@ export abstract class Soldier extends DraggableObject {
         this.cL(this.dd - 1);
       }
     }
-  }
-
-  protected cL(delta: number): void {
-    this.changeLevel(delta);
   }
 
   gameOver(): void {

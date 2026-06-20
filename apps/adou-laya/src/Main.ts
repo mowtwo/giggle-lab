@@ -55,6 +55,7 @@ import { Soldier } from "./battle/soldier";
 import { SpineSprite } from "./battle/spine-sprite";
 import { FrameAnimSprite } from "./battle/frame-anim-sprite";
 import { AnimPlayer } from "./battle/anim-player";
+import { BaseSoldier } from "./battle/base-soldier";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -111,6 +112,7 @@ const ported = {
   SpineSprite,
   FrameAnimSprite,
   AnimPlayer,
+  BaseSoldier,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
