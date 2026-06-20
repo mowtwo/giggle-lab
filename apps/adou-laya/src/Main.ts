@@ -50,6 +50,8 @@ import { EnemyFactory, EnemyTypes } from "./battle/enemy-factory";
 import { Buff, makeBuffData } from "./battle/buff";
 import { AttrBuff, CallbackBuff } from "./battle/buffs";
 import { GameObject, DraggableObject } from "./battle/game-object";
+import { PoolFactory } from "./battle/pool-factory";
+import { Soldier } from "./battle/soldier";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -101,6 +103,8 @@ const ported = {
   CallbackBuff,
   GameObject,
   DraggableObject,
+  PoolFactory,
+  Soldier,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
