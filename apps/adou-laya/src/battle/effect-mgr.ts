@@ -38,9 +38,18 @@ const j = () => UpdateMgr.instance();
 const F = () => GameMgr.instance();
 
 export class EffectMgr extends Singleton {
+  // Static keys/tables (verbatim).
+  static readonly Jl = "$trailFadeRecover";
+  static readonly nu = [
+    "resources/img/shop/light1.png",
+    "resources/img/shop/light2.png",
+    "resources/img/shop/light3.png",
+  ];
+
   // Battle layer / overlay references (assigned by BattleScene).
   No: any = null;
   Vo: any = null;
+  hc: any = null; // reusable battle-smoke sprite
 
   // Shared effect-tracking state (verbatim from the bundle constructor).
   So = 0;
@@ -830,5 +839,191 @@ export class EffectMgr extends Singleton {
     const end = { x: this.Mo.x, y: this.Mo.y };
     const ctrl = { x: start.x + (end.x - start.x) / 2, y: start.y - arcHeight };
     this.Uo.push({ Zl: l, Gl: start, p1: ctrl, p2: end, time: 0, Kl: onDone });
+  }
+
+  /** Per-frame: advance trails along their arc; on arrival, fade + recover. (`Jo`) */
+  updateTrails(delta: number): void {
+    if (this.Uo.length <= 0) return;
+    for (let h = this.Uo.length - 1; h >= 0; h--) {
+      const i = this.Uo[h];
+      i.time += delta / 300;
+      if (MathE.quadraticBezierPoint(i.Gl, i.p1, i.p2, i.Zl, i.time)) {
+        const s = i.Zl;
+        s.pos(i.p2.x, i.p2.y);
+        const render = s.getComponent(Laya.Trail2DRender);
+        const fadeDelay = 1000 * render.time + 200;
+        const recover = () => {
+          s[EffectMgr.Jl] = null;
+          if (this.Fo.delete(s)) {
+            render.clear();
+            render.enabled = false;
+            s.removeSelf();
+            s.getChildAt(0).skin = "";
+            z().recover("trail", s);
+          }
+        };
+        s[EffectMgr.Jl] = recover;
+        this.Fo.add(s);
+        Laya.timer.once(fadeDelay, this, recover);
+        s.getChildAt(0).skin = "";
+        this.Uo.splice(h, 1);
+        if (i.Kl) i.Kl();
+      }
+    }
+  }
+
+  /** Immediately clear all active + pending trails (e.g. battle end). (`qo`) */
+  clearTrails(): void {
+    for (const s of this.Fo) {
+      const cb = s[EffectMgr.Jl];
+      if (cb) Laya.timer.clear(this, cb);
+      s[EffectMgr.Jl] = null;
+      const render = s.getComponent(Laya.Trail2DRender);
+      if (render) {
+        render.clear();
+        render.enabled = false;
+      }
+      s.removeSelf();
+      s.getChildAt(0).skin = "";
+      z().recover("trail", s);
+    }
+    this.Fo.clear();
+    if (this.Uo.length <= 0) return;
+    const skipCallbacks = F().battleState.Vi;
+    for (let t = this.Uo.length - 1; t >= 0; t--) {
+      const i = this.Uo[t];
+      i.time = 1;
+      if (!skipCallbacks && i.Kl) i.Kl();
+      const render = i.Zl.getComponent(Laya.Trail2DRender);
+      if (render) {
+        render.clear();
+        render.enabled = false;
+      }
+      i.Zl.removeSelf();
+      i.Zl.getChildAt(0).skin = "";
+      z().recover("trail", i.Zl);
+      this.Uo.splice(t, 1);
+    }
+  }
+
+  /** Pop a talk-box bubble at (x,y) that auto-hides after 3s. (`tc`) */
+  showTalkBox(x: number, y: number, text: string, parent: any = null, autoFlip = true, forceDir: number | null = null): void {
+    const n = z().getItem("talkBox", this);
+    const r = n.getChildByName("txt");
+    const baseW = n.width;
+    const baseH = n.height;
+    const txtW = r.width;
+    const txtH = r.height;
+    n.zIndex = X.Yr;
+    r.text = text;
+    const len = text.length;
+    if (len >= 5) {
+      const grow = Math.min(1.2 + 0.3 * Math.floor((len - 5) / 4), 2.5);
+      n.width = baseW * grow;
+      n.height = baseH * grow;
+      r.width = txtW * grow;
+      r.height = txtH * grow;
+      r.pos(n.width / 2, n.height / 2);
+      r.typeset();
+    } else {
+      n.width = baseW;
+      n.height = baseH;
+      r.width = txtW;
+      r.height = txtH;
+    }
+    n.pos(x, y);
+    n.scale(0, 0);
+    if (parent) parent.addChild(n);
+    else evt.event(u.Ut, n, X.Yr);
+    this.Mo.x = x;
+    this.Mo.y = y;
+    n.parent.globalToLocal(this.Mo);
+    n.pos(this.Mo.x, this.Mo.y);
+    let dir = 1;
+    if (autoFlip && forceDir == null) dir = x < 320 ? -1 : 1;
+    else if (forceDir === 1) dir = -1;
+    else if (forceDir === 2) dir = 1;
+    r.scaleX = dir;
+    Laya.Tween.to(
+      n,
+      { scaleX: 1 * dir, scaleY: 1 },
+      100,
+      null,
+      Laya.Handler.create(this, () => {
+        Laya.timer.once(3000, this, () => {
+          Laya.Tween.to(
+            n,
+            { scaleX: 0, scaleY: 0 },
+            100,
+            null,
+            Laya.Handler.create(this, () => {
+              n.width = baseW;
+              n.height = baseH;
+              r.width = txtW;
+              r.height = txtH;
+              r.pos(baseW / 2, baseH / 2);
+              n.removeSelf();
+              z().recover("talkBox", n);
+            }),
+          );
+        });
+      }),
+    );
+  }
+
+  /** 12-point red burst that scatters then converges. (`redPoint`) */
+  redPoint(x: number, y: number): void {
+    let scale = 1;
+    for (let h = 0; h < 12; h++) {
+      const e = z().getItem("redPoint", this);
+      e.pos(
+        x + 30 * Math.cos((h / 12) * 360 * (Math.PI / 180)),
+        y + 30 * Math.sin((h / 12) * 360 * (Math.PI / 180)),
+      );
+      evt.event(u.Ut, e, X._r);
+      e.scale(0, 0);
+      scale = MathE.range(0.5, 1) as number;
+      Laya.Tween.to(
+        e,
+        { scaleX: scale, scaleY: scale },
+        100,
+        null,
+        Laya.Handler.create(this, () => {
+          Laya.Tween.to(
+            e,
+            { x, y, scaleX: 0, scaleY: 0 },
+            200,
+            null,
+            Laya.Handler.create(this, () => {
+              e.removeSelf();
+              z().recover("redPoint", e);
+            }),
+          );
+        }),
+      );
+    }
+  }
+
+  /** Looping battle-smoke animation at (x,y); calls onDone after the cycle. (`sc`) */
+  playBattleSmoke(parent: any, x: number, y: number, onDone: any): void {
+    if (!this.hc) {
+      this.hc = new Laya.Image("resources/img/effect/battleSmoke0.png");
+      this.hc.size(236, 214);
+      this.hc.anchorX = 0.5;
+      this.hc.anchorY = 0.5;
+    }
+    this.hc.pos(x, y);
+    parent.addChild(this.hc);
+    let e = 0;
+    const step = () => {
+      if (e === 3) {
+        Laya.timer.clear(this, step);
+        this.hc.removeSelf();
+        if (onDone) onDone();
+      }
+      e += 1;
+      this.hc.skin = `resources/img/effect/battleSmoke${e % 4}.png`;
+    };
+    Laya.timer.loop(100, this, step);
   }
 }
