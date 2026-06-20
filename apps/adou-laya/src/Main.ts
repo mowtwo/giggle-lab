@@ -30,6 +30,7 @@ import { StaminaMgr } from "./data/stamina-mgr";
 import { OnMgr } from "./data/on-mgr";
 import { MapId } from "./data/map-id";
 import { AStar, Grid, GridNode } from "./battle/pathfinding";
+import { MapMgr } from "./battle/map-mgr";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -55,6 +56,7 @@ const ported = {
   AStar,
   Grid,
   GridNode,
+  MapMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
