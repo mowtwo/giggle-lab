@@ -18,6 +18,9 @@ import { SceneMgr } from "./core/scene-mgr";
 import { AudioMgr } from "./core/audio-mgr";
 import { PrivacyAgreementMgr } from "./core/privacy-agreement-mgr";
 import { PlatformMgr } from "./platform/platform-mgr";
+import { LayerZ } from "./core/layer-z";
+import { GameEvent } from "./core/game-event";
+import { SaveMgr } from "./core/save-mgr";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -29,6 +32,9 @@ const ported = {
   AudioMgr,
   PrivacyAgreementMgr,
   PlatformMgr,
+  LayerZ,
+  GameEvent,
+  SaveMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.

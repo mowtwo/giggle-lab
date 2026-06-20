@@ -1,0 +1,86 @@
+// GameEvent — global event-name registry.
+//
+// Faithful reconstruction of the original bundle's event-key object `c`/`u`
+// (reconstruction/reference/bundle.pretty.js lines ~35-118), built there as
+// `Object.fromEntries(Object.keys(c).map(t => [t, t]))` — i.e. every value
+// equals its key. The original semantic event names were mangled away in the
+// published bundle, so the short keys are preserved verbatim; producers and
+// consumers stay consistent because both reference `GameEvent.<key>`. As call
+// sites are ported, meanings can be annotated here (e.g. `qt` = gold changed).
+//
+// Dispatched via EventMgr.instance.event(GameEvent.<key>, ...).
+
+export const GameEvent = {
+  o: "o",
+  l: "l",
+  m: "m",
+  _: "_",
+  j: "j",
+  $: "$",
+  q: "q",
+  st: "st",
+  it: "it",
+  ht: "ht",
+  et: "et",
+  nt: "nt",
+  ot: "ot",
+  ut: "ut",
+  yt: "yt",
+  ft: "ft",
+  gt: "gt",
+  dt: "dt",
+  Lt: "Lt",
+  wt: "wt",
+  vt: "vt",
+  kt: "kt",
+  _t: "_t",
+  xt: "xt",
+  St: "St",
+  bt: "bt",
+  Mt: "Mt",
+  Pt: "Pt",
+  At: "At",
+  Et: "Et",
+  Bt: "Bt",
+  It: "It",
+  Dt: "Dt",
+  Tt: "Tt",
+  Rt: "Rt",
+  Ct: "Ct",
+  Ut: "Ut",
+  Ft: "Ft",
+  Ot: "Ot",
+  Yt: "Yt",
+  Xt: "Xt",
+  Gt: "Gt",
+  Ht: "Ht",
+  Wt: "Wt",
+  zt: "zt",
+  jt: "jt",
+  $t: "$t",
+  Nt: "Nt",
+  qt: "qt",
+  Vt: "Vt",
+  Qt: "Qt",
+  Zt: "Zt",
+  Kt: "Kt",
+  Jt: "Jt",
+  ts: "ts",
+  ss: "ss",
+  hs: "hs",
+  es: "es",
+  ns: "ns",
+  rs: "rs",
+  ls: "ls",
+  cs: "cs",
+  us: "us",
+  ys: "ys",
+  gs: "gs",
+  ds: "ds",
+  Ls: "Ls",
+  ks: "ks",
+  _s: "_s",
+  xs: "xs",
+} as const;
+
+export type GameEventName = (typeof GameEvent)[keyof typeof GameEvent];

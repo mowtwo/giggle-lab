@@ -29,11 +29,12 @@ See `CLASS-MAP.md` for the full UUID→class map.
 - [x] `AudioMgr` (`$`) — playSound / music / ad pause-resume
 - [x] `PrivacyAgreementMgr` (`Kr`/`Zr`) — platform config + agreement gate/dialog
 - [x] `PlatformMgr` (`Mt`) — static-safe stub (exit; grows as callers are ported)
-- [ ] zIndex constants (`X`)
+- [x] `LayerZ` zIndex/layer constants (`X`/`Y`)
+- [x] `GameEvent` event-name registry (`u`/`c`, 70 keys)
+- [x] `SaveMgr` player save data (`E`) — LocalStorage-backed
 - [ ] TipMgr + loading-mask (`tt`, `J`)
-- [ ] event-name registry (`u`/`c`)
-- [ ] Save / player-data manager(s) (`st`, `U`, ...)
 - [ ] EffectMgr / button-feedback manager (`N`/`q`)
+- [ ] Data-table loaders + game-state/entity managers (`U`, `A`, `P`, ...)
 - [ ] Data-table loaders (weapon.json / weaponTxt.json / rank.json; Map(54)/Map(44))
 - [ ] Game/battle state managers (`U`, ...), weapon + bullet factories
 
