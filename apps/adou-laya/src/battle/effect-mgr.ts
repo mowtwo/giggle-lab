@@ -26,10 +26,12 @@ import { GameEvent } from "../core/game-event";
 import { LayerZ } from "../core/layer-z";
 import { MathE } from "../core/math-e";
 import { PrefabFactory } from "./prefab-factory";
+import { PrefabPool } from "./prefab-pool";
 import { UpdateMgr } from "../core/update-mgr";
 import { GameMgr } from "../core/game-mgr";
 
 const z = () => PrefabFactory.instance();
+const H = () => PrefabPool.instance();
 const evt = EventMgr.instance;
 const u = GameEvent;
 const X = LayerZ;
@@ -51,6 +53,7 @@ export class EffectMgr extends Singleton {
   Vo: any = null;
   hc: any = null; // reusable battle-smoke sprite
   dc: any = null; // reusable unit-info tooltip box
+  Yc: any = null; // reusable spotlight box (bundle field `Yc`)
 
   // Shared effect-tracking state (verbatim from the bundle constructor).
   So = 0;
@@ -1720,5 +1723,147 @@ export class EffectMgr extends Singleton {
       h.skin = `resources/img/effect/fallEff${e % 5}.png`;
     };
     Laya.timer.loop(50, this, step);
+  }
+
+  /** Per-frame: drive registered shake oscillations. (`shake`) */
+  updateShake(delta: number): void {
+    for (const s of this.Yo.values()) {
+      s.timer += delta;
+      if (s.timer > s.time) {
+        this.Yo.delete(s.id);
+        if (s.onComplete) s.onComplete();
+        return;
+      }
+      if (s.img.rotation > s.amplitude) s.Dc = -1;
+      if (s.img.rotation < -s.amplitude) s.Dc = 1;
+      s.img.rotation += 8 * s.Dc;
+    }
+  }
+
+  /** Level-up effect at (x,y). (`Tc`) */
+  playLvlUp(x: number, y: number): void {
+    const i = H().so("lvlUpEff").create();
+    const h = i.getChildAt(0);
+    const e = i.getChildAt(1);
+    h.pos(40, 100);
+    h.scale(0, 0);
+    h.alpha = 0;
+    e.scale(0, 0);
+    e.alpha = 0;
+    evt.event(u.Ut, i, X.Ir);
+    Laya.Point.TEMP.x = x;
+    Laya.Point.TEMP.y = y;
+    i.parent.globalToLocal(Laya.Point.TEMP);
+    i.pos(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    Laya.Tween.to(h, { scaleX: 1, scaleY: 0.5, alpha: 1 }, 100, null, Laya.Handler.create(this, () => {
+      Laya.Tween.to(h, { scaleY: 1 }, 30, null, Laya.Handler.create(this, () => {
+        Laya.Tween.to(h, { alpha: 0, y: h.y - 30 }, 300);
+      }));
+      Laya.Tween.to(e, { scaleX: 1, scaleY: 1, alpha: 1 }, 100, null, Laya.Handler.create(this, () => {
+        Laya.Tween.to(e, { alpha: 0, y: e.y - 30 }, 500, null, Laya.Handler.create(this, () => {
+          i.destroy();
+        }));
+      }));
+    }));
+  }
+
+  /** Level-down effect at (x,y). (`Rc`) */
+  playLvlDown(x: number, y: number): void {
+    const i = H().so("lvlDownEff").create();
+    const h = i.getChildAt(1);
+    const e = i.getChildAt(0);
+    evt.event(u.Ut, i, X.Dr);
+    Laya.Point.TEMP.x = x;
+    Laya.Point.TEMP.y = y;
+    i.parent.globalToLocal(Laya.Point.TEMP);
+    i.pos(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    h.alpha = 0;
+    e.alpha = 0;
+    Laya.Tween.to(h, { alpha: 1 }, 100, null, Laya.Handler.create(this, () => {
+      Laya.Tween.to(h, { alpha: 0, y: e.y + 30 }, 300, null, Laya.Handler.create(this, () => {
+        i.destroy();
+      }));
+      Laya.Tween.to(e, { scaleX: 1, scaleY: 1, alpha: 1 }, 100, null, Laya.Handler.create(this, () => {
+        Laya.Tween.to(e, { alpha: 0, y: e.y + 30 }, 500, null, Laya.Handler.create(this, () => {
+          i.destroy();
+        }));
+      }));
+    }));
+  }
+
+  /** Roll in the black-cloud overlay (one half). (`Cc`) */
+  showBlackCloud(bottomHalf: boolean): void {
+    if (!this.Vo) {
+      this.Vo = new Laya.Box();
+      this.Vo.pos(0, 200);
+      this.Vo.size(640, 800);
+      for (let t = 0; t < 40; t++) {
+        const cloud = new Laya.Image("resources/img/gameObject/enemy/blackCloud0.png");
+        cloud.size(502, 149);
+        this.Vo.addChild(cloud);
+      }
+      evt.event(u.Ut, this.Vo, X.zr);
+    }
+    const start = bottomHalf ? Math.floor(this.Vo.numChildren / 2) : 0;
+    const end = bottomHalf ? this.Vo.numChildren : Math.floor(this.Vo.numChildren / 2);
+    for (let h = start; h < end; h++) {
+      const s = this.Vo.getChildAt(h);
+      s.alpha = MathE.range(0.7, 1) as number;
+      s.pos(
+        MathE.range(-200, 500) as number,
+        MathE.range(bottomHalf ? 400 : -100, bottomHalf ? 700 : 300) as number,
+      );
+      if (s.x < 150) {
+        s.x -= 700;
+        Laya.Tween.to(s, { x: s.x + 700 }, 1000, Laya.Ease.cubicOut);
+      } else {
+        s.x += 700;
+        Laya.Tween.to(s, { x: s.x - 700 }, 1000, Laya.Ease.cubicOut);
+      }
+    }
+    this.Vo.visible = true;
+  }
+
+  /** Roll out the black-cloud overlay (one half). (`Uc`) */
+  hideBlackCloud(bottomHalf: boolean): void {
+    if (!this.Vo) return;
+    const start = bottomHalf ? Math.floor(this.Vo.numChildren / 2) : 0;
+    const end = bottomHalf ? this.Vo.numChildren : Math.floor(this.Vo.numChildren / 2);
+    for (let t = start; t < end; t++) {
+      const s = this.Vo.getChildAt(t);
+      if (s.x < 150) Laya.Tween.to(s, { x: s.x - 700 }, 1000, Laya.Ease.cubicOut);
+      else Laya.Tween.to(s, { x: s.x + 700 }, 1000, Laya.Ease.cubicOut);
+    }
+    this.Vo.visible = false;
+  }
+
+  /** A love-heart that flies from `from` to `to`, then bursts. (`Fc`) */
+  playLoveHeart(from: any, to: any, onDone: any): void {
+    const h = H().so("loveHeart").create();
+    const light = h.getChildByName("heartLight");
+    const heart = h.getChildByName("heart");
+    const trail = heart.getChildByName("heartTrail");
+    evt.event(u.Ut, h, X.Ar);
+    this.Mo.x = from.x;
+    this.Mo.y = from.y;
+    h.parent.globalToLocal(this.Mo);
+    this.Po.x = to.x;
+    this.Po.y = to.y;
+    h.parent.globalToLocal(this.Po);
+    h.pos(this.Mo.x, this.Mo.y);
+    trail.rotation = MathE.angle(this.Mo, this.Po);
+    const dist = MathE.distance(this.Mo, this.Po);
+    Laya.Tween.to(h, { x: this.Po.x, y: this.Po.y }, 2 * dist, null, Laya.Handler.create(this, () => {
+      Laya.Tween.to(trail, { alpha: 0 }, 100);
+      Laya.Tween.to(heart, { scaleX: 1.5, scaleY: 1.5 }, 100, null, Laya.Handler.create(this, () => {
+        Laya.Tween.to(heart, { scaleX: 1.6, scaleY: 1.6, alpha: 0 }, 200);
+      }));
+      Laya.Tween.to(light, { scaleX: 2, scaleY: 2 }, 100, null, Laya.Handler.create(this, () => {
+        Laya.Tween.to(light, { scaleX: 2.3, scaleY: 2.3, alpha: 0 }, 200, null, Laya.Handler.create(this, () => {
+          h.destroy(true);
+          if (onDone) onDone();
+        }));
+      }));
+    }));
   }
 }
