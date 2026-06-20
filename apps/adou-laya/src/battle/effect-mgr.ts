@@ -1866,4 +1866,100 @@ export class EffectMgr extends Singleton {
       }));
     }));
   }
+
+  /** Register a frame-loop animation; returns its id. (`Al`) */
+  registerImgLoop(img: any, skins: string[], time: number, skinIndex = 0, loopCount = 0, onComplete: any = null): number {
+    const id = (this.So += 1);
+    this.Oo.set(id, { id, img, skins, skinIndex, time, timer: 0, Ac: loopCount, Ec: 0, Kl: onComplete });
+    return id;
+  }
+
+  /** Enable/disable the rain area (used by `updateRain`). (`Oc`) */
+  setRainArea(enabled: boolean, x: number, y: number, w: number, h: number): void {
+    this.Xo = enabled;
+    if (this.Xo) {
+      if (!this.Yc) {
+        this.Yc = new Laya.Box();
+        evt.event(u.Ut, this.Yc, X.jr);
+      }
+      this.Yc.pos(x, y);
+      this.Yc.width = w;
+      this.Yc.height = h;
+    }
+  }
+
+  /** Per-frame: spawn diagonal rain streaks inside the rain area. (`sl`) */
+  updateRain(delta: number): void {
+    if (!this.Xo) return;
+    this.Ho += delta;
+    if (this.Ho < 20) return;
+    this.Ho = 0;
+    const s = z().getItem("rain", this);
+    this.Yc.addChild(s);
+    this.Mo.x = MathE.range(0, 800) as number;
+    this.Mo.y = -900;
+    s.pos(this.Mo.x, this.Mo.y);
+    this.Go.x = this.Po.x = MathE.range(this.Mo.x - 300, this.Mo.x - 200) as number;
+    this.Go.y = this.Po.y = MathE.range(0, this.Yc.height) as number;
+    s.rotation = MathE.angle(this.Mo, this.Po);
+    const dist = MathE.distance(this.Mo, this.Po);
+    Laya.Tween.to(s, { x: this.Po.x, y: this.Po.y }, dist, null, Laya.Handler.create(this, () => {
+      s.removeSelf();
+      z().recover("rain", s);
+    }));
+  }
+
+  /** Thunder strike at (x,y) (5-frame loop then fade). (`Xc`) */
+  playThunderStrike(x: number, y: number): void {
+    const i = z().getItem("thunderStrikeEff", this);
+    i.scale(1, 1);
+    evt.event(u.Ut, i, X.Br);
+    Laya.Point.TEMP.x = x;
+    Laya.Point.TEMP.y = y;
+    i.parent.globalToLocal(Laya.Point.TEMP);
+    i.pos(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    this.registerImgLoop(
+      i,
+      [
+        "resources/img/effect/thunder0.png",
+        "resources/img/effect/thunder1.png",
+        "resources/img/effect/thunder2.png",
+        "resources/img/effect/thunder1.png",
+        "resources/img/effect/thunder0.png",
+      ],
+      50,
+      0,
+      1,
+      () => {
+        Laya.Tween.create(i)
+          .to("alpha", 0)
+          .duration(100)
+          .then(() => {
+            i.alpha = 1;
+            i.removeSelf();
+            z().recover("thunderStrikeEff", i);
+          });
+      },
+    );
+  }
+
+  /** Register a quadratic-Bezier move; returns its id. (`Gc`) */
+  registerBezier(p0: any, p1: any, p2: any, obj: any, time: number, onComplete: any): number {
+    const id = (this.So += 1);
+    this.Wo.set(id, { id, Gl: p0, p1, p2, obj, time, timer: 0, Kl: onComplete });
+    return id;
+  }
+
+  /** Per-frame: advance registered Bezier moves. (`il`) */
+  updateBezier(delta: number): void {
+    if (this.Wo.size <= 0) return;
+    for (const key of this.Wo.keys()) {
+      const s = this.Wo.get(key);
+      s.timer += delta / s.time;
+      if (MathE.quadraticBezierPoint(s.Gl, s.p1, s.p2, s.obj, s.timer)) {
+        if (s.Kl) s.Kl();
+        this.Wo.delete(key);
+      }
+    }
+  }
 }
