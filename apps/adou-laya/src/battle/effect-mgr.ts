@@ -2161,4 +2161,134 @@ export class EffectMgr extends Singleton {
     });
     this.Ao.clear();
   }
+
+  /** Treasure box pop + shake that reveals coins/mantou rewards. (`Nl`) */
+  playTreasure(parent: any, isGold: boolean, x: number, y: number): void {
+    $().playSound("shovel_treasure_box");
+    $().playSound("mantou_add");
+    const box = z().getItem("treasure", this);
+    box.zIndex = X.vr;
+    box.name = "treasure";
+    parent.addChild(box);
+    box.pos(x, y);
+    const a = box.getChildByName("treasure");
+    a.scale(0, 0);
+    const n = Math.random() < 0.5 ? -10 : 10;
+    const r = a.getChildAt(0);
+    const mask = r.getChildByName("mask");
+    mask.visible = false;
+    const baseY = a.y;
+    const count = MathE.range(1, 11, true) as number;
+    for (let t = 0; t < r.numChildren; t++) {
+      const s = r.getChildAt(t);
+      if (s.name !== "mask") s.visible = t <= count;
+    }
+    Laya.Tween.create(a)
+      .to("scaleX", 1).to("scaleY", 1).to("y", baseY - 50).duration(100)
+      .chain().to("y", baseY - 100).to("rotation", n).duration(100)
+      .chain().to("y", baseY).duration(200)
+      .chain().to("rotation", (n > 0 ? n / 2 : (1 / 3) * -n) - n).duration(100)
+      .chain().to("rotation", -n).duration(100)
+      .chain().to("rotation", n / 3).duration(100)
+      .chain().to("rotation", 0).duration(100)
+      .then(() => {
+        const light1 = box.getChildByName("light1");
+        const light2 = box.getChildByName("light2");
+        light1.scale(0, 0);
+        light2.scale(0, 0);
+        const finish = (idx: number) => {
+          if (idx >= r.numChildren - 1) {
+            Laya.timer.once(100 * count, this, () => {
+              Laya.Tween.create(a).to("alpha", 0).duration(100).then(() => {
+                for (let t = 0; t < r.numChildren; t++) r.getChildAt(t).visible = true;
+                a.alpha = 1;
+                a.skin = "resources/img/props/treasure0.png";
+                mask.visible = false;
+                box.removeSelf();
+                z().recover("treasure", box);
+              });
+            });
+          }
+        };
+        Laya.Tween.create(light1).to("scaleX", 1).to("scaleY", 1).duration(100).chain().to("alpha", 0).duration(300);
+        Laya.Tween.create(light2)
+          .to("scaleX", 1).to("scaleY", 1).duration(100)
+          .then(() => {
+            mask.visible = true;
+            a.skin = "resources/img/props/treasure1.png";
+          })
+          .chain().to("alpha", 0).duration(300)
+          .then(() => {
+            light1.scale(0, 0);
+            light1.alpha = 1;
+            light2.scale(0, 0);
+            light2.alpha = 1;
+            const pt = new Laya.Point(a.width / 2, -30);
+            a.localToGlobal(pt);
+            for (let t = 0; t < r.numChildren; t++) {
+              const child = r.getChildAt(t);
+              if (child.name !== "mask") {
+                if (t > count) {
+                  finish(t);
+                } else {
+                  Laya.timer.once(100 * t, this, () => {
+                    child.visible = false;
+                    this.playGoldUp(pt.x, pt.y, 1, 1.2);
+                    if (isGold) F().battleState.gold += 1;
+                    else F().battleState.Ki += 1;
+                    finish(t);
+                  });
+                }
+              }
+            }
+          });
+      });
+  }
+
+  /** Stop all in-flight fly-reward particle loops. (`hu`) */
+  clearFlyRewards(): void {
+    for (let t = 0; t < this.$o.length; t++) j().unregister(this.$o[t]);
+    this.$o = [];
+  }
+
+  /** Anti-cheat full-screen warning overlay (text is XOR-encoded). (`au`) */
+  showCheatWarning(): void {
+    if (this.Eo) return;
+    this.Eo = true;
+    const stage = Laya.stage;
+    const s = new Laya.Box();
+    s.size(stage.width, stage.height);
+    s.zIndex = 110000;
+    s.mouseEnabled = false;
+    const dim = new Laya.Sprite();
+    dim.graphics.drawRect(0, 0, stage.width, stage.height, "#000000");
+    dim.alpha = 0.55;
+    s.addChild(dim);
+    const label = new Laya.Label();
+    const encoded = [127, 83, 76, 69, 78, 85, 91, 84, 72, 28, 94, 69, 28, 113, 85, 116, 73, 93, 82, 123, 93, 81, 89, 79];
+    let text = "";
+    for (let t = 0; t < encoded.length; t++) text += String.fromCharCode(60 ^ encoded[t]);
+    label.text = text;
+    label.fontSize = 28;
+    label.color = "#ffffff";
+    label.stroke = 3;
+    label.strokeColor = "#000000";
+    label.align = "center";
+    label.valign = "middle";
+    label.width = stage.width;
+    label.height = 80;
+    label.y = (stage.height - 80) / 2;
+    s.addChild(label);
+    s.alpha = 0;
+    stage.addChild(s);
+    Laya.Tween.to(s, { alpha: 1 }, 300, Laya.Ease.sineOut, Laya.Handler.create(this, () => {
+      Laya.timer.once(2500, this, () => {
+        Laya.Tween.to(s, { alpha: 0 }, 500, Laya.Ease.sineIn, Laya.Handler.create(this, () => {
+          s.removeSelf();
+          s.destroy(true);
+          this.Eo = false;
+        }));
+      });
+    }));
+  }
 }
