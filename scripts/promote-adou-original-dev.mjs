@@ -5,31 +5,29 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const tempOutDir = path.join(tmpdir(), "giggle-lab-adou-clean-promote");
+const tempOutDir = path.join(tmpdir(), "giggle-lab-adou-original-promote");
 const publicOutDir = path.join(rootDir, "public/adou-laya");
 
-function runCleanBuild() {
+function runOriginalBuild() {
   const result = spawnSync(
     process.execPath,
-    [path.join(rootDir, "scripts/build-adou-clean.mjs")],
+    [path.join(rootDir, "scripts/sync-adou-original.mjs")],
     {
       cwd: rootDir,
       env: {
         ...process.env,
-        ADOU_CLEAN_OUT_DIR: tempOutDir,
+        ADOU_ORIGINAL_OUT_DIR: tempOutDir,
       },
       stdio: "inherit",
     },
   );
-  if (result.status !== 0) {
-    process.exit(result.status ?? 1);
-  }
+  if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
 function promoteFile(relativePath) {
   const source = path.join(tempOutDir, relativePath);
   const target = path.join(publicOutDir, relativePath);
-  if (!existsSync(source)) throw new Error(`Missing clean build artifact: ${relativePath}`);
+  if (!existsSync(source)) throw new Error(`Missing original build artifact: ${relativePath}`);
   mkdirSync(path.dirname(target), { recursive: true });
   cpSync(source, target);
 }
@@ -40,22 +38,22 @@ if (!existsSync(publicOutDir)) {
   );
 }
 
-runCleanBuild();
+runOriginalBuild();
 
 for (const relativePath of [
   "index.html",
   "js/index.js",
-  "js/adou-clean.js",
+  "js/bundle.js",
+  "js/adou-local-bootstrap.js",
   "adou-build-info.json",
 ]) {
   promoteFile(relativePath);
 }
 
 for (const stalePath of [
-  "js/bundle.js",
-  "gameIndex.html",
+  "js/adou-clean.js",
 ]) {
   rmSync(path.join(publicOutDir, stalePath), { force: true });
 }
 
-console.log("Promoted clean Adou build entry files without copying watched resource trees.");
+console.log("Promoted original Adou runtime entry files without copying watched resource trees.");

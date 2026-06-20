@@ -6,15 +6,14 @@
     "dev": "next dev",
     "build": "pnpm build:adou && pnpm build:next",
     "build:next": "next build",
-    "build:adou": "node scripts/build-adou-clean.mjs",
-    "build:adou:clean": "node scripts/build-adou-clean.mjs",
-    "build:adou:dev-public": "node scripts/promote-adou-clean-dev.mjs",
+    "build:adou": "node scripts/sync-adou-original.mjs",
+    "build:adou:dev-public": "node scripts/promote-adou-original-dev.mjs",
     "build:adou:original": "node scripts/sync-adou-original.mjs",
+    "build:adou:port": "node scripts/build-adou-port.mjs",
     "build:laya": "node scripts/build-adou-laya.mjs",
     "start": "next start",
     "lint": "eslint",
-    "check:adou-core": "node scripts/check-adou-core.mjs",
-    "check:adou-clean": "node scripts/check-adou-clean-build.mjs"
+    "check:adou-port": "node scripts/check-adou-port.mjs"
   },
   "dependencies": {
     "@fontsource/ma-shan-zheng": "^5.2.9",

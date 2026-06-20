@@ -287,6 +287,16 @@ function createIndexHtml() {
     );
 }
 
+function createIndexJs() {
+  const original = readFileSync(path.join(sourceDir, "js/index.js"), "utf8");
+  return original
+    .replace(/"scaleMode":"fixedwidth"/, "\"scaleMode\":\"showall\"")
+    .replace(/"screenMode":"vertical"/, "\"screenMode\":\"none\"")
+    .replace(/"alignV":"top"/, "\"alignV\":\"middle\"")
+    .replace(/"alignH":"left"/, "\"alignH\":\"center\"")
+    .replace(/"backgroundColor":"#888888"/, "\"backgroundColor\":\"#17110d\"");
+}
+
 function main() {
   assertSource();
 
@@ -300,6 +310,7 @@ function main() {
   });
 
   writeFileSync(path.join(outDir, "index.html"), createIndexHtml());
+  writeFileSync(path.join(outDir, "js/index.js"), createIndexJs());
   writeFileSync(
     path.join(outDir, "js/adou-local-bootstrap.js"),
     createLocalBootstrap(),
