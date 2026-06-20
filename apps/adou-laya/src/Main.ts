@@ -24,6 +24,7 @@ import { SaveMgr } from "./core/save-mgr";
 import { UpdateMgr } from "./core/update-mgr";
 import { RankMgr } from "./data/rank-mgr";
 import { WeaponDataMgr } from "./data/weapon-data-mgr";
+import { PropsMgr } from "./data/props-mgr";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -41,6 +42,7 @@ const ported = {
   UpdateMgr,
   RankMgr,
   WeaponDataMgr,
+  PropsMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
