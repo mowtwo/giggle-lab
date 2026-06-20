@@ -38,6 +38,8 @@ import { GameConfig } from "./battle/game-config";
 import { EffectRelation } from "./battle/effect-relation";
 import { AttrType, SpecialIndex } from "./battle/attr-type";
 import { GameMgr } from "./core/game-mgr";
+import { PreloadMgr } from "./core/preload-mgr";
+import * as FrameAnim from "./battle/frame-anim";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -72,6 +74,8 @@ const ported = {
   AttrType,
   SpecialIndex,
   GameMgr,
+  PreloadMgr,
+  FrameAnim,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
