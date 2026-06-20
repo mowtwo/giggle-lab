@@ -1598,4 +1598,127 @@ export class EffectMgr extends Singleton {
       }));
     }));
   }
+
+  /** Persistent wolf-roar buff icon (long-lived pulse). (`xc`) */
+  playWolfRoarBuff(parent: any, x: number, y: number, _duration = 10000): void {
+    let e = parent.getChildByName("wolfaaa");
+    if (e) {
+      Laya.Tween.killAll(e);
+      e.alpha = 0;
+      e.scale(0.2, 0.2);
+      e.pos(x, y);
+    } else {
+      e = Laya.Pool.getItemByClass("wolfRoarBuff", Laya.Image);
+      e.skin = "resources/img/effect/wolf0.png";
+      e.name = "wolfaaa";
+      e.alpha = 0;
+      e.scale(0.2, 0.2);
+      e.pos(x, y);
+      e.alpha = 0;
+      parent.addChild(e);
+    }
+    Laya.Tween.to(e, { scaleX: 0.2, scaleY: 0.2, alpha: 0.5 }, 120, Laya.Ease.backOut, Laya.Handler.create(this, () => {
+      Laya.Tween.to(e, { scaleX: 0.2, scaleY: 0.2, alpha: 1 }, 220, Laya.Ease.sineInOut, Laya.Handler.create(this, () => {
+        Laya.Tween.to(e, { scaleX: 0.4, scaleY: 0.4, alpha: 1 }, 120, Laya.Ease.sineInOut, Laya.Handler.create(this, () => {
+          Laya.Tween.to(e, { scaleX: 0.3, scaleY: 0.3, alpha: 1 }, 120, Laya.Ease.sineInOut, Laya.Handler.create(this, () => {
+            Laya.Tween.to(e, { scaleX: 0.3, scaleY: 0.3, alpha: 1 }, 9420, null, Laya.Handler.create(this, () => {
+              if (e) {
+                e.removeSelf();
+                Laya.Pool.recover("wolfRoarBuff", e);
+              }
+            }));
+          }));
+        }));
+      }));
+    }));
+  }
+
+  /** Expanding sound-wave ring. (`Sc`) */
+  playSoundWaves(parent: any, x: number, y: number): void {
+    const h = z().getItem("soundWaves", this);
+    h.scaleX = 0;
+    h.scaleY = 0;
+    h.alpha = 1;
+    parent.addChild(h);
+    h.pos(x, y);
+    Laya.Tween.to(
+      h,
+      { scaleX: 1.5, scaleY: 1.5, alpha: 0.7 },
+      800,
+      null,
+      Laya.Handler.create(this, () => {
+        h.removeSelf();
+        z().recover("soundWaves", h);
+      }),
+    );
+  }
+
+  /** Knockdown ("diedao") effect (frames 0..2 then fade). (`bc`) */
+  playDiedaoEff(parent: any, x: number, y: number): void {
+    const h = z().getItem("diedaoEff", this);
+    parent.addChild(h);
+    h.pos(x, y);
+    let e = 0;
+    const step = () => {
+      e += 1;
+      if (e === 3) {
+        Laya.timer.clear(this, step);
+        Laya.Tween.to(h, { alpha: 0 }, 150, Laya.Ease.expoIn, Laya.Handler.create(this, () => {
+          h.alpha = 1;
+          h.skin = "resources/img/effect/diedao0.png";
+          h.removeSelf();
+          z().recover("diedaoEff", h);
+        }));
+        return;
+      }
+      h.skin = `resources/img/effect/diedao${e % 3}.png`;
+    };
+    Laya.timer.loop(100, this, step);
+  }
+
+  /** Blood spurt (frames 0..2 then fade). (`Mc`) */
+  playBloodEff(parent: any, x: number, y: number): void {
+    const h = z().getItem("bloodEff", this);
+    parent.addChild(h);
+    h.pos(x, y);
+    let e = 0;
+    const step = () => {
+      e += 1;
+      if (e === 3) {
+        Laya.timer.clear(this, step);
+        Laya.Tween.to(h, { alpha: 0 }, 50, Laya.Ease.expoIn, Laya.Handler.create(this, () => {
+          h.alpha = 1;
+          h.skin = "resources/img/effect/hitEffect/blood0.png";
+          h.removeSelf();
+          z().recover("bloodEff", h);
+        }));
+        return;
+      }
+      h.skin = `resources/img/effect/hitEffect/blood${e % 3}.png`;
+    };
+    Laya.timer.loop(50, this, step);
+  }
+
+  /** Fall/landing dust (frames 0..4 then fade). (`Pc`) */
+  playFallEff(parent: any, x: number, y: number): void {
+    const h = z().getItem("fallEff", this);
+    parent.addChild(h);
+    h.pos(x, y);
+    let e = 0;
+    const step = () => {
+      e += 1;
+      if (e === 5) {
+        Laya.timer.clear(this, step);
+        Laya.Tween.to(h, { alpha: 0 }, 50, Laya.Ease.expoIn, Laya.Handler.create(this, () => {
+          h.alpha = 1;
+          h.skin = "resources/img/effect/fallEff0.png";
+          h.removeSelf();
+          z().recover("fallEff", h);
+        }));
+        return;
+      }
+      h.skin = `resources/img/effect/fallEff${e % 5}.png`;
+    };
+    Laya.timer.loop(50, this, step);
+  }
 }
