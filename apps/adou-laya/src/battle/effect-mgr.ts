@@ -592,4 +592,109 @@ export class EffectMgr extends Singleton {
   playAlertRingsIn(target: any, count = 3, dur = 750, scale = 1.75): void {
     for (let e = 0; e < count; e++) this.playAlertRingIn(target, 150 * e, dur, scale);
   }
+
+  /** Ground-crack burst: scatter the prefab's child shards. (`Yl`) */
+  playCrackEffect(parent: any, x: number, y: number, fadeDur = 100): void {
+    const e = z().getItem("crackEff", this);
+    parent.addChild(e);
+    e.pos(x, y);
+    e.scaleX = 0.8;
+    e.scaleY = 0.5;
+    Laya.Tween.to(
+      e,
+      { scaleX: 1, scaleY: 1 },
+      100,
+      null,
+      Laya.Handler.create(this, () => {
+        for (let i = 0; i < e.numChildren; i++) {
+          const a = e.getChildAt(i);
+          a.visible = true;
+          a.scale(MathE.range(0.5, 1) as number, MathE.range(0.5, 1) as number);
+          const tx = MathE.range(-20, 100) as number;
+          const ty = MathE.range(-80, -30) as number;
+          Laya.Tween.to(
+            a,
+            { x: tx, y: ty },
+            200,
+            null,
+            Laya.Handler.create(this, () => {
+              a.visible = false;
+              a.alpha = 1;
+              a.pos(38, 9);
+              if (i === e.numChildren - 1) {
+                Laya.Tween.to(
+                  e,
+                  { alpha: 0 },
+                  fadeDur,
+                  null,
+                  Laya.Handler.create(this, () => {
+                    e.removeSelf();
+                    e.alpha = 1;
+                    z().recover("crackEff", e);
+                  }),
+                );
+              }
+            }),
+          );
+        }
+      }),
+    );
+  }
+
+  /** Spawn a coin that arcs (quadratic Bezier) toward (targetX,targetY). (`Xl`) */
+  spawnGold(parent: any, x: number, y: number, targetX: number, targetY: number): void {
+    const gold = z().getItem("gold", this);
+    gold.pos(x, y);
+    parent.addChild(gold);
+    const n = MathE.range(-20, 20) as number;
+    this.To.push({
+      gold,
+      Gl: { x, y },
+      p1: { x: x + n, y: y - 100 },
+      p2: { x: x + 2 * n, y: y + 20 },
+      Hl: { x: targetX, y: targetY },
+      time: 0,
+    });
+  }
+
+  /** Per-frame: advance flying coins along their arc; flip on arrival. (`Ko`) */
+  updateGoldFly(delta: number): void {
+    if (this.To.length <= 0) return;
+    for (let i = this.To.length - 1; i >= 0; i--) {
+      const s = this.To[i];
+      s.time += delta / 600;
+      if (MathE.quadraticBezierPoint(s.Gl, s.p1, s.p2, s.gold, s.time)) {
+        this.goldFlip(s.gold, 0);
+        this.To.splice(i, 1);
+      }
+    }
+  }
+
+  /** Coin flip animation on arrival (up to 3 flips, then recover). (`Wl`) */
+  goldFlip(gold: any, step: number): void {
+    Laya.Tween.to(
+      gold,
+      { scaleX: -1 },
+      200,
+      null,
+      Laya.Handler.create(this, () => {
+        if (step === 2) Laya.Tween.to(gold, { alpha: 0 }, 250);
+        Laya.Tween.to(
+          gold,
+          { scaleX: 1 },
+          200,
+          null,
+          Laya.Handler.create(this, () => {
+            if (step + 1 <= 3) {
+              this.goldFlip(gold, step + 1);
+            } else {
+              gold.alpha = 1;
+              gold.removeSelf();
+              z().recover("gold", gold);
+            }
+          }),
+        );
+      }),
+    );
+  }
 }

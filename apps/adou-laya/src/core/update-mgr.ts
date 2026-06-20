@@ -24,7 +24,7 @@ interface UpdateEntry {
 export class UpdateMgr extends Singleton {
   private paused = false;
   delta = 0;
-  private elapsed = 0;
+  elapsed = 0; // `eo` — read by EffectMgr for time-based throttling
   private callbacks = new Map<string, UpdateEntry>();
   private lastTime = 0;
   serverTime = 0;
