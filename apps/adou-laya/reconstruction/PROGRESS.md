@@ -26,11 +26,14 @@ See `CLASS-MAP.md` for the full UUID→class map.
 - [x] `EventMgr` event bus (`p`)
 - [x] `MathE` math/geometry/random (`f`)
 - [x] `SceneMgr` scene+dialog navigation (`Z`/`K`)
-- [ ] AudioMgr (`$`) — playSound / music / ad pause-resume
+- [x] `AudioMgr` (`$`) — playSound / music / ad pause-resume
+- [x] `PrivacyAgreementMgr` (`Kr`/`Zr`) — platform config + agreement gate/dialog
+- [x] `PlatformMgr` (`Mt`) — static-safe stub (exit; grows as callers are ported)
 - [ ] zIndex constants (`X`)
 - [ ] TipMgr + loading-mask (`tt`, `J`)
-- [ ] Save/config/user-data manager(s) (`Kr`, `st`, ...)
-- [ ] Platform layer (4399 `Plat4399H5`, PlatMgr) — static-stub backed
+- [ ] event-name registry (`u`/`c`)
+- [ ] Save / player-data manager(s) (`st`, `U`, ...)
+- [ ] EffectMgr / button-feedback manager (`N`/`q`)
 - [ ] Data-table loaders (weapon.json / weaponTxt.json / rank.json; Map(54)/Map(44))
 - [ ] Game/battle state managers (`U`, ...), weapon + bullet factories
 
