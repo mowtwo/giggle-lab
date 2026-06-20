@@ -31,6 +31,13 @@ import { OnMgr } from "./data/on-mgr";
 import { MapId } from "./data/map-id";
 import { AStar, Grid, GridNode } from "./battle/pathfinding";
 import { MapMgr } from "./battle/map-mgr";
+import { EnemyMgr } from "./battle/enemy-mgr";
+import { SoldierPool } from "./battle/soldier-pool";
+import { BattleState } from "./battle/battle-state";
+import { GameConfig } from "./battle/game-config";
+import { EffectRelation } from "./battle/effect-relation";
+import { AttrType, SpecialIndex } from "./battle/attr-type";
+import { GameMgr } from "./core/game-mgr";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -57,6 +64,14 @@ const ported = {
   Grid,
   GridNode,
   MapMgr,
+  EnemyMgr,
+  SoldierPool,
+  BattleState,
+  GameConfig,
+  EffectRelation,
+  AttrType,
+  SpecialIndex,
+  GameMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
