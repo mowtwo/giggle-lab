@@ -46,6 +46,7 @@ import { TexturedSprite } from "./battle/textured-sprite";
 import { PrefabFactory } from "./battle/prefab-factory";
 import { EffectMgr } from "./battle/effect-mgr";
 import { BulletBehavior } from "./battle/bullet-behavior";
+import { EnemyFactory, EnemyTypes } from "./battle/enemy-factory";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -89,6 +90,8 @@ const ported = {
   PrefabFactory,
   EffectMgr,
   BulletBehavior,
+  EnemyFactory,
+  EnemyTypes,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
