@@ -50,6 +50,7 @@ export class EffectMgr extends Singleton {
   No: any = null;
   Vo: any = null;
   hc: any = null; // reusable battle-smoke sprite
+  dc: any = null; // reusable unit-info tooltip box
 
   // Shared effect-tracking state (verbatim from the bundle constructor).
   So = 0;
@@ -1254,5 +1255,192 @@ export class EffectMgr extends Singleton {
     );
     e.zIndex = X.vr;
     parent.addChild(e);
+  }
+
+  /** Arrow-rain falling onto a target (count staggered arrows). (`uc`) */
+  playArrowRainDown(parent: any, count = 4): void {
+    const slots = Array.from({ length: count }, (_v, idx) => idx);
+    for (let h = 0; h < count; h++) {
+      const e = slots.splice(MathE.range(0, slots.length, true) as number, 1)[0];
+      const a = z().getItem("arrowDown", this);
+      const x = ((parent.width - a.width) / count) * e;
+      a.alpha = 0;
+      a.pos(x, 0);
+      parent.addChild(a);
+      const targetY = parent.height - a.height;
+      Laya.Tween.create(a)
+        .to("y", targetY)
+        .to("alpha", 0.75)
+        .duration(300)
+        .delay(100 * h)
+        .parallel()
+        .to("alpha", 0)
+        .duration(300)
+        .delay(100 * h + 350)
+        .then(() => {
+          a.removeSelf();
+          z().recover("arrowDown", a);
+        });
+    }
+  }
+
+  /** Arrow-rain rising from a target (count staggered arrows). (`yc`) */
+  playArrowRainUp(parent: any, count = 4): void {
+    const slots = Array.from({ length: count }, (_v, idx) => idx);
+    for (let h = 0; h < count; h++) {
+      const e = slots.splice(MathE.range(0, slots.length, true) as number, 1)[0];
+      const a = z().getItem("arrowUp", this);
+      const x = ((parent.width - a.width) / count) * (e + 1);
+      a.alpha = 0;
+      a.pos(x, parent.height);
+      parent.addChild(a);
+      const targetY = (a.height / 3) * 2;
+      Laya.Tween.create(a)
+        .to("y", targetY)
+        .to("alpha", 0.75)
+        .duration(400)
+        .delay(50 * h)
+        .parallel()
+        .to("alpha", 0)
+        .duration(600)
+        .delay(50 * h + 400)
+        .then(() => {
+          a.removeSelf();
+          z().recover("arrowUp", a);
+        });
+    }
+  }
+
+  /** "Merge available" tip floating up at (x,y). (`fc`) */
+  playGeneralMergeTip(x: number, y: number, success = true): void {
+    const h = z().getItem("generalMergeTip", this);
+    h.scaleX = 0;
+    const img = h.getChildByName("img");
+    img.skin = success
+      ? "resources/img/battleUI/mergeTip2.png"
+      : "resources/img/battleUI/mergeTip3.png";
+    evt.event(u.Ut, h, X.Or);
+    this.Mo.x = x;
+    this.Mo.y = y;
+    h.parent.globalToLocal(this.Mo);
+    h.pos(this.Mo.x, this.Mo.y);
+    Laya.Tween.to(
+      h,
+      { scaleX: 1 },
+      100,
+      null,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(
+          h,
+          { y: h.y - 100, alpha: 0 },
+          1000,
+          null,
+          Laya.Handler.create(this, () => {
+            h.scaleX = 1;
+            h.alpha = 1;
+            h.removeSelf();
+            z().recover("generalMergeTip", h);
+          }),
+          100,
+        );
+      }),
+    );
+  }
+
+  /** Unit-info tooltip (lazy box) anchored to a target, flipping by position. (`Qo`) */
+  showUnitInfo(show: boolean, target: any, descText: string, nameText: string, rarityIndex: number, parent: any = null): void {
+    if (!this.dc) {
+      this.dc = new Laya.Box();
+      this.dc.size(250, 168);
+      this.dc.anchorX = 0.5;
+      this.dc.anchorY = 1;
+      this.dc.zIndex = X.Xr;
+      const bg = new Laya.Image("resources/img/commonUI/intro1.png");
+      bg.name = "img";
+      bg.pos(this.dc.width / 2, this.dc.height / 2);
+      bg.size(this.dc.width, 145);
+      bg.sizeGrid = "20,20,20,20,0";
+      bg.anchorX = 0.5;
+      bg.anchorY = 0.5;
+      this.dc.addChild(bg);
+      const triangle = new Laya.Image("resources/img/commonUI/intro2.png");
+      triangle.name = "triangle";
+      triangle.pos(this.dc.width / 2, 132);
+      triangle.size(34, 30);
+      triangle.anchorX = 0.5;
+      bg.addChild(triangle);
+      const nameTxt = new Laya.Text();
+      nameTxt.name = "name";
+      nameTxt.pos(bg.width / 2, bg.height / 2);
+      nameTxt.size(bg.width - 30, bg.height - 20);
+      nameTxt.anchorX = 0.5;
+      nameTxt.anchorY = 0.5;
+      nameTxt.fontSize = 30;
+      nameTxt.stroke = 4;
+      nameTxt.strokeColor = "#000";
+      nameTxt.wordWrap = true;
+      nameTxt.align = "center";
+      nameTxt.valign = "top";
+      nameTxt.color = "#000000";
+      bg.addChild(nameTxt);
+      const descTxt = new Laya.Text();
+      descTxt.name = "txt";
+      descTxt.pos(bg.width / 2, bg.height / 2 + 35);
+      descTxt.size(bg.width - 30, bg.height - 20);
+      descTxt.anchorX = 0.5;
+      descTxt.anchorY = 0.5;
+      descTxt.fontSize = 22;
+      descTxt.wordWrap = true;
+      descTxt.align = "center";
+      descTxt.valign = "top";
+      descTxt.color = "#000000";
+      bg.addChild(descTxt);
+    }
+    const n = this.dc.getChildByName("img");
+    const r = n.getChildByName("triangle");
+    const o = n.getChildByName("name");
+    const l = n.getChildByName("txt");
+    if (!show) {
+      this.dc.visible = false;
+      return;
+    }
+    this.dc.removeSelf();
+    if (parent) parent.addChild(this.dc);
+    else evt.event(u.Ut, this.dc, X.Xr);
+    const cx = target.x + target.width / 2;
+    const cy = target.y + target.height / 2;
+    let f = 1;
+    this.dc.scaleY = 1;
+    if (target.y < this.dc.height * this.dc.scaleY + 100) f = -1;
+    o.scaleY = f;
+    l.scaleY = f;
+    l.y = n.height / 2 + 42 * f;
+    this.Mo.x = cx;
+    this.Mo.y = target.y + (f > 0 ? 0 : target.height);
+    this.dc.parent.globalToLocal(this.Mo);
+    this.dc.pos(this.Mo.x, this.Mo.y);
+    if (cx - this.dc.width / 2 < 0) {
+      this.dc.x = this.dc.width / 2;
+      Laya.Point.TEMP.x = cx;
+      Laya.Point.TEMP.y = cy;
+      r.x = r.parent.globalToLocal(Laya.Point.TEMP).x;
+    } else if (cx + this.dc.width / 2 > 640) {
+      Laya.Point.TEMP.x = 640 - this.dc.width / 2;
+      Laya.Point.TEMP.y = 0;
+      this.dc.x = this.dc.parent.globalToLocal(Laya.Point.TEMP).x;
+      Laya.Point.TEMP.x = cx;
+      Laya.Point.TEMP.y = cy;
+      r.x = r.parent.globalToLocal(Laya.Point.TEMP).x;
+    } else {
+      Laya.Point.TEMP.x = cx;
+      Laya.Point.TEMP.y = cy;
+      r.x = r.parent.globalToLocal(Laya.Point.TEMP).x;
+    }
+    this.dc.visible = true;
+    this.dc.scale(0, 0);
+    Laya.Tween.create(this.dc).to("scaleX", 1.1).to("scaleY", 1.1 * f).duration(100);
+    l.text = descText;
+    o.text = nameText;
+    o.color = F().props.ia[rarityIndex];
   }
 }
