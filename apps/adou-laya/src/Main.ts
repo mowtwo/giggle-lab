@@ -13,12 +13,16 @@
 
 import { EventMgr } from "./core/event-mgr";
 import { MathE } from "./core/math-e";
+import { Singleton } from "./core/singleton";
+import { SceneMgr } from "./core/scene-mgr";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
 const ported = {
   EventMgr,
   MathE,
+  Singleton,
+  SceneMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
