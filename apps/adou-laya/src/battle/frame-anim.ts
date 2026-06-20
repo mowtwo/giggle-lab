@@ -43,7 +43,7 @@ const registeredIds = new Set<string>();
 const registry: Record<string, FrameAnimEntry> = {};
 
 /** Zero-pad `n` to `width` digits. (`Dt`) */
-function padFrame(n: number, width: number): string {
+export function padFrame(n: number, width: number): string {
   let s = String(n);
   if (width <= 0) return s;
   while (s.length < width) s = "0" + s;
