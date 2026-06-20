@@ -478,4 +478,118 @@ export class EffectMgr extends Singleton {
       100,
     );
   }
+
+  /** Fire flicker effect (4 random frames then fade). (`Il`) */
+  playFireEffect(parent: any, x: number, y: number, scale = 1): void {
+    const e = z().getItem("fireEff", this);
+    let a = 1;
+    parent.addChild(e);
+    e.pos(x, y);
+    e.scale(scale, scale);
+    const order = MathE.shuffle([0, 1, 2, 3]);
+    const step = () => {
+      a += 1;
+      if (a > 4) {
+        Laya.Tween.to(e, { alpha: 0 }, 100, null, Laya.Handler.create(this, () => {
+          e.removeSelf();
+          e.alpha = 1;
+          z().recover("fireEff", e);
+        }));
+      } else {
+        e.skin = `resources/img/props/fire${order[a - 1]}.png`;
+        Laya.timer.once(50, this, step);
+      }
+    };
+    Laya.timer.once(50, this, step);
+  }
+
+  /** Scatter `count` fires within a target's bounds. (`Bl`) */
+  spawnFires(target: any, count: number, margin = 20): void {
+    for (let i = 0; i < count; i++) {
+      const x = MathE.range(margin, target.width - margin, true) as number;
+      const y = MathE.range(margin, target.height - margin, true) as number;
+      this.playFireEffect(target, x, y, 0.5);
+    }
+  }
+
+  /** Expanding alert ring (scale 1 -> `scale`, fading). (`Rl`) */
+  playAlertRing(target: any, delay: number, dur: number, scale: number): void {
+    const e = Laya.Pool.getItemByCreateFun("alertImage", () => new Laya.Image());
+    e.size(target.width, target.height);
+    e.anchor(0.5, 0.5);
+    e.skin = target.skin;
+    target.addChild(e);
+    e.pos(target.width / 2, target.height / 2);
+    Laya.Tween.create(e, target)
+      .duration(dur)
+      .delay(delay)
+      .ease(Laya.Ease.quadOut)
+      .go("scaleX", 1, scale)
+      .go("scaleY", 1, scale)
+      .go("alpha", 0.5, 0)
+      .then(() => {
+        e.removeSelf();
+        Laya.Pool.recover("alertImage", e);
+      });
+  }
+
+  /** N staggered expanding alert rings. (`Tl`) */
+  playAlertRings(target: any, count = 3, dur = 750, scale = 1.75): void {
+    for (let e = 0; e < count; e++) this.playAlertRing(target, 150 * e, dur, scale);
+  }
+
+  /** Rotating shadow after-image. (`Ul`) */
+  playShadowTrail(target: any, dur: number, rotation: number): void {
+    const h = Laya.Pool.getItemByClass("shadowImage", Laya.Image);
+    h.size(target.width, target.height);
+    h.skin = target.skin;
+    target.addChild(h);
+    h.anchor(1, 0.95);
+    h.pos(target.width, target.height);
+    h.alpha = 0.5;
+    h.rotation = rotation;
+    Laya.Tween.create(h)
+      .delay(dur / 2)
+      .to("rotation", target.rotation)
+      .duration(dur / 2)
+      .then(() => {
+        h.removeSelf();
+        Laya.Pool.recover("shadowImage", h);
+      });
+  }
+
+  /** A fan of shadow after-images. (`Cl`) */
+  playShadowTrails(target: any, count = 3, step = 30, rots = [20, 40, 60, 80]): void {
+    Array.from({ length: count }, (_v, s) => 20 * (s + 1)).forEach((delay, a) => {
+      setTimeout(() => {
+        this.playShadowTrail(target, step * (count - a), rots[a] || 0);
+      }, delay);
+    });
+  }
+
+  /** Contracting alert ring (scale `scale` -> 1, fading). (`Ol`) */
+  playAlertRingIn(target: any, delay: number, dur: number, scale: number): void {
+    const e = Laya.Pool.getItemByCreateFun("alertImage", () => new Laya.Image());
+    e.size(target.width, target.height);
+    e.anchor(0.5, 0.5);
+    e.skin = target.skin;
+    target.addChild(e);
+    e.pos(target.width / 2, target.height / 2);
+    Laya.Tween.create(e, target)
+      .duration(dur)
+      .delay(delay)
+      .ease(Laya.Ease.quadOut)
+      .go("scaleX", scale, 1)
+      .go("scaleY", scale, 1)
+      .go("alpha", 0.5, 0)
+      .then(() => {
+        e.removeSelf();
+        Laya.Pool.recover("alertImage", e);
+      });
+  }
+
+  /** N staggered contracting alert rings. (`Fl`) */
+  playAlertRingsIn(target: any, count = 3, dur = 750, scale = 1.75): void {
+    for (let e = 0; e < count; e++) this.playAlertRingIn(target, 150 * e, dur, scale);
+  }
 }
