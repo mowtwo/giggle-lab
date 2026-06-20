@@ -11,6 +11,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { MapId } from "./map-id";
+
 interface RankRow {
   id: number;
   rank: string;
@@ -83,12 +85,10 @@ export class RankMgr {
   }
 
   /**
-   * Map identifier for the current rank. (`La`)
-   * TODO: the original indexed an outer maps table `x` by this map id; until the
-   * maps table is ported, return the raw map id. (Off the critical path — only
-   * the rank-reward map preview uses it.)
+   * Map name for the current rank. (`La`) The original indexed the MapId enum
+   * (`x`) by the row's map number, yielding the enum key string (e.g. "JuLu").
    */
-  currentMap(): number {
-    return this.table.get(this.currentRank.id)!.map;
+  currentMap(): string {
+    return MapId[this.table.get(this.currentRank.id)!.map];
   }
 }

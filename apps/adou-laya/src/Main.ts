@@ -27,6 +27,9 @@ import { WeaponDataMgr } from "./data/weapon-data-mgr";
 import { PropsMgr } from "./data/props-mgr";
 import { GeneralMgr } from "./data/general-mgr";
 import { StaminaMgr } from "./data/stamina-mgr";
+import { OnMgr } from "./data/on-mgr";
+import { MapId } from "./data/map-id";
+import { AStar, Grid, GridNode } from "./battle/pathfinding";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -47,6 +50,11 @@ const ported = {
   PropsMgr,
   GeneralMgr,
   StaminaMgr,
+  OnMgr,
+  MapId,
+  AStar,
+  Grid,
+  GridNode,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.
