@@ -1962,4 +1962,203 @@ export class EffectMgr extends Singleton {
       }
     }
   }
+
+  /** Remove a registered effect by type + id. (`El`) */
+  removeEvent(type: string, id: number): void {
+    let map: Map<number, any>;
+    switch (type) {
+      case "imgLoop":
+        map = this.Oo;
+        break;
+      case "shake":
+        map = this.Yo;
+        break;
+      case "bezierCurve":
+        map = this.Wo;
+        break;
+      case "pointFlash":
+        map = this.jo;
+        break;
+      case "btnSparkle":
+        this.clearBtnSparkle(id);
+        return;
+      default:
+        throw new Error("EffectMgr.removeEvent: unknown EffectType " + type);
+    }
+    map.delete(id);
+  }
+
+  /** Per-frame: advance registered frame-loop animations. (`tl`) */
+  updateImgLoops(delta: number): void {
+    for (const s of this.Oo.values()) {
+      s.timer += delta;
+      if (s.timer > s.time) {
+        s.skinIndex += 1;
+        if (s.skinIndex >= s.skins.length) {
+          s.Ec += 1;
+          if (s.Ac > 0 && s.Ec >= s.Ac) {
+            Laya.timer.callLater(this, this.removeEvent, ["imgLoop", s.id]);
+            if (s.Kl) s.Kl(s.id);
+            continue;
+          }
+          s.skinIndex = 0;
+        }
+        s.img.skin = s.skins[s.skinIndex];
+        s.timer = 0;
+      }
+    }
+  }
+
+  /** Register a button-sparkle emitter; returns its id. (`Hc`) */
+  registerBtnSparkle(btn: any, config: any): number {
+    const id = (this.So += 1);
+    const entry = {
+      id,
+      btn,
+      timer: 0,
+      Wc: config.Wc,
+      skins: config.skins,
+      zc: config.zc,
+      jc: config.jc,
+      $c: config.$c,
+      Nc: config.Nc,
+      qc: config.qc,
+      Vc: config.Vc,
+      Qc: config.Qc,
+      Zc: [] as any[],
+    };
+    this.zo.set(id, entry);
+    for (let t = 0; t < entry.Vc; t++) {
+      Laya.timer.once(t * entry.Qc, this, this.btnSparkleSpawn, [id], false);
+    }
+    return id;
+  }
+
+  /** Initial staggered sparkle spawn. (`Kc`) */
+  btnSparkleSpawn(id: number): void {
+    const entry = this.zo.get(id);
+    if (entry) this.spawnBtnSparkle(entry);
+  }
+
+  /** Per-frame: re-emit button sparkles on their interval. (`el`) */
+  updateBtnSparkle(delta: number): void {
+    for (const s of this.zo.values()) {
+      if (s.btn && !s.btn.destroyed) {
+        s.timer += delta;
+        if (s.timer >= s.Wc) {
+          s.timer = 0;
+          this.spawnBtnSparkle(s);
+        }
+      }
+    }
+  }
+
+  /** Spawn a single sparkle light for a button emitter. (`Jc`) */
+  spawnBtnSparkle(entry: any): void {
+    const btn = entry.btn;
+    const i = z().getItem("shopAdLight", this);
+    entry.Zc.push(i);
+    i.alpha = 0;
+    i.scale(0, 0);
+    const skinIdx = MathE.range(0, entry.skins.length - 1, true) as number;
+    i.skin = entry.skins[skinIdx];
+    const size = MathE.range(entry.zc, entry.jc) as number;
+    i.size(size, size);
+    i.pos(
+      MathE.range(-entry.$c, btn.width + entry.$c) as number,
+      MathE.range(-entry.$c, btn.height + entry.$c) as number,
+    );
+    Laya.Tween.create(i)
+      .to("scaleX", 1)
+      .to("scaleY", 1)
+      .to("alpha", 1)
+      .duration(entry.Nc)
+      .chain()
+      .to("scaleX", 0)
+      .to("scaleY", 0)
+      .to("alpha", 0)
+      .duration(entry.qc)
+      .then(() => {
+        const idx = entry.Zc.indexOf(i);
+        if (idx >= 0) entry.Zc.splice(idx, 1);
+        i.removeSelf();
+        z().recover("shopAdLight", i);
+      });
+    btn.addChild(i);
+  }
+
+  /** Stop a button-sparkle emitter and clear its lights. (`Bc`) */
+  clearBtnSparkle(id: number): void {
+    const entry = this.zo.get(id);
+    if (entry) {
+      this.zo.delete(id);
+      for (let t = entry.Zc.length - 1; t >= 0; t--) {
+        const i = entry.Zc[t];
+        Laya.Tween.killAll(i);
+        i.removeSelf();
+        z().recover("shopAdLight", i);
+      }
+      entry.Zc.length = 0;
+    }
+  }
+
+  /** Register a point-flash sparkle area; returns its id. (`tu`) */
+  registerPointFlash(parent: any, color: string, x: number, y: number, width: number, height: number): number {
+    const id = (this.So += 1);
+    this.jo.set(id, { id, parent, color, x, y, width, height, su: [] as any[], timer: 0 });
+    return id;
+  }
+
+  /** Per-frame: emit point-flash sparkles in their areas. (`hl`) */
+  updatePointFlash(delta: number): void {
+    for (const entry of this.jo.values()) {
+      const i = entry;
+      i.timer += delta;
+      if (i.timer >= 500) {
+        i.timer = 0;
+        const t = z().getItem("pointFlashEff", this);
+        t.size(20, 20);
+        t.pos(
+          MathE.range(i.x + t.width / 2, i.x + i.width - t.width / 2) as number,
+          MathE.range(i.y + t.height / 2, i.y + i.height - t.height / 2) as number,
+        );
+        t.color = i.color;
+        i.parent.addChild(t);
+        i.su.push(t);
+        t.alpha = 0;
+        t.scale(0, 0);
+        Laya.Tween.create(t)
+          .to("alpha", 1)
+          .to("scaleX", 1)
+          .to("scaleY", 1)
+          .duration(100)
+          .chain()
+          .to("alpha", 0)
+          .to("scaleX", 0)
+          .to("scaleY", 0)
+          .duration(MathE.range(1500, 2500) as number)
+          .then(() => {
+            t.removeSelf();
+            i.su.splice(i.su.indexOf(t), 1);
+            z().recover("pointFlashEff", t);
+          });
+      }
+    }
+  }
+
+  /** Recover all in-flight weapon-fragment effects. (`Zo`) */
+  clearWeaponFragments(): void {
+    this.Ao.forEach((t) => {
+      if (t && !t.destroyed) {
+        Laya.Tween.killAll(t);
+        t.offAll();
+        t.removeSelf();
+        t.alpha = 1;
+        t.scale(1, 1);
+        t.rotation = 0;
+        z().recover("weaponFragment", t);
+      }
+    });
+    this.Ao.clear();
+  }
 }
