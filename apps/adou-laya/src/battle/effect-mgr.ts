@@ -1026,4 +1026,233 @@ export class EffectMgr extends Singleton {
     };
     Laya.timer.loop(100, this, step);
   }
+
+  /** Mob death: ink splat that scales + fades, then a 1..3 frame puff. (`ec`) */
+  playMobDead(parent: any, x: number, y: number, color: string, scale: number, onDone: any = null): void {
+    const n = z().getItem("mobDead", this);
+    const ink = n.getChildByName("ink");
+    const img = n.getChildByName("img");
+    parent.addChild(n);
+    n.pos(x, y);
+    ink.color = color;
+    ink.scale(0, 0);
+    ink.skin = "resources/img/effect/mobDead0.png";
+    ink.alpha = 1;
+    Laya.Tween.create(ink)
+      .to("scaleX", scale)
+      .to("scaleY", scale)
+      .duration(100)
+      .chain()
+      .to("alpha", 0)
+      .duration(500)
+      .then(() => {
+        ink.alpha = 1;
+        ink.scale(0, 0);
+        img.alpha = 1;
+        n.removeSelf();
+        z().recover("mobDead", n);
+      });
+    img.skin = "resources/img/effect/mobDead1.png";
+    img.color = color;
+    img.alpha = 1;
+    let l = 1;
+    const step = () => {
+      if (l !== 3) {
+        l += 1;
+        img.skin = "resources/img/effect/mobDead" + l + ".png";
+      } else {
+        Laya.Tween.create(img)
+          .to("alpha", 0)
+          .duration(50)
+          .then(() => {
+            Laya.timer.clear(this, step);
+            if (onDone) onDone();
+          });
+      }
+    };
+    Laya.timer.loop(50, this, step);
+  }
+
+  /** Dao-qi hit (3 frames). (`ac`) */
+  playDaoQiHit(parent: any, x: number, y: number): void {
+    const h = z().getItem("daoQiHit", this);
+    h.pos(x, y);
+    h.scale(1, 1);
+    let e = 0;
+    const step = () => {
+      h.skin = `resources/img/effect/hitEffect/daoqiHitEff${e}.png`;
+      e += 1;
+      if (e === 3) {
+        Laya.timer.clear(this, step);
+        h.removeSelf();
+        return;
+      }
+      Laya.timer.once(100, this, step);
+    };
+    step();
+    parent.addChild(h);
+  }
+
+  /** Set alpha on a bow-hit's three layered images. (`nc`) */
+  setBowHitAlpha(node: any, alpha: number): void {
+    for (let i = 0; i < 3; i++) node.getChildByName(`img${i}`).alpha = alpha;
+  }
+
+  /** Knife hit: rotating slash + cycling blood splat. (`rc`) */
+  playKnifeHit(parent: any, x: number, y: number, rotation: number): void {
+    const e = z().getItem("knifeHit", this);
+    e.pos(x, y);
+    const img = e.getChildByName("img");
+    img.alpha = 0;
+    img.scale(0, 0);
+    img.rotation = rotation;
+    Laya.Tween.to(
+      img,
+      { alpha: 1, scaleX: 1, scaleY: 1 },
+      100,
+      null,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(img, { alpha: 0 }, 100);
+      }),
+    );
+    const blood = e.getChildByName("blood");
+    let r = 0;
+    const step = () => {
+      r += 1;
+      if (r === 3) {
+        Laya.timer.clear(this, step);
+        Laya.Tween.to(
+          blood,
+          { alpha: 0 },
+          50,
+          Laya.Ease.expoIn,
+          Laya.Handler.create(this, () => {
+            blood.alpha = 1;
+            blood.setTexture(PrefabFactory.hitTex("blood0"));
+            e.removeSelf();
+            z().recover("knifeHit", e);
+          }),
+        );
+        return;
+      }
+      blood.setTexture(PrefabFactory.hitTex("blood" + (r % 3)));
+    };
+    Laya.timer.loop(50, this, step);
+    e.zIndex = X.vr;
+    parent.addChild(e);
+  }
+
+  /** Bow hit: scale-in then fade the 3 layered images. (`oc`) */
+  playBowHit(parent: any, x: number, y: number): void {
+    const h = z().getItem("bowHit", this);
+    h.pos(x, y);
+    h.scale(0, 0);
+    this.setBowHitAlpha(h, 1);
+    Laya.Tween.to(
+      h,
+      { scaleX: 1, scaleY: 1 },
+      100,
+      null,
+      Laya.Handler.create(this, () => {
+        const t = { alpha: 1 };
+        Laya.Tween.to(
+          t,
+          {
+            alpha: 0,
+            update: Laya.Handler.create(null, () => {
+              this.setBowHitAlpha(h, t.alpha);
+            }),
+          },
+          100,
+          null,
+          Laya.Handler.create(this, () => {
+            h.removeSelf();
+            z().recover("bowHit", h);
+          }),
+        );
+      }),
+    );
+    h.zIndex = X.vr;
+    parent.addChild(h);
+  }
+
+  /** Pike hit: scale-in + fade. (`lc`) */
+  playPikeHit(parent: any, x: number, y: number): void {
+    const h = z().getItem("pikeHit", this);
+    h.pos(x, y);
+    const img = h.getChildByName("img1");
+    img.alpha = 0;
+    img.scale(0, 0);
+    Laya.Tween.to(
+      img,
+      { scaleX: 1, scaleY: 1, alpha: 1 },
+      200,
+      null,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(
+          img,
+          { alpha: 0 },
+          200,
+          null,
+          Laya.Handler.create(this, () => {
+            h.removeSelf();
+            z().recover("pikeHit", h);
+          }),
+        );
+      }),
+    );
+    h.zIndex = X.vr;
+    parent.addChild(h);
+  }
+
+  /** Cavalry hit: two-image swipe sequence. (`cc`) */
+  playCavalryHit(parent: any, x: number, y: number, angle: number): void {
+    const e = z().getItem("cavalryHit", this);
+    e.rotation = angle + 45;
+    e.pos(x, y);
+    const img1 = e.getChildByName("img1");
+    img1.alpha = 1;
+    img1.scale(0, 0);
+    const img2 = e.getChildByName("img2");
+    img2.alpha = 0;
+    img2.scale(1, 1);
+    img2.pos(40, 40);
+    Laya.Tween.to(
+      img1,
+      { scaleX: 1, scaleY: 1 },
+      50,
+      null,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(img1, { scaleX: 1.2, scaleY: 1.2, alpha: 0 }, 100);
+        Laya.Tween.to(
+          img2,
+          { alpha: 1 },
+          50,
+          null,
+          Laya.Handler.create(this, () => {
+            Laya.Tween.to(
+              img2,
+              {
+                x: 30,
+                y: 30,
+                scaleX: 1.2,
+                scaleY: 1.2,
+                update: Laya.Handler.create(null, () => {
+                  img2.repaint();
+                }),
+              },
+              100,
+              null,
+              Laya.Handler.create(this, () => {
+                e.removeSelf();
+                z().recover("cavalryHit", e);
+              }),
+            );
+          }),
+        );
+      }),
+    );
+    e.zIndex = X.vr;
+    parent.addChild(e);
+  }
 }
