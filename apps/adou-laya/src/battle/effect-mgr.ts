@@ -1443,4 +1443,159 @@ export class EffectMgr extends Singleton {
     o.text = nameText;
     o.color = F().props.ia[rarityIndex];
   }
+
+  /** Anger puff (frames 0..3). (`Lc`) */
+  playAnger(x: number, y: number): void {
+    const i = new Laya.Image("resources/img/effect/anger0.png");
+    i.size(80, 80);
+    evt.event(u.Ut, i, X.Sr);
+    this.Mo.x = x;
+    this.Mo.y = y;
+    i.parent.globalToLocal(this.Mo);
+    i.pos(this.Mo.x, this.Mo.y);
+    let h = 0;
+    const step = () => {
+      i.skin = `resources/img/effect/anger${h}.png`;
+      h += 1;
+      if (h === 4) {
+        Laya.timer.clear(this, step);
+        i.removeSelf();
+        return;
+      }
+      Laya.timer.once(100, this, step);
+    };
+    step();
+  }
+
+  /** Boom-star burst (frames 0..3). (`wc`) */
+  playBoomStar(x: number, y: number): void {
+    const i = new Laya.Image("resources/img/effect/hitEffect/boomStar0.png");
+    i.size(80, 80);
+    i.scale(1.5, 1.5);
+    evt.event(u.Ut, i, X.Mr);
+    this.Mo.x = x;
+    this.Mo.y = y;
+    i.parent.globalToLocal(this.Mo);
+    i.pos(this.Mo.x, this.Mo.y);
+    let h = 0;
+    const step = () => {
+      i.skin = `resources/img/effect/hitEffect/boomStar${h}.png`;
+      h += 1;
+      if (h === 4) {
+        Laya.timer.clear(this, step);
+        i.removeSelf();
+        return;
+      }
+      Laya.timer.once(100, this, step);
+    };
+    step();
+  }
+
+  /** Tiger roar sweep + alert rings. (`vc`) */
+  playTigerRoars(parent: any, x: number, y: number): void {
+    const h = z().getItem("tigerRoars", this);
+    evt.event(u.Ut, h, X.Pr);
+    h.rotation = -45;
+    h.alpha = 0;
+    parent.addChild(h);
+    h.pos(x, y);
+    Laya.Tween.to(
+      h,
+      { alpha: 1, scaleX: 1.1, scaleY: 1.1 },
+      300,
+      Laya.Ease.sineIn,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(
+          h,
+          { rotation: -70, scaleX: 1, scaleY: 1 },
+          500,
+          Laya.Ease.sineInOut,
+          Laya.Handler.create(this, () => {
+            Laya.Tween.to(
+              h,
+              { alpha: 0, scaleX: 0.8, scaleY: 0.8, rotation: -90 },
+              300,
+              Laya.Ease.sineOut,
+              Laya.Handler.create(this, () => {
+                h.removeSelf();
+                z().recover("tigerRoars", h);
+              }),
+            );
+          }),
+        );
+      }),
+    );
+    this.playAlertRings(h);
+  }
+
+  /** Wolf roar sweep + alert rings. (`kc`) */
+  playWolfRoars(parent: any, x: number, y: number): void {
+    const h = z().getItem("wolfRoars", this);
+    evt.event(u.Ut, h, X.Pr);
+    h.rotation = 0;
+    h.alpha = 0;
+    h.scale(0.8, 0.8);
+    parent.addChild(h);
+    h.pos(x, y);
+    Laya.Tween.to(
+      h,
+      { alpha: 1, scaleX: 1.1, scaleY: 1.1 },
+      200,
+      Laya.Ease.sineIn,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(
+          h,
+          { rotation: -25, scaleX: 1, scaleY: 1 },
+          400,
+          Laya.Ease.sineInOut,
+          Laya.Handler.create(this, () => {
+            Laya.Tween.to(
+              h,
+              { alpha: 0, scaleX: 0.8, scaleY: 0.8, rotation: -35 },
+              200,
+              Laya.Ease.sineOut,
+              Laya.Handler.create(this, () => {
+                h.removeSelf();
+                z().recover("wolfRoars", h);
+              }),
+            );
+          }),
+        );
+      }),
+    );
+    this.playAlertRings(h);
+  }
+
+  /** Persistent tiger-roar buff icon (long-lived pulse). (`_c`) */
+  playTigerRoarBuff(parent: any, x: number, y: number, _duration = 10000): void {
+    let e = parent.getChildByName("tigeraaa");
+    if (e) {
+      Laya.Tween.killAll(e);
+      e.alpha = 0;
+      e.scale(0.2, 0.2);
+      e.pos(x, y);
+    } else {
+      e = Laya.Pool.getItemByClass("tigerRoarBuff", Laya.Image);
+      e.skin = "resources/img/effect/tiger2.png";
+      e.name = "tigeraaa";
+      e.alpha = 0;
+      e.scale(0.2, 0.2);
+      e.pos(x, y);
+      parent.addChild(e);
+    }
+    Laya.Tween.to(e, { scaleX: 0.2, scaleY: 0.2, alpha: 0.5 }, 120, Laya.Ease.backOut, Laya.Handler.create(this, () => {
+      Laya.Tween.to(e, { scaleX: 0.2, scaleY: 0.2, alpha: 1 }, 220, Laya.Ease.sineInOut, Laya.Handler.create(this, () => {
+        Laya.Tween.to(e, { scaleX: 0.4, scaleY: 0.4, alpha: 1 }, 120, Laya.Ease.sineInOut, Laya.Handler.create(this, () => {
+          Laya.Tween.to(e, { scaleX: 0.3, scaleY: 0.3, alpha: 1 }, 120, Laya.Ease.sineInOut, Laya.Handler.create(this, () => {
+            Laya.Tween.to(e, { scaleX: 0.3, scaleY: 0.3, alpha: 1 }, 9420, null, Laya.Handler.create(this, () => {
+              if (e) {
+                e.removeSelf();
+                Laya.Pool.recover("wolfRoarBuff", e);
+              }
+            }));
+          }));
+        }));
+      }));
+    }));
+  }
 }
