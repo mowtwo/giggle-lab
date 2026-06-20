@@ -44,6 +44,7 @@ import * as FrameAnim from "./battle/frame-anim";
 import { PrefabName, PrefabPool } from "./battle/prefab-pool";
 import { TexturedSprite } from "./battle/textured-sprite";
 import { PrefabFactory } from "./battle/prefab-factory";
+import { EffectMgr } from "./battle/effect-mgr";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -85,6 +86,7 @@ const ported = {
   PrefabPool,
   TexturedSprite,
   PrefabFactory,
+  EffectMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.

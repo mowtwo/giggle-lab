@@ -80,6 +80,46 @@ export class EffectMgr extends Singleton {
   jo = new Map<any, any>();
   $o: any[] = [];
 
+  // --- Lifecycle / per-frame ---
+
+  init(): void {
+    j().register("EffectMgr", this, this.update);
+  }
+
+  startGame(): void {
+    if (this.No) evt.event(u.Ut, this.No, X.yr);
+  }
+
+  gameOver(): void {
+    if (this.No) this.No.visible = false;
+    this.clearTrails();
+    this.Xo = false;
+    if (this.Vo) this.Vo.visible = false;
+    this.Do.clear();
+    this.showUnitInfo(false, null, "", "", 0);
+    this.clearWeaponFragments();
+  }
+
+  /** Per-frame dispatch to every effect sub-updater. (`update`) */
+  update(delta: number): void {
+    this.updateGoldFly(delta);
+    this.updateTrails(delta);
+    this.updateImgLoops(delta);
+    this.updateShake(delta);
+    this.updateRain(delta);
+    this.updateBezier(delta);
+    this.updatePointFlash(delta);
+    this.updateBtnSparkle(delta);
+    this.updateFloatingTexts();
+  }
+
+  /** Register a shake oscillation; returns its id. (`Ic`) */
+  registerShake(img: any, amplitude: number, time: number, onComplete: any = null): number {
+    const id = (this.So += 1);
+    this.Yo.set(id, { id, img, Dc: 1, amplitude, timer: 0, time, onComplete });
+    return id;
+  }
+
   // --- Button press feedback ---
 
   /** (`nl`) */
@@ -2290,5 +2330,207 @@ export class EffectMgr extends Singleton {
         }));
       });
     }));
+  }
+
+  /**
+   * Burst particles outward from `from`, then arc them to `to` (e.g. battle-end
+   * gold fly). (`iu`)
+   */
+  explodeAndFlyReward(
+    parent: any,
+    skin: string,
+    w: number,
+    h: number,
+    from: any,
+    to: any,
+    targetW: number,
+    targetH: number,
+    onAllDone: any,
+    onEachDone: any,
+    soundName: string,
+    speedMul = 1,
+    flyMul = 1,
+    baseRadius = 60,
+    count = 8,
+  ): void {
+    let doneCount = 0;
+    $().playSound(soundName || "battle_end_gold_fly");
+    const mScaleX = targetW / w;
+    const mScaleY = targetH / h;
+    for (let n = 0; n < count; n++) {
+      const r = new Laya.Image();
+      r.skin = skin;
+      r.name = "flyRewardParticle";
+      r.size(w, h);
+      r.pos(from.x, from.y);
+      r.anchorX = 0.5;
+      r.anchorY = 0.5;
+      r.scaleX = 0.3;
+      r.scaleY = 0.3;
+      r.zIndex = X.vr;
+      parent.addChild(r);
+      const angle = (2 * Math.PI * n) / count + 0.8 * Math.random() - 0.4;
+      const radius = baseRadius + 100 * Math.random();
+      const kx = from.x + Math.cos(angle) * radius;
+      const ky = from.y + Math.sin(angle) * radius;
+      Laya.Tween.create(r)
+        .to("x", kx)
+        .to("y", ky)
+        .to("scaleX", 1.2)
+        .to("scaleY", 1.2)
+        .duration(250 / speedMul)
+        .ease(Laya.Ease.quadOut)
+        .then(() => {
+          const dx = from.x - to.x;
+          const dy = from.y - to.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const nx = dist > 0 ? dx / dist : 0;
+          const ny = dist > 0 ? dy / dist : 0;
+          const midX = (to.x + from.x) / 2;
+          const midY = (to.y + from.y) / 2;
+          const side = (from.x - to.x) * (ky - to.y) - (from.y - to.y) * (kx - to.x) > 0;
+          const ctrl = { x: midX + 300 * (side ? -ny : ny), y: midY + 300 * (side ? nx : -nx) };
+          let progress = 0;
+          const total = (MathE.distance({ x: kx, y: ky }, to) * (2 / 3)) / flyMul;
+          const key = "explodeAndFlyReward_" + this.So + "_" + n;
+          this.So++;
+          this.$o.push(key);
+          j().register(key, this, (delta: number) => {
+            progress += delta * flyMul * (1 + progress / total);
+            const t = Math.min(progress / total, 1);
+            MathE.quadraticBezierPoint({ x: kx, y: ky }, ctrl, { x: to.x, y: to.y }, r, t);
+            if (t < 0.6) {
+              const tt = t / 0.6;
+              r.scaleX = 1.2 + (mScaleX - 1.2) * tt;
+              r.scaleY = 1.2 + (mScaleY - 1.2) * tt;
+            } else if (t < 0.9) {
+              r.scaleX = mScaleX;
+              r.scaleY = mScaleY;
+            }
+            if (t >= 1) {
+              j().unregister(key);
+              const idx = this.$o.indexOf(key);
+              if (idx > -1) this.$o.splice(idx, 1);
+              Laya.Tween.create(r)
+                .to("scaleX", 0)
+                .to("scaleY", 0)
+                .duration(100 / flyMul)
+                .then(() => {
+                  if (r && r.parent) r.removeSelf();
+                  if (r) r.destroy();
+                  if (onEachDone) onEachDone();
+                  doneCount++;
+                  if (doneCount >= count && onAllDone) onAllDone();
+                });
+            }
+          });
+        });
+    }
+  }
+
+  /**
+   * A weapon-fragment card that pops at (fromX,fromY), pulses, then (on click or
+   * immediately) flies to (toX,toY). (`eu`)
+   */
+  flyWeaponFragment(
+    weaponId: number,
+    parent: any,
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+    onArrive: any,
+    onDone: any,
+    requireClick = true,
+  ): void {
+    const c = z().getItem("weaponFragment", this);
+    this.Ao.add(c);
+    const bg = c.getChildByName("bg");
+    const name = c.getChildByName("name");
+    const weapon = F().weaponData.weapons.get(weaponId);
+    bg.skin = "resources/img/weaponBag/rarity" + weapon.rarity + ".png";
+    name.strokeColor = "#000000";
+    name.color = "#ffffff";
+    name.text = weapon.txt;
+    const textW = Math.max(name.textWidth || 0, name.text.length * (name.fontSize || 32));
+    const cardW = Math.max(100, textW + 36);
+    const cardH = bg.height;
+    bg.width = cardW;
+    name.width = cardW;
+    name.height = cardH;
+    c.width = cardW;
+    c.height = cardH;
+    c.pivotX = cardW / 2;
+    c.pivotY = cardH / 2;
+    name.pos(0, 0);
+    c.hitArea = new Laya.Rectangle(0, 0, cardW, cardH);
+    parent.addChild(c);
+    Laya.Point.TEMP.x = fromX;
+    Laya.Point.TEMP.y = fromY;
+    c.parent.globalToLocal(Laya.Point.TEMP);
+    c.pos(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    c.scale(0, 0);
+    c.alpha = 1;
+    const start = new Laya.Point(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    const end = new Laya.Point(start.x + (MathE.range(-50, 50) as number), start.y);
+    const ctrl = new Laya.Point(start.x + (end.x - start.x) / 2, start.y - 200);
+    this.registerBezier(start, ctrl, end, c, 500, () => {});
+    // resolve the destination into local space up front
+    Laya.Point.TEMP.x = toX;
+    Laya.Point.TEMP.y = toY;
+    c.parent.globalToLocal(Laya.Point.TEMP);
+    const destX = Laya.Point.TEMP.x;
+    const destY = Laya.Point.TEMP.y;
+    const fly = (e: any) => {
+      if (e) e.stopPropagation();
+      c.off(Laya.Event.MOUSE_DOWN, this, fly);
+      Laya.Tween.killAll(c);
+      const dur = Math.max(180, MathE.distance({ x: c.x, y: c.y }, { x: destX, y: destY }));
+      Laya.Tween.create(c)
+        .to("x", destX)
+        .to("y", destY)
+        .to("scaleX", 0.9)
+        .to("scaleY", 0.9)
+        .duration(dur)
+        .ease(Laya.Ease.quadInOut)
+        .then(() => {
+          if (onArrive) onArrive();
+          Laya.Tween.create(c)
+            .to("scaleX", 0)
+            .to("scaleY", 0)
+            .to("alpha", 0)
+            .duration(100)
+            .ease(Laya.Ease.quadIn)
+            .then(() => {
+              this.Ao.delete(c);
+              c.removeSelf();
+              c.alpha = 1;
+              c.scale(1, 1);
+              c.rotation = 0;
+              c.offAll();
+              z().recover("weaponFragment", c);
+              if (onDone) onDone();
+            });
+        });
+    };
+    Laya.Tween.killAll(c);
+    Laya.Tween.create(c)
+      .to("scaleX", 1.3)
+      .to("scaleY", 1.3)
+      .duration(500)
+      .ease(Laya.Ease.quadOut)
+      .then(() => {
+        Laya.Tween.create(c).to("scaleX", 1).to("scaleY", 1).duration(120).ease(Laya.Ease.quadOut);
+        c.alpha = 1;
+        Laya.Tween.create(c)
+          .to("alpha", 0.7)
+          .duration(450)
+          .ease(Laya.Ease.sineInOut)
+          .then(() => {
+            Laya.Tween.create(c).to("alpha", 1).duration(450).ease(Laya.Ease.sineInOut);
+            if (requireClick) c.on(Laya.Event.MOUSE_DOWN, this, fly);
+            else fly(null);
+          });
+      });
   }
 }
