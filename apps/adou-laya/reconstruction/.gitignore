@@ -1,0 +1,5 @@
+# Derived reconstruction artifacts — regenerate from the committed vendor bundle.
+# Beautified bundle: npx prettier@3 --parser babel --no-config \
+#   vendor/original/game/js/bundle.js > reconstruction/reference/bundle.pretty.js
+# Verification screenshots are throwaway.
+reference/

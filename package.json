@@ -6,14 +6,12 @@
     "dev": "next dev",
     "build": "pnpm build:adou && pnpm build:next",
     "build:next": "next build",
-    "build:adou": "node scripts/sync-adou-original.mjs",
-    "build:adou:dev-public": "node scripts/promote-adou-original-dev.mjs",
+    "build:adou": "node scripts/build-adou.mjs",
+    "build:adou:rebuilt": "ADOU_MODE=rebuilt node scripts/build-adou.mjs",
     "build:adou:original": "node scripts/sync-adou-original.mjs",
-    "build:adou:port": "node scripts/build-adou-port.mjs",
-    "build:laya": "node scripts/build-adou-laya.mjs",
+    "typecheck:adou": "tsc --noEmit -p apps/adou-laya/tsconfig.json",
     "start": "next start",
-    "lint": "eslint",
-    "check:adou-port": "node scripts/check-adou-port.mjs"
+    "lint": "eslint"
   },
   "dependencies": {
     "@fontsource/ma-shan-zheng": "^5.2.9",
@@ -53,6 +51,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.184.1",
+    "esbuild": "^0.28.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
