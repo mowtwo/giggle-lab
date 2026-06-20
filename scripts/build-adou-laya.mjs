@@ -16,9 +16,9 @@ import { fileURLToPath } from "node:url";
 
 const rootDir = path.resolve(fileURLToPath(import.meta.url), "../..");
 const layaVersion = process.env.LAYAAIR_VERSION ?? "3.4.0";
+const transientRoot = path.join(tmpdir(), "giggle-lab-adou-laya");
 const cliInstallDir = path.resolve(
-  rootDir,
-  process.env.LAYAAIR_INSTALL_DIR ?? ".layaair-cache",
+  process.env.LAYAAIR_INSTALL_DIR ?? path.join(transientRoot, ".layaair-cache"),
 );
 const layaBin =
   process.env.LAYAAIR_BIN ??
@@ -28,9 +28,13 @@ const bootstrapScriptPath = path.join(
   sourceProjectDir,
   "static/adou-bootstrap.js",
 );
-const stageProjectDir = path.join(rootDir, ".laya-build/adou-laya");
+const stageProjectDir = path.resolve(
+  process.env.LAYA_STAGE_DIR ?? path.join(transientRoot, "stage/adou-laya"),
+);
 const originalAssetDir = path.join(rootDir, "public/songjiang-duel/original");
-const outDir = path.join(rootDir, "public/adou-laya");
+const outDir = path.resolve(
+  process.env.LAYA_OUT_DIR ?? path.join(rootDir, "public/adou-laya"),
+);
 
 function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -127,6 +131,53 @@ function copyIfPresent(from, to) {
   cpSync(from, to, { recursive: true });
 }
 
+function isSameOrInside(parentDir, childPath) {
+  const relative = path.relative(parentDir, childPath);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function getActiveNextDevLock() {
+  const lockPath = path.join(rootDir, ".next/dev/lock");
+  if (!existsSync(lockPath)) {
+    return null;
+  }
+
+  try {
+    const lock = JSON.parse(readFileSync(lockPath, "utf8"));
+    if (!Number.isInteger(lock.pid)) {
+      return null;
+    }
+
+    process.kill(lock.pid, 0);
+    return lock;
+  } catch {
+    return null;
+  }
+}
+
+function assertSafePublicOutput() {
+  if (process.env.LAYA_ALLOW_PUBLIC_WRITE_DURING_NEXT_DEV === "1") {
+    return;
+  }
+
+  if (!isSameOrInside(path.join(rootDir, "public"), outDir)) {
+    return;
+  }
+
+  const lock = getActiveNextDevLock();
+  if (!lock) {
+    return;
+  }
+
+  throw new Error(
+    [
+      `Refusing to write Laya output into ${path.relative(rootDir, outDir)} while Next dev is running.`,
+      `Active dev server: ${lock.appUrl ?? `pid ${lock.pid}`}.`,
+      "Stop the dev server first, set LAYA_OUT_DIR to a temp path, or set LAYA_ALLOW_PUBLIC_WRITE_DURING_NEXT_DEV=1 if you really want to force it.",
+    ].join("\n"),
+  );
+}
+
 function stageProject() {
   if (!existsSync(sourceProjectDir)) {
     throw new Error(`Laya project is missing: ${sourceProjectDir}`);
@@ -168,6 +219,7 @@ function stageProject() {
 }
 
 async function main() {
+  assertSafePublicOutput();
   const cli = await ensureLayaCli();
   stageProject();
 
@@ -187,6 +239,8 @@ async function main() {
         layaVersion,
         source: "apps/adou-laya",
         originalAssets: "public/songjiang-duel/original",
+        stageProjectDir,
+        outDir,
       },
       null,
       2,

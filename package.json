@@ -4,11 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm build:laya && pnpm build:next",
+    "build": "pnpm build:adou && pnpm build:next",
     "build:next": "next build",
+    "build:adou": "node scripts/build-adou-clean.mjs",
+    "build:adou:clean": "node scripts/build-adou-clean.mjs",
+    "build:adou:dev-public": "node scripts/promote-adou-clean-dev.mjs",
+    "build:adou:original": "node scripts/sync-adou-original.mjs",
     "build:laya": "node scripts/build-adou-laya.mjs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:adou-core": "node scripts/check-adou-core.mjs",
+    "check:adou-clean": "node scripts/check-adou-clean-build.mjs"
   },
   "dependencies": {
     "@fontsource/ma-shan-zheng": "^5.2.9",

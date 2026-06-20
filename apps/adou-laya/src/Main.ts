@@ -1,77 +1,36 @@
+import { AdouBattleScene } from "./laya-adapter/adou-battle-scene";
+
 declare global {
     interface Window {
         $_main_?: () => void | Promise<void>;
     }
 }
 
-const TITLE_IMAGE = "resources/loading/title.png";
-const STAGE_BG = "#17110d";
-
-function fitNode(node: Laya.Sprite, baseWidth: number, baseHeight: number) {
-    const scale = Math.min(Laya.stage.width / baseWidth, Laya.stage.height / baseHeight);
-    node.scale(scale, scale);
-    node.pos(
-        (Laya.stage.width - baseWidth * scale) / 2,
-        (Laya.stage.height - baseHeight * scale) / 2,
-    );
-}
-
-function makeText(text: string, size: number, color: string) {
-    const label = new Laya.Text();
-    label.text = text;
-    label.font = "Arial";
-    label.fontSize = size;
-    label.color = color;
-    label.align = "center";
-    label.valign = "middle";
-    label.width = 640;
-    label.height = size + 18;
-    label.x = 55;
-    return label;
-}
-
-function drawShell() {
-    const root = new Laya.Sprite();
-    const baseWidth = 750;
-    const baseHeight = 1334;
-    Laya.stage.addChild(root);
-
-    const bg = new Laya.Sprite();
-    bg.graphics.drawRect(0, 0, baseWidth, baseHeight, STAGE_BG);
-    root.addChild(bg);
-
-    const title = new Laya.Sprite();
-    title.graphics.loadImage(TITLE_IMAGE, 0, 0, 520, 180);
-    title.pos((baseWidth - 520) / 2, 200);
-    root.addChild(title);
-
-    const name = makeText("阿斗", 72, "#f6dfad");
-    name.y = 470;
-    root.addChild(name);
-
-    const status = makeText("Laya 重构工程已接入", 30, "#d6b982");
-    status.y = 570;
-    root.addChild(status);
-
-    const note = makeText("下一步：拆解原始 bundle，保留核心战斗，移除联网与平台代码", 24, "#a78f68");
-    note.y = 630;
-    root.addChild(note);
-
-    const resize = () => fitNode(root, baseWidth, baseHeight);
-    resize();
-    Laya.stage.on(Laya.Event.RESIZE, null, resize);
-}
+const PRELOAD_ASSETS = [
+    "resources/img/mainUI/AutoAtlas.atlas",
+    "resources/img/battleUI/AutoAtlas.atlas",
+    "resources/img/map/AutoAtlas.atlas",
+    "resources/img/gameObject/AutoAtlas.atlas",
+    "resources/img/props/AutoAtlas.atlas",
+    "resources/img/weapon/AutoAtlas.atlas",
+    "resources/sound/btn_down.mp3",
+    "resources/sound/soldier_set.mp3",
+    "resources/sound/soldier_merge_upgrade.mp3",
+    "resources/sound/bow_attack.mp3",
+    "resources/sound/adou_hit.mp3",
+];
 
 window.$_main_ = async () => {
-    Laya.stage.bgColor = STAGE_BG;
+    Laya.stage.bgColor = "#17110d";
 
     try {
-        await Laya.loader.load(TITLE_IMAGE);
+        await Laya.loader.load(PRELOAD_ASSETS);
     } catch (error) {
-        console.warn("Original title image was not loaded.", error);
+        console.warn("Adou preload did not complete.", error);
     }
 
-    drawShell();
+    const scene = new AdouBattleScene();
+    scene.mount();
 };
 
 export {};
