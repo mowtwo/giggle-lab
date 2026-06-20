@@ -24,6 +24,7 @@ import { AudioMgr } from "../core/audio-mgr";
 import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 import { LayerZ } from "../core/layer-z";
+import { MathE } from "../core/math-e";
 import { PrefabFactory } from "./prefab-factory";
 
 const z = () => PrefabFactory.instance();
@@ -270,5 +271,211 @@ export class EffectMgr extends Singleton {
       }
     };
     Laya.timer.once(50, this, step);
+  }
+
+  /** Set-soldier placement effect (variant 1 vs other; `dir` mirrors X). (`wl`) */
+  playSetSoldierEffect(parent: any, x: number, y: number, variant: number, dir = 1): void {
+    const a = z().getItem("setSoldierEff", this);
+    parent.addChild(a);
+    a.pos(x, y);
+    const n = a.getChildByName("img1");
+    const r = a.getChildByName("img2");
+    if (variant === 1) {
+      n.skin = "resources/img/effect/setSoldierEff1.png";
+      r.skin = "resources/img/effect/setSoldierEff2.png";
+    } else {
+      n.skin = "resources/img/effect/setSoldierEff3.png";
+      r.skin = "resources/img/effect/setSoldierEff4.png";
+    }
+    n.scale(0.7 * dir, 0.7);
+    r.scale(0, 0);
+    Laya.Tween.create(n)
+      .to("scaleX", 1 * dir)
+      .to("scaleY", 1)
+      .duration(200)
+      .chain()
+      .to("alpha", 0)
+      .duration(100)
+      .then(() => {
+        n.alpha = 1;
+      }, this);
+    Laya.Tween.create(r)
+      .to("scaleX", 1 * dir)
+      .to("scaleY", 1)
+      .duration(200)
+      .chain()
+      .to("scaleX", 1.2 * dir)
+      .to("scaleY", 1.2)
+      .to("alpha", 0)
+      .duration(100)
+      .then(() => {
+        r.alpha = 1;
+        a.removeSelf();
+        z().recover("setSoldierEff", a);
+      }, this);
+  }
+
+  /** Tai-chi hit effect (frames 1..4 then fade). (`vl`) */
+  playTaiChiEffect(parent: any, x: number, y: number): void {
+    const h = z().getItem("taiChiEff", this);
+    let e = 1;
+    h.zIndex = X.vr;
+    parent.addChild(h);
+    h.pos(x, y);
+    const step = () => {
+      e += 1;
+      if (e > 4) {
+        Laya.Tween.to(h, { alpha: 0 }, 100, null, Laya.Handler.create(this, () => {
+          h.removeSelf();
+          h.alpha = 1;
+          z().recover("taiChiEff", h);
+        }));
+      } else {
+        h.skin = `resources/img/effect/hitEffect/taiChiEff_0${e}.png`;
+        if (e === 3) h.alpha = 0.8;
+        if (e === 4) h.alpha = 0.5;
+        Laya.timer.once(50, this, step);
+      }
+    };
+    Laya.timer.once(50, this, step);
+  }
+
+  /** Li-hua (pear blossom) hit effect (frames 0..3 then fade). (`kl`) */
+  playLiHuaEffect(parent: any, x: number, y: number): void {
+    const h = z().getItem("liHuaEff", this);
+    let e = 0;
+    h.zIndex = X.vr;
+    parent.addChild(h);
+    h.pos(x, y);
+    h.skin = `resources/img/effect/hitEffect/lihuahit${e}.png`;
+    const step = () => {
+      e += 1;
+      if (e > 3) {
+        Laya.Tween.to(h, { alpha: 0 }, 300, null, Laya.Handler.create(this, () => {
+          h.removeSelf();
+          h.alpha = 1;
+          z().recover("liHuaEff", h);
+        }));
+      } else {
+        h.skin = `resources/img/effect/hitEffect/lihuahit${e}.png`;
+        Laya.timer.once(150, this, step);
+      }
+    };
+    Laya.timer.once(150, this, step);
+  }
+
+  /** Long-dan-liang-yin-qiang hit effect (frames 0..3 then fade). (`_l`) */
+  playLongDanHitEffect(parent: any, x: number, y: number): void {
+    const h = z().getItem("longDanLiangYinQiangHitEff", this);
+    let e = 0;
+    h.zIndex = X.vr;
+    parent.addChild(h);
+    h.pos(x, y);
+    h.skin = `resources/img/effect/hitEffect/longDanLiangYinQiangHitEff_${e}.png`;
+    const step = () => {
+      e += 1;
+      if (e > 3) {
+        Laya.Tween.to(h, { alpha: 0 }, 300, null, Laya.Handler.create(this, () => {
+          h.removeSelf();
+          h.alpha = 1;
+          z().recover("longDanLiangYinQiangHitEff", h);
+        }));
+      } else {
+        h.skin = `resources/img/effect/hitEffect/longDanLiangYinQiangHitEff_${e}.png`;
+        Laya.timer.once(150, this, step);
+      }
+    };
+    Laya.timer.once(150, this, step);
+  }
+
+  /** Cold dao-qi (ice slash) effect (rotation + scale, frames 1..7 then fade). (`xl`) */
+  playColdDaoQiEffect(parent: any, x: number, y: number, rotation: number, scale: number): void {
+    const a = z().getItem("coldDaoQiEff", this);
+    a.rotation = rotation;
+    a.scale(scale, Math.abs(scale));
+    let n = 1;
+    a.pos(x, y);
+    parent.addChild(a);
+    const step = () => {
+      n += 1;
+      if (n > 7) {
+        Laya.Tween.to(a, { alpha: 0 }, 100, null, Laya.Handler.create(this, () => {
+          a.removeSelf();
+          a.alpha = 1;
+          z().recover("coldDaoQiEff", a);
+        }));
+      } else {
+        a.skin = `resources/img/effect/iceSlashEff0${n}.png`;
+        if (n === 6) a.alpha = 0.8;
+        if (n === 7) a.alpha = 0.5;
+        Laya.timer.once(50, this, step);
+      }
+    };
+    Laya.timer.once(50, this, step);
+  }
+
+  /** Allocate an electric effect (the bundle's `Sl` only pools it). (`Sl`) */
+  playElectricEffectAlloc(_parent: any, _x: number, _y: number): void {
+    z().getItem("electricEff", this);
+  }
+
+  /** Electric hit effect (3 random frames then fade). (`bl`) */
+  playElectricEffect(parent: any, x: number, y: number): void {
+    const h = z().getItem("electricEff", this);
+    let e = 1;
+    parent.addChild(h);
+    h.pos(x, y);
+    const order = MathE.shuffle([1, 2, 3]);
+    const step = () => {
+      e += 1;
+      if (e > 3) {
+        Laya.Tween.to(h, { alpha: 0 }, 100, null, Laya.Handler.create(this, () => {
+          h.removeSelf();
+          h.alpha = 1;
+          z().recover("electricEff", h);
+        }));
+      } else {
+        h.skin = `resources/img/effect/electric${order[e - 1]}.png`;
+        Laya.timer.once(50, this, step);
+      }
+    };
+    Laya.timer.once(50, this, step);
+  }
+
+  /** Enemy knife swipe with a light streak. (`Ml`) */
+  playEnemyKnifeAttack(parent: any, x: number, y: number, angle: number): void {
+    const e = z().getItem("enemyKnifeAttackEff", this);
+    const knife = e.getChildByName("knife");
+    const light = e.getChildByName("knifeLight");
+    light.rotation = knife.rotation + (angle - knife.rotation) / 2 - 90;
+    const rad = light.rotation * (Math.PI / 180);
+    const lx = knife.x + Math.cos(rad) * knife.height;
+    const ly = knife.y + Math.sin(rad) * knife.height;
+    parent.addChild(e);
+    knife.pos(x, y);
+    knife.rotation = angle - 130;
+    light.alpha = 0;
+    light.pos(lx, ly);
+    Laya.Tween.to(knife, { rotation: angle }, 200, null);
+    Laya.Tween.to(
+      light,
+      { alpha: 1 },
+      100,
+      null,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(
+          light,
+          { alpha: 0 },
+          50,
+          null,
+          Laya.Handler.create(this, () => {
+            e.removeSelf();
+            z().recover("enemyKnifeAttackEff", e);
+          }),
+          100,
+        );
+      }),
+      100,
+    );
   }
 }
