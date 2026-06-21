@@ -18,6 +18,9 @@ import { GameEvent } from "../core/game-event";
 import { TipMgr } from "../core/tip-mgr";
 import { EntityRegistry } from "./entity-registry";
 import { EnemySpatialMgr } from "./enemy-spatial-mgr";
+import { BuffMgr } from "./buff-mgr";
+import { BowSoldier } from "./soldier-types";
+import { GeneralPart } from "./general-part";
 import { AudioMgr } from "../core/audio-mgr";
 import { EffectMgr } from "./effect-mgr";
 
@@ -28,6 +31,9 @@ const u = GameEvent;
 const tt = TipMgr;
 const Ki = EntityRegistry;
 const Eh = EnemySpatialMgr;
+const th = BuffMgr;
+const ci = BowSoldier;
+const gi = GeneralPart;
 const $ = AudioMgr;
 const q = EffectMgr;
 
@@ -663,3 +669,215 @@ export class LifePillProp extends PropBase {
   }
 }
 PropsFactory.instance().register(5, () => Laya.Pool.createByClass(LifePillProp));
+
+/** 鼓舞 — range-up aura applied to a soldier or general. (`Ii`) */
+export class RangeUpProp extends PropBase {
+  protected rk = 3;
+  protected xk = 0;
+  private range = 0;
+  private Nk = 0;
+  private qk = false;
+  private Vk: any;
+  constructor() {
+    super();
+    this.Zv = true;
+  }
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    if (!this.Vk) {
+      this.Vk = new Laya.Image();
+      this.Vk.skin = "resources/img/props/rangeUp.png";
+    }
+    this.Vk.visible = false;
+  }
+  protected Nv(t: any, s: any): void {
+    const i = s.Mv(t.containerType, this.qd).getItem(t.x, t.y);
+    let h: any;
+    let e: any;
+    let a = false;
+    if (i instanceof ci) {
+      h = i;
+      e = F.instance().toLocal(i.Yn, true);
+      a = false;
+    } else if (i instanceof gi) {
+      const g = EntityRegistry.instance().Qk.get(i.Zw);
+      h = g;
+      e = F.instance().toLocal(g.general, true);
+      a = true;
+    }
+    this.xk = h.id;
+    this.range = h.Da;
+    this.qk = a;
+    this.Vk.visible = true;
+    this.Vk.size(2 * this.range, 2 * this.range);
+    this.Vk.anchor(0.5, 0.5);
+    this.Vk.scale(1, 1);
+    this.Vk.alpha = 0;
+    y.instance.event(u.bt, this.Vk);
+    this.Vk.pos(e.x, e.y);
+    this.Nk = 1;
+    this.reset();
+  }
+  update(t: number): void {
+    super.update(t);
+    this.Zk(t);
+  }
+  private Zk(t: number): void {
+    if (this.Nk === 1) {
+      this.Vk.alpha += t / 100;
+      if (this.Vk.alpha >= 1) this.Nk = 2;
+    } else if (this.Nk === 2) {
+      this.Vk.scaleX += t / 100;
+      this.Vk.scaleY += t / 100;
+      if (this.Vk.scaleX >= 2) this.Nk = 3;
+    } else if (this.Nk === 3) {
+      this.Vk.alpha -= t / 500;
+      if (this.Vk.alpha <= 0) {
+        const tid = this.xk;
+        th.instance().applyBuff(tid, 2, 1, true);
+        EntityRegistry.instance().Kk(tid, 0, 2, 1, true);
+        this.Vk.removeSelf();
+        this.Nk = 0;
+      }
+    }
+  }
+  reset(): void {
+    super.reset();
+    this.Wv.alpha = 1;
+  }
+  gameOver(): void {
+    super.gameOver();
+    this.Nk = 0;
+    this.Wv.alpha = 1;
+  }
+}
+PropsFactory.instance().register(6, () => Laya.Pool.createByClass(RangeUpProp));
+
+/** 砚台 — drops ink that slows enemies in an area. (`Di`) */
+export class InkstoneProp extends PropBase {
+  protected rk = 0;
+  private Jk: any;
+  private ink: any;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+  }
+  protected Nv(t: any, _s: any): void {
+    const { x: i, y: h } = t;
+    this.props.visible = false;
+    if (!this.Jk) {
+      this.Jk = new Laya.Image("resources/img/props/inkstone_1.png");
+      this.Jk.size(100, 100);
+    }
+    this.Jk.skin = "resources/img/props/inkstone_1.png";
+    this.Jk.alpha = 1;
+    this.Jk.scale(1, 1);
+    this.Jk.zIndex = X.vr;
+    if (!this.ink) {
+      this.ink = new Laya.Image("resources/img/props/ink.png");
+      this.ink.size(319, 336);
+      this.ink.anchorX = 0.5;
+      this.ink.anchorY = 0.5;
+    }
+    this.ink.removeSelf();
+    this.ink.alpha = 1;
+    this.ink.scale(0.5, 0.5);
+    this.ink.zIndex = X.vr;
+    y.instance.event(u.bt, this.Jk, i, h - 1);
+    Laya.Tween.to(this.Jk, { y: this.Jk.y + F.instance().map.gridWid, scaleX: 0.8, scaleY: 0.8 }, 320);
+    const e = q.instance().registerImgLoop(
+      this.Jk,
+      [
+        "resources/img/props/inkstone_2.png",
+        "resources/img/props/inkstone_3.png",
+        "resources/img/props/inkstone_4.png",
+        "resources/img/props/inkstone_5.png",
+      ],
+      80,
+      0,
+      1,
+      () => {
+        q.instance().removeEvent("imgLoop", e);
+        Laya.Tween.to(this.Jk, { alpha: 0 }, 100, null, Laya.Handler.create(this, () => {}));
+        y.instance.event(u.bt, this.ink, i, h);
+        this.ink.pos(this.ink.x + F.instance().map.gridWid / 2, this.ink.y + F.instance().map.gridHei / 2);
+        $.instance().playSound("skill_ink_splash");
+        Laya.Tween.to(
+          this.ink,
+          { scaleX: 1, scaleY: 1 },
+          200,
+          Laya.Ease.cubicOut,
+          Laya.Handler.create(this, () => {
+            const list = EntityRegistry.instance().t_(this.ink.x, this.ink.y, 1.5 * F.instance().map.gridWid, !this.qd);
+            for (let s = 0; s < list.length; s++) th.instance().applyBuff(list[s].id, 1, -0.2, true, 5000);
+            Laya.Tween.to(this.ink, { alpha: 0 }, 5000);
+            this.reset();
+          }),
+        );
+      },
+    );
+  }
+  reset(): void {
+    super.reset();
+    this.props.visible = true;
+  }
+  gameOver(): void {
+    if (this.Jk) {
+      Laya.Tween.killAll(this.Jk);
+      Laya.Tween.killAll(this.ink);
+      this.Jk.removeSelf();
+      this.ink.removeSelf();
+    }
+    this.props.visible = true;
+    super.gameOver();
+  }
+}
+PropsFactory.instance().register(7, () => Laya.Pool.createByClass(InkstoneProp));
+
+/** 陷阱 — a placed trap that charms an enemy that steps on it. (`Ti`) */
+export class TrapProp extends PropBase {
+  protected rk = 5;
+  protected s_ = true;
+  protected i_ = true;
+  private h_!: Map<number, any>;
+  private container: any;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    this.h_ = new Map();
+  }
+  protected Nv(t: any, s: any): void {
+    const { x: i, y: h } = t;
+    const e = new Laya.Image("resources/img/props/trap_1.png");
+    e.size(80, 80);
+    y.instance.event(u.bt, e, i, h);
+    this.h_.set((q.instance().So += 1), { img: e, x: i, y: h });
+    const a = s.Mv(2, this.qd);
+    a.setItem(this, i, h);
+    this.container = a;
+    this.reset();
+  }
+  /** Trigger the trap at cell (t,s) on enemy `i`. (`e_`) */
+  e_(t: number, s: number, i: any): void {
+    for (const h of this.h_)
+      if (h[1].x === t && h[1].y === s) {
+        this.a_(h[0], i);
+        break;
+      }
+  }
+  private a_(t: number, s: any): void {
+    $.instance().playSound("trap_trigger");
+    const i = this.h_.get(t);
+    i.img.skin = "resources/img/props/trap_2.png";
+    this.container.setItem(null, i.x, i.y);
+    this.h_.delete(t);
+    Eh.instance().n_(s, 5000);
+    Laya.timer.once(5000, this, () => {
+      i.img.removeSelf();
+      i.img.destroy(true);
+    });
+  }
+  gameOver(): void {
+    super.gameOver();
+    for (const t of this.h_) t[1].img.destroy(true);
+  }
+}
+PropsFactory.instance().register(8, () => Laya.Pool.createByClass(TrapProp));
