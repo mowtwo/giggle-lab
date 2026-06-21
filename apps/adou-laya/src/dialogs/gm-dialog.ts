@@ -386,7 +386,7 @@ export class GMDialog extends Laya.Dialog {
 
   getLevelLabelsForType(t: any): string[] {
     const i = F.instance().props;
-    if (t == null || !i.ea(t)) return ["1"];
+    if (t == null || !i.isUpgradeable(t)) return ["1"];
     const h = i.Ue[t].Xe?.length || 1;
     return Array.from({ length: h }, (_v, s) => String(s + 1));
   }

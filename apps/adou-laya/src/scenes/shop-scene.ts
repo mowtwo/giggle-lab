@@ -248,7 +248,7 @@ export class ShopScene extends Laya.Scene {
     const u2 = this.Ue.Ue[s];
     const p = this.Vv(s, true);
     const y2 = Zi.instance().Nx(s);
-    const ff = this.Ue.ea(s) ? y2 + 1 : 1;
+    const ff = this.Ue.isUpgradeable(s) ? y2 + 1 : 1;
     const g = this.Ue.ra(s, ff);
     const d = Math.random() < this.Ue.ha[p];
     const L = Zi.instance().Yx(s);
@@ -302,7 +302,7 @@ export class ShopScene extends Laya.Scene {
 
   LK(t: number): boolean {
     if (t === 23) return true;
-    if (this.Ue.ea(t) && Zi.instance().iS(true, t)) return true;
+    if (this.Ue.isUpgradeable(t) && Zi.instance().iS(true, t)) return true;
     const s = Zi.instance().Yx(t);
     const i = Zi.instance().xx.length;
     const h = Zi.instance().Sx.length;
@@ -446,7 +446,7 @@ export class ShopScene extends Laya.Scene {
     const s: number[] = [];
     this.JZ.forEach((x: number) => {
       const i = Zi.instance().Nx(x);
-      const h = this.Ue.ea(x) ? i + 1 : 1;
+      const h = this.Ue.isUpgradeable(x) ? i + 1 : 1;
       s.push(this.Ue.oa(x, h));
     });
     for (let i = 0; i < this.AZ; i++) {
@@ -455,7 +455,7 @@ export class ShopScene extends Laya.Scene {
       const e = this.JZ[h];
       this.EZ.push(e);
       const a = Zi.instance().Nx(e);
-      const n = this.Ue.ea(e) ? a + 1 : 1;
+      const n = this.Ue.isUpgradeable(e) ? a + 1 : 1;
       this.BZ.push(this.Ue.la(e, n));
       t = this.luckyBox.getChildAt(i);
       t.getChildByName("img").skin = this.yK(e);
@@ -569,7 +569,7 @@ export class ShopScene extends Laya.Scene {
     const i = Zi.instance().xx.length;
     const h = Zi.instance().Sx.length;
     const e = Zi.instance().Yx(t);
-    if (!this.Ue.ea(t)) {
+    if (!this.Ue.isUpgradeable(t)) {
       if (e && i >= this.Ue.Ze) return void K.instance().openDialog("ReplacePropsTipDialog", false, t);
       if (!e && h >= this.Ue.Ke) return void K.instance().openDialog("ReplacePropsTipDialog", false, t);
     }
@@ -620,7 +620,7 @@ export class ShopScene extends Laya.Scene {
 
   _K(t: number): void {
     const s = Zi.instance().Yx(t);
-    const i = this.Ue.ea(t);
+    const i = this.Ue.isUpgradeable(t);
     const h = this.HK(s, t);
     Laya.Point.TEMP.x = this.DZ.width / 2;
     Laya.Point.TEMP.y = this.DZ.height / 2;
@@ -675,7 +675,7 @@ export class ShopScene extends Laya.Scene {
   HK(t: boolean, s: number): any {
     const i = t ? this.activePropsBox : this.passivePropsBox;
     let h: number;
-    if (this.Ue.ea(s)) {
+    if (this.Ue.isUpgradeable(s)) {
       h = (t ? Zi.instance().xx : Zi.instance().Sx).indexOf(s);
       if (h === -1) h = (t ? Zi.instance().xx : Zi.instance().Sx).length;
     } else h = t ? Zi.instance().xx.length : Zi.instance().Sx.length;
@@ -954,7 +954,7 @@ export class ShopScene extends Laya.Scene {
   yK(t: number, s = true): string {
     let i = 1;
     const h = this.Ue.Ue[t];
-    if (this.Ue.ea(t) && Zi.instance().iS(true, t)) {
+    if (this.Ue.isUpgradeable(t) && Zi.instance().iS(true, t)) {
       const lvl = Zi.instance().Nx(t);
       i = s ? lvl + 1 : lvl;
     }

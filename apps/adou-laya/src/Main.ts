@@ -63,6 +63,9 @@ import { SimpleHitAreaBullet, PikeBullet, KnifeBullet } from "./battle/bullets-a
 import { Prop } from "./battle/prop";
 import { DamageStatsMgr } from "./battle/dps-mgr";
 import { WeaponFactory, WeaponMgr } from "./battle/weapon-factory";
+import { GameController } from "./battle/game-controller";
+import { BattleMgr } from "./battle/battle-mgr";
+import { EnemySpatialMgr } from "./battle/enemy-spatial-mgr";
 
 // --- Cutover: register every @regClass scene / dialog / component ---
 // Importing each module runs its @regClass side-effect, binding the original
@@ -97,6 +100,18 @@ import "./dialogs/unit-info-dialog";
 import "./dialogs/gm-dialog";
 import "./components/map-bg-components";
 import "./components/effect-component";
+// Enemy creator registrations (EnemyFactory.register side-effects). Without
+// these, spawning an enemy by type (e.g. "Mob0") throws "未为类型 X 注册创建器".
+import "./battle/enemy-mobs";
+import "./battle/enemy-bosses";
+// Weapon + general creator registrations (WeaponFactory/GeneralFactory.register
+// side-effects). weapon-bow/weapon-knife are pulled in transitively, but the
+// pike (type 1), cavalry/sword (type 3), extra knives (29/30) and every general
+// (ZhaoYun, ZhangFei, GuanYu, ...) only register if these modules are evaluated.
+import "./battle/weapon-pike";
+import "./battle/weapon-cavalry";
+import "./battle/weapon-knife2";
+import "./battle/general-types";
 
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
@@ -169,6 +184,9 @@ const ported = {
   DamageStatsMgr,
   WeaponFactory,
   WeaponMgr,
+  GameController,
+  BattleMgr,
+  EnemySpatialMgr,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.

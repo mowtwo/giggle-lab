@@ -108,12 +108,12 @@ export class BattlePropsMgr extends C {
     for (let k = 0; k < 2; k++)
       if (k < h.length) {
         const id = h[k];
-        s[k] = { type: id, level: this.Ue.ea(id) ? this.Nx(id) : 1 };
+        s[k] = { type: id, level: this.Ue.isUpgradeable(id) ? this.Nx(id) : 1 };
       }
     for (let k = 0; k < 6; k++)
       if (k < e.length) {
         const id = e[k];
-        i[k] = { type: id, level: this.Ue.ea(id) ? this.Nx(id) : 1 };
+        i[k] = { type: id, level: this.Ue.isUpgradeable(id) ? this.Nx(id) : 1 };
       }
     return { active: s, passive: i };
   }
@@ -124,13 +124,13 @@ export class BattlePropsMgr extends C {
       if (t[k]?.type != null) {
         const id = t[k].type;
         const lv = t[k].level ?? 1;
-        n.push(this.Ue.ea(id) ? [id, lv] : id);
+        n.push(this.Ue.isUpgradeable(id) ? [id, lv] : id);
       }
     for (let k = 0; k < 6; k++)
       if (s[k]?.type != null) {
         const id = s[k].type;
         const lv = s[k].level ?? 1;
-        n.push(this.Ue.ea(id) ? [id, lv] : id);
+        n.push(this.Ue.isUpgradeable(id) ? [id, lv] : id);
       }
     F.instance().player.setPropsData(n);
     this.xx.length = 0;
@@ -154,7 +154,7 @@ export class BattlePropsMgr extends C {
     const n = _i.instance().ng(s);
     n.init(t, s);
     this.kx.set(n.id, n);
-    if (this.Ue.ea(s)) n.jv(a);
+    if (this.Ue.isUpgradeable(s)) n.jv(a);
     if (i !== 0) {
       e = this.Yx(s) ? 0 : 1;
       wi.instance().Mv(i, t)!.setItem(n, h, e);
@@ -192,9 +192,9 @@ export class BattlePropsMgr extends C {
     if (h.length === 0 && e.length === 0) return;
     for (let i = 0; i < h.length; i++) {
       let lv: number;
-      if (t) lv = this.Ue.ea(h[i]) ? this.Nx(h[i]) : 1;
-      else if (this.Ex && this.Ux[i] != null) lv = this.Ue.ea(h[i]) ? this.Ux[i] : 1;
-      else if (this.Ue.ea(h[i])) {
+      if (t) lv = this.Ue.isUpgradeable(h[i]) ? this.Nx(h[i]) : 1;
+      else if (this.Ex && this.Ux[i] != null) lv = this.Ue.isUpgradeable(h[i]) ? this.Ux[i] : 1;
+      else if (this.Ue.isUpgradeable(h[i])) {
         const max = this.Ue.Ue[h[i]].Xe?.length || 1;
         lv = f.range(1, max + 1, true);
       } else lv = 1;
@@ -203,9 +203,9 @@ export class BattlePropsMgr extends C {
     }
     for (let s = 0; s < e.length; s++) {
       let lv: number;
-      if (t) lv = this.Ue.ea(e[s]) ? this.Nx(e[s]) : 1;
-      else if (this.Ex && this.Fx[s] != null) lv = this.Ue.ea(e[s]) ? this.Fx[s] : 1;
-      else if (this.Ue.ea(e[s])) {
+      if (t) lv = this.Ue.isUpgradeable(e[s]) ? this.Nx(e[s]) : 1;
+      else if (this.Ex && this.Fx[s] != null) lv = this.Ue.isUpgradeable(e[s]) ? this.Fx[s] : 1;
+      else if (this.Ue.isUpgradeable(e[s])) {
         const max = this.Ue.Ue[e[s]].Xe?.length || 1;
         lv = f.range(1, max + 1, true);
       } else lv = 1;
@@ -220,7 +220,7 @@ export class BattlePropsMgr extends C {
       if (i === 0 || i === 1) continue;
       const h = i;
       const e = t.indexOf(h) !== -1;
-      if (this.Ue.ea(h)) {
+      if (this.Ue.isUpgradeable(h)) {
         if (!e || this.Nx(h) < this.Ue.Ue[h].Xe.length) s.push(h);
       } else if (!e) s.push(h);
     }
@@ -288,7 +288,7 @@ export class BattlePropsMgr extends C {
   }
 
   addProps(t: number): void {
-    const s = this.Ue.ea(t);
+    const s = this.Ue.isUpgradeable(t);
     if (s && this.$x(t)) {
       const lv = this.Ue.Ue[t].Xe.length;
       if (F.instance().player.upgradeProps(t, lv))
