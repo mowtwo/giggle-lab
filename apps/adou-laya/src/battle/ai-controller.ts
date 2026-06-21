@@ -375,7 +375,7 @@ export class GeneralAIController extends AIControllerBase {
   private fY = 0;
   private gY = 0;
   private dY = false;
-  private LY = false;
+  LY = false;
   private mY = 0;
   step = 1;
   private wY!: AIPlaceStrategy;

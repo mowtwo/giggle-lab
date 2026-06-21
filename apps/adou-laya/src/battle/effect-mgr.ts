@@ -822,6 +822,58 @@ export class EffectMgr extends Singleton {
     z().recover(poolName, node);
   }
 
+  /**
+   * Shovel digs a grass tile into a road over 3 chops, sweeping a mask reveal
+   * (~600ms) and popping treasure at the halfway point for the digging side.
+   * (`$l`)
+   */
+  digGrassToRoad(parent: any, isPlayer: boolean, grassSkin: string, x: number, y: number): void {
+    const id = (this.So += 1);
+    const n = z().getItem("shovelGrass", this);
+    n.zIndex = X.vr;
+    const r = n.getChildByName("grass");
+    r.skin = grassSkin;
+    const o = r.getChildByName("maskSp");
+    const l = n.getChildByName("shovel");
+    const c = isPlayer ? F().battleState.Gi : F().battleState.Hi;
+    l.skin = c ? "resources/img/props/shovel_2.png" : "resources/img/props/shovel_1.png";
+    parent.addChild(n);
+    n.pos(x, y);
+    let u = 0;
+    const p = () => {
+      $().playSound("shovel_use");
+      Laya.Tween.create(l)
+        .to("rotation", -60)
+        .duration(100)
+        .chain()
+        .to("rotation", 0)
+        .duration(100)
+        .then(() => {
+          u += 1;
+          if (u < 3) p();
+          else {
+            o.graphics.clear();
+            o.graphics.drawRect(0, 0, F().map.gridWid, F().map.gridHei, "#fff");
+            n.removeSelf();
+            z().recover("shovelGrass", n);
+          }
+        });
+    };
+    p();
+    let yv = 0;
+    let fv = false;
+    j().register("shovelGrass" + id, this, (delta: number) => {
+      yv += delta;
+      o.graphics.clear();
+      o.graphics.drawRect(0, 0, F().map.gridWid * ((600 - yv) / 600), F().map.gridHei, "#fff");
+      if (c && yv >= 300 && !fv) {
+        fv = true;
+        this.playTreasure(parent, isPlayer, x, y);
+      }
+      if (yv >= 600) j().unregister("shovelGrass" + id);
+    });
+  }
+
   /** Grow grass back over a tile via an animated mask reveal (~10s). (`ql`) */
   growGrass(parent: any, grassSkin: string, x: number, y: number): void {
     const id = (this.So += 1);
