@@ -536,6 +536,39 @@ export class EffectMgr extends Singleton {
     );
   }
 
+  /** Timed ground-fire on a target: grows in, holds `duration`, fades out. (`Dl`) */
+  playGroundFireTimed(parent: any, x: number, y: number, duration: number): void {
+    const e = z().getItem("groundFireEff", this);
+    const loop = this.registerImgLoop(
+      e,
+      [
+        "resources/img/effect/fireGround_01.png",
+        "resources/img/effect/fireGround_02.png",
+        "resources/img/effect/fireGround_03.png",
+        "resources/img/effect/fireGround_04.png",
+      ],
+      70,
+      MathE.range(0, 4, true) as number,
+    );
+    parent.addChild(e);
+    e.zIndex = X.ur;
+    e.anchor(0.5, 1);
+    e.pos(x, y + e.height / 2);
+    e.scale(0, 0);
+    Laya.Tween.create(e).duration(500).to("scaleX", 1).to("scaleY", 1);
+    Laya.timer.once(duration, this, () => {
+      Laya.Tween.create(e)
+        .duration(500)
+        .to("scaleX", 0)
+        .to("scaleY", 0)
+        .then(() => {
+          this.removeEvent("imgLoop", loop);
+          e.removeSelf();
+          z().recover("groundFireEff", e);
+        });
+    });
+  }
+
   /** Fire flicker effect (4 random frames then fade). (`Il`) */
   playFireEffect(parent: any, x: number, y: number, scale = 1): void {
     const e = z().getItem("fireEff", this);

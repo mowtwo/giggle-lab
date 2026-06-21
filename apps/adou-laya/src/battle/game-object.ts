@@ -22,13 +22,13 @@ export abstract class GameObject {
   /** Subclass-provided event dispatcher (a Laya node / EventDispatcher). */
   protected abstract pg(): any;
 
-  once(type: string, listenerOrCaller: any, listener?: Function): any {
+  once(type: string, listenerOrCaller: any, listener?: any): any {
     return listener ? this.pg().once(type, listener, listenerOrCaller) : this.pg().once(type, listenerOrCaller);
   }
-  on(type: string, listenerOrCaller: any, listener?: Function): any {
+  on(type: string, listenerOrCaller: any, listener?: any): any {
     return listener ? this.pg().on(type, listener, listenerOrCaller) : this.pg().on(type, listenerOrCaller);
   }
-  off(type: string, listener: Function): any {
+  off(type: string, listener: any): any {
     return this.pg().off(type, listener);
   }
   event(type: string, data?: any): any {
