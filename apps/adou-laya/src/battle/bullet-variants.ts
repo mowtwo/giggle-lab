@@ -14,6 +14,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Bullet, SimpleDynamicArrow } from "./bullet";
+import { SimpleHitAreaBullet } from "./bullets-area";
 import { BulletBehavior } from "./bullet-behavior";
 import { HitStrategy101, HitStrategy102, HitStrategy103, HitStrategyFactory } from "./hit-strategy";
 import { GameMgr } from "../core/game-mgr";
@@ -1306,3 +1307,66 @@ export class PikeSnakeBullet extends Bullet {
   protected tw(): void {}
 }
 reg("PikeSnakeBullet", PikeSnakeBullet);
+
+/** Bullet that attaches to a parent display object + auto-removes with it. (`ie`) */
+export abstract class AttachBullet extends Bullet {
+  constructor(poolKey?: string) {
+    super(poolKey);
+    this.vm = true;
+    this.km = Js.AL;
+  }
+  resetData(t: any): void {
+    const s = t.Cw;
+    s.parent.addChild(this.Pm);
+    s.parent.once(Laya.Event.REMOVED, this, this.tB);
+    super.resetData(t);
+  }
+  protected tB(): void {
+    this.Pm.removeSelf();
+    this.Am(true);
+  }
+  recover(): void {
+    this.Pm.parent.off(Laya.Event.REMOVED, this.tB);
+    super.recover();
+  }
+}
+
+/** Attached bullet sized/anchored to a custom shape on its parent (君子剑 sweep). (`he`) */
+export class AttachCustomShapeBullet extends AttachBullet {
+  static sw = "AttachCustomShapeBullet";
+  constructor(poolKey?: string) {
+    super(poolKey);
+    this.km = Js.AL;
+  }
+  protected Zd(): void {}
+  protected onReset(t: any): boolean | void {
+    const s = t.Cw;
+    if (!s.parent) return false;
+    this.Pm.width = s.width;
+    this.Pm.height = s.height;
+    this.Pm.anchor(s.sB.x, s.sB.y);
+    this.Pm.pos(s.parent.width * s.iB.x, s.parent.height * s.iB.y);
+  }
+  protected Hm(): void {}
+  protected onUpdate(_t: any): void {}
+  protected $m(t: any): void {
+    t.hit(this.Sm, this.bm);
+    q.instance().playPikeHit(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
+  }
+  protected qm(): void {}
+  protected Zm(): void {}
+  protected tw(): void {}
+}
+reg("AttachCustomShapeBullet", AttachCustomShapeBullet);
+
+/** Cavalry sword beam (area hit + cavalry hit FX). (`le`) */
+export class SwordBullet extends SimpleHitAreaBullet {
+  static sw = "SwordBullet";
+  protected $m(t: any): void {
+    super.$m(t);
+    const s = this.Hw(t);
+    const i = t.enemy;
+    q.instance().playCavalryHit(i, i.width / 2, i.height / 2, -s);
+  }
+}
+reg("SwordBullet", SwordBullet);
