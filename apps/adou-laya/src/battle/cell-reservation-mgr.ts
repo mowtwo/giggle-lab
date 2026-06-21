@@ -33,7 +33,7 @@ export class CellReservationMgr extends Singleton {
   b_(t: number, s: boolean, i: number, h: number): boolean {
     return this.k_.has(this.x_(t, s, i, h));
   }
-  private M_(t: boolean, s: number): boolean {
+  M_(t: boolean, s: number): boolean {
     const i = wi.instance().Mv(3, t)!;
     return !(s < 0 || s >= i.size) && !i.getItem(s, 0) && !this.b_(3, t, s, 0);
   }

@@ -21,6 +21,7 @@
 
 import { Singleton } from "../core/singleton";
 import { GameMgr } from "../core/game-mgr";
+import { BattlePropsMgr } from "./battle-props-mgr";
 import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 import { MathE } from "../core/math-e";
@@ -35,6 +36,7 @@ import { GeneralPart } from "./general-part";
 import { Farmer } from "./farmer";
 
 const F = GameMgr;
+const Zi = BattlePropsMgr;
 const y = EventMgr;
 const u = GameEvent;
 const f = MathE;
@@ -395,10 +397,22 @@ export class EntityRegistry extends Singleton {
     return l;
   }
 
-  /** Shovel-prop chance to spawn a soldier at level 2 (pending battle-props mgr Zi). (`bS`) */
-  bS(_t: any, s: number): number {
-    // The shovel (prop 22) doubling chance reads the in-battle props mgr (Zi),
-    // which is ported with the props subsystem; until then no doubling.
+  /** Shovel-prop (22) chance to spawn a soldier at level 2 instead. (`bS`) */
+  bS(t: any, s: number): number {
+    if (t) {
+      if (!Zi.instance().iS(t, 22)) return s;
+      const i = Zi.instance().Nx(22);
+      const h = 0.01 * F.instance().props.Ue[22].Ge[i - 1];
+      if (h > 0 && Math.random() < h) return 2;
+    } else {
+      for (const [, p] of Zi.instance().kx)
+        if (p.type === 22 && !p.qd) {
+          const lv = p.level || 1;
+          const i = 0.01 * F.instance().props.Ue[22].Ge[lv - 1];
+          if (i > 0 && Math.random() < i) return 2;
+          break;
+        }
+    }
     return s;
   }
 

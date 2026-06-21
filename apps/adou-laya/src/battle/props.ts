@@ -30,7 +30,13 @@ import { PrefabFactory } from "./prefab-factory";
 import { SpecialIndex } from "./attr-type";
 import { AudioMgr } from "../core/audio-mgr";
 import { EffectMgr } from "./effect-mgr";
+import { Soldier } from "./soldier";
+import { Farmer } from "./farmer";
+import { BattlePropsMgr } from "./battle-props-mgr";
 
+const Ws = Soldier;
+const ki = Farmer;
+const Zi = BattlePropsMgr;
 const F = GameMgr;
 const X = LayerZ;
 const y = EventMgr;
@@ -1600,3 +1606,171 @@ export class ShovelUpgradeProp extends InstantProp {
   }
 }
 PropsFactory.instance().register(24, () => Laya.Pool.createByClass(ShovelUpgradeProp));
+
+/**
+ * 垃圾桶 — placeable trash-can that recycles a single board unit, awarding gold
+ * equal to its level. Opens the lid (frame anim), pulls the unit in, removes it
+ * from the registry, closes the lid, then floats the reward. (`qi`)
+ */
+export class TrashCanProp extends PropBase {
+  private rk = 3;
+  private sx = 0;
+  private ix: any;
+  private hx: any;
+  private nx: any;
+  private ox: any;
+  private lx: any;
+  private light: any;
+  private ux: any;
+
+  start(): void {
+    super.start();
+    if (!this.qd) return;
+    this.Wv.skin = "";
+    this.Wv.anchor(0, 0);
+    this.Wv.size(this.props.width, this.props.height);
+    this.Wv.pos(0, 0);
+    this.ix = new Laya.Image();
+    this.ix.size(56, 22);
+    this.ix.skin = "resources/img/props/trashCan_3.png";
+    this.ix.pos(12, 22);
+    this.ix.anchor(0, 0);
+    this.ix.zIndex = 0;
+    this.Wv.addChild(this.ix);
+    this.hx = new Laya.Image("resources/img/props/trashCanLid0.png");
+    this.hx.size(51, 22);
+    this.hx.pos(15, 21);
+    this.Wv.addChild(this.hx);
+    this.nx = new Laya.Image("resources/img/props/trashCan_2.png");
+    this.nx.size(56, 34);
+    this.nx.pos(12, 44);
+    this.Wv.addChild(this.nx);
+    this.nx.zIndex = 2;
+    this.ox = new Laya.Image("resources/img/props/recyclingSign0.png");
+    this.ox.size(24, 21);
+    this.ox.pos(28, 48);
+    this.Wv.addChild(this.ox);
+    this.ox.zIndex = 2;
+    this.lx = new Laya.Image("resources/img/props/recyclingSign1.png");
+    this.lx.size(24, 21);
+    this.ox.addChild(this.lx);
+    this.lx.alpha = 0;
+    this.light = new Laya.Image("resources/img/battleUI/inkLight0.png");
+    this.light.size(47, 35);
+    this.light.anchor(0.5, 1);
+    this.light.pos(41, 51);
+    this.Wv.addChild(this.light);
+    this.light.alpha = 0;
+    this.ux = new Laya.Sprite();
+    this.ux.graphics.drawRect(0, 0, 50, 31, "#fff");
+    this.light.mask = this.ux;
+  }
+
+  onMouseMove(): void {}
+
+  Jv(t: any, s: any = null): boolean {
+    if (!s) return false;
+    const i = s.Mv(t.containerType, this.qd).getItem(t.x, t.y);
+    return !!(i && i instanceof Ws) && !(i instanceof ki);
+  }
+
+  yx(t: any): any {
+    const s = new Laya.Sprite();
+    s.name = "trashCan_eatClone";
+    s.size(80, 80);
+    s.anchorX = 0.5;
+    s.anchorY = 0.5;
+    const i = new Laya.Image("resources/img/props/trashCan_3.png");
+    i.size(56, 22);
+    i.pos(12, 22);
+    s.addChild(i);
+    const h = new Laya.Image("resources/img/props/trashCanLid0.png");
+    h.name = "lid";
+    h.size(51, 22);
+    h.pos(15, 21);
+    s.addChild(h);
+    const e = new Laya.Image("resources/img/props/trashCan_2.png");
+    e.size(56, 34);
+    e.pos(12, 44);
+    s.addChild(e);
+    t.addChild(s);
+    return s;
+  }
+
+  tk(t: any, s: any = null): void {
+    if (!s) return;
+    const i = s.Mv(t.containerType, this.qd);
+    const h = i.getItem(t.x, t.y);
+    if (!(h instanceof Ws) || h instanceof ki) return;
+    const e: any = h;
+    const a = e.Yn.parent;
+    const n = e.Yn.x + e.Yn.width / 2;
+    const r = e.Yn.y + e.Yn.height / 2;
+    i.removeItem(t.x, t.y);
+    const o = this.yx(a);
+    o.pos(n, r);
+    this.ak();
+    this.Kv = 0;
+    const l = o.getChildByName("lid");
+    q.instance().registerImgLoop(
+      l,
+      [
+        "resources/img/props/trashCanLid1.png",
+        "resources/img/props/trashCanLid2.png",
+        "resources/img/props/trashCanLid3.png",
+      ],
+      50,
+      0,
+      1,
+      () => {
+        l.pos(15, 3);
+        e.Yn.zIndex = 1;
+        e.Yd = 2;
+        const t2 = F.instance().map.gridWid;
+        const s2 = F.instance().map.gridHei;
+        const i2 = o.width / 2 - t2 / 2;
+        const h2 = o.height / 2 - s2 / 2;
+        e.nL(
+          0,
+          -1,
+          -1,
+          () => {
+            e.Nd ? Ki.instance().gx(e.id) : Ki.instance().Lx(e.id);
+            q.instance().registerImgLoop(
+              l,
+              [
+                "resources/img/props/trashCanLid2.png",
+                "resources/img/props/trashCanLid1.png",
+                "resources/img/props/trashCanLid0.png",
+              ],
+              50,
+              0,
+              1,
+              () => {
+                l.pos(15, 21);
+                Laya.Point.TEMP.setTo(40, -50);
+                o.localToGlobal(Laya.Point.TEMP);
+                o.removeSelf();
+                F.instance().battleState.gold += e.level;
+                q.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, e.level, 1.2);
+                Zi.instance().mx();
+                y.instance.event(u.ls);
+              },
+            );
+          },
+          false,
+          { parent: o, x: i2, y: h2 },
+        );
+      },
+    );
+  }
+
+  gameOver(): void {
+    super.gameOver();
+    this.props.size(F.instance().map.gridWid, F.instance().map.gridHei);
+    this.Wv.size(this.props.width, this.props.height);
+    this.Wv.anchor(0.5, 0.5);
+    this.Wv.pos(this.props.width / 2, this.props.height / 2);
+  }
+}
+PropsFactory.instance().register(21, () => Laya.Pool.createByClass(TrashCanProp));
