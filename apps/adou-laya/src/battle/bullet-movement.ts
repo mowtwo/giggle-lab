@@ -16,6 +16,7 @@ export class BulletMovementBase {
   FL = -1;
   XL = new Laya.Vector2(); // direction
   GL = new Laya.Point(); // target point
+  Ym: any; // owning bullet (assigned when the bullet adopts this movement)
 
   static zL = "BulletMovementBase";
 
