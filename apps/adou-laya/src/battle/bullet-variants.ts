@@ -1022,3 +1022,287 @@ export class StarBullet extends Bullet {
   protected tw(): void {}
 }
 reg("StarBullet", StarBullet);
+
+/** Fly-pike (龙胆亮银枪 summoned spear). (`ae`) */
+export class FlyPike extends Bullet {
+  static sw = "FlyPike";
+  private animId = 0;
+  private QA = new Laya.Point();
+  private JE: any;
+  private hB: any;
+  protected Zd(): void {
+    this.Pm.size(20, 66);
+    this.Pm.loadImage("resources/img/effect/longDanLiangYinQiangBk.png");
+    this.JE = new Laya.Image("resources/img/weapon/weapon_19.png");
+    this.JE.size(20, 66);
+    this.JE.anchor(0.5, 0.5);
+    this.JE.pos(this.Pm.width / 2, this.Pm.height / 2);
+    this.Pm.addChild(this.JE);
+    this.hB = new Laya.Image();
+    this.hB.size(130, 52);
+    this.hB.anchor(0.5, 0.5);
+    this.hB.pos(this.Pm.width / 2, this.Pm.height / 2);
+    this.hB.rotation = 90;
+    this.Pm.addChild(this.hB);
+  }
+  protected onReset(_t: any): void {
+    Laya.Tween.create(this.hB).go("alpha", 0, 1).duration(200);
+    this.animId = q
+      .instance()
+      .registerImgLoop(
+        this.hB,
+        ["resources/img/effect/quan01.png", "resources/img/effect/quan02.png", "resources/img/effect/quan03.png"],
+        100,
+      );
+  }
+  protected Hm(): void {
+    q.instance().removeEvent("imgLoop", this.animId);
+    Laya.Tween.create(this.hB).go("alpha", 1, 0).duration(200);
+  }
+  protected onUpdate(_t: any): void {
+    this.Pm.rotation = f.angle(this.QA, this.Pm);
+    this.QA.setTo(this.Pm.x, this.Pm.y);
+  }
+  protected $m(t: any): void {
+    t.hit(this.Sm, this.bm);
+    q.instance().playLongDanHitEffect(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
+  }
+  protected qm(): void {}
+  protected Zm(): void {}
+  protected tw(): void {}
+}
+reg("FlyPike", FlyPike);
+
+/** Ground-spike bullet that lifts + stuns the target (铁枪/虎头湛金枪). (`ne`) */
+export class GroundSpikeBullet extends Bullet {
+  static sw = "GroundSpikeBullet";
+  private eB = 3000;
+  private hd = 5;
+  private ed = "resources/img/weapon/weapon_11.png";
+  private ad: any[] = [];
+  private ud: any;
+  private pd: any;
+  private yd = 0;
+  private fd = 0;
+  constructor(poolKey?: string) {
+    super(poolKey);
+    this.lm = 1000;
+    this.km = Js.AL;
+    this.eB = 3000;
+    this.hd = 5;
+    this.ed = "resources/img/weapon/weapon_11.png";
+    this.ad = [];
+  }
+  protected Zd(): void {
+    this.ud = new Laya.Sprite();
+    this.pd = new Laya.Sprite();
+    this.Pm.size(40, 40);
+    this.Pm.anchor(0.5, 0.5);
+    const t = F.instance().map;
+    this.yd = t.gridWid;
+    this.fd = t.gridHei;
+    this.ud.size(this.yd, this.fd);
+    this.Pm.addChild(this.ud);
+    for (let i = 0; i < this.hd; i++) {
+      const img = new Laya.Image(this.ed);
+      img.visible = false;
+      this.ad.push(img);
+      this.ud.addChild(img);
+    }
+    this.ud.mask = this.pd;
+    this.pd.graphics.drawRect(0, 0, this.yd, this.fd, "#fff");
+    this.Pm.zIndex = X.ur;
+  }
+  od(t: string): void {
+    this.ed = t;
+    for (const img of this.ad) img.skin = this.ed;
+  }
+  protected onReset(_t: any): void {}
+  protected Hm(): void {}
+  protected onUpdate(_t: any): void {}
+  protected $m(t: any): void {
+    for (const img of this.ad) {
+      img.anchor(0.5, 0.5);
+      img.visible = true;
+      img.alpha = 1;
+      img.pos(f.range(10, this.yd - 10) as number, f.range(this.fd - 20, this.fd) as number);
+      img.rotation = f.range(-5, 5) as number;
+      Laya.Tween.create(img)
+        .go("scaleY", 0, 1)
+        .duration(200)
+        .ease(Laya.Ease.cubicOut)
+        .chain()
+        .delay(200)
+        .go("alpha", 1, 0)
+        .duration(500);
+    }
+    q.instance().playCrackEffect(this.Pm, 40, 80, 800);
+    t.hit(this.Sm, this.bm);
+    if (!t.Bw) return;
+    t.Bw = false;
+    th.instance().applyBuff(t.id, 8, 0, false, this.eB);
+    Laya.Tween.create(t.enemy)
+      .duration(this.eB)
+      .then(() => {
+        t.Bw = true;
+      }, t);
+    if (!t.ZM) return;
+    const s = t.ZM.y;
+    const i = t.ZM.x;
+    Laya.Tween.create(t.ZM)
+      .go("y", s, s - 150)
+      .duration(350)
+      .ease(Laya.Ease.cubicOut)
+      .parallel()
+      .go("rotation", 0, 45)
+      .chain()
+      .go("y", s - 150, s)
+      .duration(350)
+      .ease(Laya.Ease.cubicIn)
+      .parallel()
+      .go("rotation", 45, 0)
+      .chain()
+      .to("scaleY", 0.2)
+      .duration(100)
+      .parallel()
+      .to("scaleX", 1.5)
+      .chain()
+      .go("scaleY", 0.2, 1)
+      .duration(100)
+      .parallel()
+      .go("scaleX", 1.5, 1)
+      .chain()
+      .duration(this.eB - 350 - 350 - 100 - 100)
+      .to("x", i)
+      .to("y", s)
+      .interp(Laya.Tween.shake, 1);
+  }
+  protected qm(): void {
+    this.Am();
+  }
+  protected Zm(): void {}
+  protected tw(): void {}
+}
+reg("GroundSpikeBullet", GroundSpikeBullet);
+
+/** Pear-blossom bullet (梨花枪). (`re`) */
+export class LiHuaBullet extends Bullet {
+  static sw = "LiHuaBullet";
+  private JE: any;
+  protected Zd(): void {
+    this.JE = new Laya.Image("resources/img/weapon/bullet/lihua.png");
+    this.JE.anchor(0.5, 0.5);
+    this.JE.size(28, 28);
+    this.Pm.addChild(this.JE);
+  }
+  protected onReset(_t: any): void {}
+  protected Hm(): void {}
+  protected onUpdate(t: number): void {
+    this.JE.rotation += t;
+  }
+  protected $m(t: any): void {
+    const s = t.enemy;
+    t.hit(this.Sm, this.bm);
+    q.instance().playLiHuaEffect(s, s.width / 2, s.height / 2);
+  }
+  protected qm(): void {}
+  protected Zm(): void {}
+  protected tw(): void {}
+}
+reg("LiHuaBullet", LiHuaBullet);
+
+/** Spirit-snake roadblock bullet (丈八蛇矛). (`oe`) */
+export class PikeSnakeBullet extends Bullet {
+  static sw = "PikeSnakeBullet";
+  level = 0;
+  private Ra = 2000;
+  private color = ["#ffffff", "#85de85", "#94bcf7", "#b090f0", "#ffdd00"];
+  private aB = 0;
+  private nB: any[] = [];
+  private background: any;
+  private rB: any;
+  private om2: any;
+  private oB = 0;
+  constructor(poolKey?: string) {
+    super(poolKey);
+    this.lm = 1000;
+    this.km = Js.AL;
+    this.Ra = 2000;
+    this.level = 0;
+    this.color = ["#ffffff", "#85de85", "#94bcf7", "#b090f0", "#ffdd00"];
+    this.aB = 0;
+    this.nB = [];
+  }
+  protected Zd(): void {
+    this.Pm.name = "PikeSnakeBullet";
+    this.background = new Laya.Image("resources/img/weapon/bullet/lingShe_bk.png");
+    this.rB = new Laya.Image("resources/img/weapon/bullet/lingShe_1.png");
+    this.om2 = new Laya.Sprite();
+    this.om2.anchor(0.5, 0.5);
+    this.Pm.addChild(this.background);
+    this.Pm.addChild(this.rB);
+    this.Pm.addChild(this.om2);
+    this.om2.size(113, 78);
+    this.rB.size(113, 78);
+    this.rB.anchor(0.5, 0.5);
+    this.rB.pos(-30, -23);
+    this.background.pos(-40, -30);
+    this.background.alpha = 0.5;
+  }
+  protected onReset(t: any): void {
+    this.rB.scaleX = t.Cw?.flip ? -1 : 1;
+    this.Pm.alpha = 1;
+    this.Pm.zIndex = X.mr;
+    this.level = 0;
+  }
+  protected Hm(): void {
+    this.rB.color = this.color[Math.min(this.level, this.color.length - 1)];
+  }
+  protected onUpdate(t: number): void {
+    if (!this.PL) {
+      if (this.aB < this.Ra) this.aB += t;
+      else {
+        this.aB = 0;
+        this.dm.clear();
+        this.PL = true;
+      }
+    }
+  }
+  protected $m(t: any): void {
+    this.nB.push(t.id);
+  }
+  protected qm(): void {
+    this.oB = q
+      .instance()
+      .registerImgLoop(
+        this.rB,
+        [
+          "resources/img/weapon/bullet/lingShe_1.png",
+          "resources/img/weapon/bullet/lingShe_2.png",
+          "resources/img/weapon/bullet/lingShe_3.png",
+          "resources/img/weapon/bullet/lingShe_4.png",
+          "resources/img/weapon/bullet/lingShe_5.png",
+          "resources/img/weapon/bullet/lingShe_1.png",
+        ],
+        100,
+        0,
+        1,
+      );
+    Laya.timer.once(350, this, () => {
+      for (const id of this.nB) {
+        const s = this.xw.kw.get(id);
+        if (s) s.hit(this.Sm, this.bm);
+      }
+      this.nB.length = 0;
+    });
+    this.PL = false;
+  }
+  protected Qm(): void {
+    Laya.Tween.create(this.Pm).to("alpha", 0).duration(250);
+  }
+  protected Zm(): void {
+    Laya.Tween.killAll(this.Pm);
+  }
+  protected tw(): void {}
+}
+reg("PikeSnakeBullet", PikeSnakeBullet);

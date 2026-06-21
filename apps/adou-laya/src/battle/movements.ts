@@ -374,3 +374,58 @@ export class TargetPositionBezierMovement extends BulletMovementBase {
   }
 }
 TargetPositionBezierMovement.zL = "TargetPositionBezierMovement";
+
+/** Chase a tracked enemy directly (stops when close). (`Ke`) */
+export class TargetEnemyMovement extends BulletMovementBase {
+  private yw = new Laya.Point();
+  private _direction = new Laya.Vector2();
+  private ZE: any;
+  private fw = false;
+
+  static zL = "TargetEnemyMovement";
+
+  HL(): void {}
+  tm(_t: number, s: number): void {
+    const i = this.Ym.Pm;
+    if (!this.fw) this.gw();
+    if (f.distanceSq(i, this.yw) < 100) this.Ym.Am();
+    else {
+      this._direction.setValue(this.yw.x - i.x, this.yw.y - i.y);
+      Laya.Vector2.normalize(this._direction, this._direction);
+      i.x += 10 * this._direction.x * s;
+      i.y += 10 * this._direction.y * s;
+    }
+  }
+  private gw(): void {
+    this.yw.setTo(this.ZE.centerX, this.ZE.centerY);
+  }
+  Zd(): void {
+    if (this.fw) {
+      this.Ym.Am(true);
+      this.Ym.Im();
+    }
+  }
+  jL(): void {
+    this.fw = true;
+  }
+  protected VL(t: number): void {
+    this.ZE = Eh.instance().kw.get(t);
+    if (this.ZE) {
+      this.fw = false;
+      this.gw();
+      this.ZE.once("onDead", () => {
+        this.fw = true;
+      }, this);
+    } else this.fw = true;
+  }
+  protected NL(): void {
+    if (this.ZE) {
+      this.ZE.offAllCaller(this);
+      this.ZE = null;
+    }
+  }
+  static create(): any {
+    return super.create();
+  }
+}
+TargetEnemyMovement.zL = "TargetEnemyMovement";
