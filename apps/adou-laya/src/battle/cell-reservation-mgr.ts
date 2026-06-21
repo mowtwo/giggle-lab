@@ -30,7 +30,7 @@ export class CellReservationMgr extends Singleton {
     this.k_.clear();
     this.__ = 1;
   }
-  private b_(t: number, s: boolean, i: number, h: number): boolean {
+  b_(t: number, s: boolean, i: number, h: number): boolean {
     return this.k_.has(this.x_(t, s, i, h));
   }
   private M_(t: boolean, s: number): boolean {

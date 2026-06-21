@@ -21,6 +21,10 @@ import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 import { BuffMgr } from "./buff-mgr";
 import { BowSoldier } from "./soldier-types";
 import { GeneralPart } from "./general-part";
+import { SpawnQueueMgr } from "./spawn-queue-mgr";
+import { CellReservationMgr } from "./cell-reservation-mgr";
+import { BoardMgr } from "./board-mgr";
+import { SpecialIndex } from "./attr-type";
 import { AudioMgr } from "../core/audio-mgr";
 import { EffectMgr } from "./effect-mgr";
 
@@ -34,6 +38,10 @@ const Eh = EnemySpatialMgr;
 const th = BuffMgr;
 const ci = BowSoldier;
 const gi = GeneralPart;
+const Na = SpawnQueueMgr;
+const Oi = CellReservationMgr;
+const L = SpecialIndex;
+const wi = BoardMgr;
 const $ = AudioMgr;
 const q = EffectMgr;
 
@@ -1093,3 +1101,292 @@ export class AttackSpeedSpellProp extends TrainingSpellProp {
   }
 }
 PropsFactory.instance().register(10, () => Laya.Pool.createByClass(AttackSpeedSpellProp));
+
+/** Base for instant-use (non-cooldown, non-board) consumable props. (`Ui`) */
+export class InstantProp extends Prop {
+  protected zv = false;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+  }
+}
+
+/** 驱魔符 — dispels/reflects a boss skill. (`Fi`) */
+export class ExorcismSpellProp extends InstantProp {
+  private f_ = 0;
+  private Ek = [
+    "resources/img/props/exorcismSpellBurn0.png",
+    "resources/img/props/exorcismSpellBurn1.png",
+    "resources/img/props/exorcismSpellBurn2.png",
+    "resources/img/props/exorcismSpellBurn3.png",
+    "resources/img/props/exorcismSpellBurn4.png",
+    "resources/img/props/exorcismSpellBurn5.png",
+  ];
+  private g_: any;
+  private Zg: any;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    if (!this.g_) {
+      this.g_ = new Laya.Image("resources/img/props/exorcismSpell_1.png");
+      this.g_.size(this.props.width, this.props.height);
+    }
+    this.g_.visible = false;
+    if (!this.Zg) this.Zg = new Laya.Image("resources/img/props/fire0.png");
+    this.Zg.zIndex = 1;
+    this.Zg.visible = false;
+    this.g_.addChild(this.Zg);
+    y.instance.on(u.cs, this, this.L_);
+  }
+  private L_(t: any, s: any, i: number, h: number): void {
+    if (s === this.qd) {
+      if (Math.random() > 0.5) Eh.instance().m_(t, true);
+      else {
+        Laya.Point.TEMP.x = i;
+        Laya.Point.TEMP.y = h;
+        if (!this.g_.parent) this.props.parent.addChild(this.g_);
+        this.g_.parent.globalToLocal(Laya.Point.TEMP);
+        this.g_.visible = true;
+        Laya.Tween.to(
+          this.g_,
+          { x: Laya.Point.TEMP.x, y: Laya.Point.TEMP.y },
+          100,
+          null,
+          Laya.Handler.create(this, () => {
+            this.w_(t);
+          }),
+        );
+        Eh.instance().m_(t, false);
+      }
+    } else Eh.instance().m_(t, true);
+  }
+  private w_(_t: any): void {
+    q.instance().registerImgLoop(this.g_, this.Ek, 50, 0, 1, (id: number) => {
+      q.instance().removeEvent("imgLoop", id);
+      q.instance().removeEvent("imgLoop", this.f_);
+      this.reset();
+    });
+    this.Zg.visible = true;
+    this.f_ = q.instance().registerImgLoop(
+      this.Zg,
+      ["resources/img/props/fire0.png", "resources/img/props/fire1.png", "resources/img/props/fire2.png"],
+      50,
+    );
+  }
+  reset(): void {
+    super.reset();
+    this.g_.visible = false;
+    this.g_.skin = "resources/img/props/trainingSpell_1.png";
+    this.g_.pos(this.props.x, this.props.y);
+    this.Zg.visible = false;
+    this.Zg.skin = "resources/img/props/fire0.png";
+  }
+  gameOver(): void {
+    y.instance.off(u.cs, this, this.L_);
+    Laya.Tween.killAll(this.g_);
+    super.gameOver();
+  }
+}
+PropsFactory.instance().register(11, () => Laya.Pool.createByClass(ExorcismSpellProp));
+
+/** 招贤 — periodically auto-spawns a farmer onto a free cell. (`Yi`) */
+export class RecruitFarmerProp extends InstantProp {
+  private B_ = 30000;
+  private I_ = 0;
+  update(t: number): void {
+    this.D_(t);
+  }
+  private D_(t: number): void {
+    this.I_ += t;
+    if (this.I_ < this.B_) return;
+    this.I_ = 0;
+    const s = F.instance().map.ue;
+    const i = this.qd ? s[0].length / 2 : 0;
+    const h = this.qd ? s[0].length : s[0].length / 2;
+    const e = this.qd ? "2_0" : "2_1";
+    const a = { containerType: 0, x: -1, y: -1 };
+    for (let t2 = 0; t2 < s.length; t2++)
+      for (let n = i; n < h; n++)
+        if (s[t2][n] === e && !this.T_(1, t2, n)) {
+          a.containerType = 1;
+          a.x = t2;
+          a.y = n;
+          this.R_(a);
+          return;
+        }
+    for (let t2 = 0; t2 < 5; t2++)
+      if (!this.T_(3, t2)) {
+        a.containerType = 3;
+        a.x = t2;
+        a.y = 0;
+        this.R_(a);
+        return;
+      }
+  }
+  private T_(t: number, s: number, i = 0): boolean {
+    if (wi.instance().Mv(t, this.qd)!.getItem(s, i)) return true;
+    const h = Oi.instance();
+    return t === 3 ? h.b_(3, this.qd, s, 0) : t === 1 && h.b_(1, this.qd, s, i);
+  }
+  private R_(t: any): void {
+    const s = EntityRegistry.instance().C_(t.containerType, "农", this.qd, t.x, t.y);
+    this.props.parent.addChild(s.Yn);
+    s.Yn.pos(0, 0);
+    s.Yn.zIndex = 900;
+    s.Yd = 5;
+    s.lL(t.containerType, t.x, t.y);
+  }
+  gameOver(): void {
+    super.gameOver();
+    this.B_ = 0;
+  }
+}
+PropsFactory.instance().register(12, () => Laya.Pool.createByClass(RecruitFarmerProp));
+
+/** 增援 — refills the side's draw bag. (`Xi`) */
+export class RefillProp extends InstantProp {
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    Na.instance().U_(qd);
+  }
+}
+PropsFactory.instance().register(13, () => Laya.Pool.createByClass(RefillProp));
+
+/** 全军攻速 — +10% attack speed to all units (both sides). (`Gi`) */
+export class AllAttackSpeedProp extends InstantProp {
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    EntityRegistry.instance().F_("allAttSpeedSpell" + this.id, true, 1, 0.1, true, -1);
+    EntityRegistry.instance().F_("allAttSpeedSpellAi" + this.id, false, 1, 0.1, true, -1);
+  }
+  gameOver(): void {
+    super.gameOver();
+    EntityRegistry.instance().O_("allAttSpeedSpell" + this.id);
+    EntityRegistry.instance().O_("allAttSpeedSpellAi" + this.id);
+  }
+}
+PropsFactory.instance().register(14, () => Laya.Pool.createByClass(AllAttackSpeedProp));
+
+/** 同心协力 — bigger attack-speed group buff. (`Hi`) */
+export class HandInHandProp extends InstantProp {
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    EntityRegistry.instance().F_("goingHandInHand" + this.id, true, 1, 0.5, true, -1);
+    EntityRegistry.instance().F_("goingHandInHandAi" + this.id, false, 1, 0.3, true, -1);
+  }
+  gameOver(): void {
+    super.gameOver();
+    EntityRegistry.instance().O_("goingHandInHand" + this.id);
+    EntityRegistry.instance().O_("goingHandInHandAi" + this.id);
+  }
+}
+PropsFactory.instance().register(15, () => Laya.Pool.createByClass(HandInHandProp));
+
+/** 大补丸 — +5 own lives, +3 enemy lives (or swapped). (`Wi`) */
+export class BigLifeProp extends InstantProp {
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    if (this.qd) {
+      F.instance().battleState.playerLives += 5;
+      F.instance().battleState.enemyLives += 3;
+    } else {
+      F.instance().battleState.playerLives += 3;
+      F.instance().battleState.enemyLives += 5;
+    }
+  }
+}
+PropsFactory.instance().register(16, () => Laya.Pool.createByClass(BigLifeProp));
+
+/** 补丸 — +3 lives on the using side. (`zi`) */
+export class LifeProp extends InstantProp {
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    if (this.qd) F.instance().battleState.playerLives += 3;
+    else F.instance().battleState.enemyLives += 3;
+  }
+}
+PropsFactory.instance().register(17, () => Laya.Pool.createByClass(LifeProp));
+
+/** 淤泥 — slows the side's lane end + footprint slow aura. (`ji`) */
+export class SiltProp extends InstantProp {
+  private Y_: any;
+  private X_: any;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    this.Y_ = new Laya.Image("resources/img/props/silt_1.png");
+    this.Y_.size(F.instance().map.gridWid, F.instance().map.gridHei);
+    this.Y_.zIndex = X.ur;
+    Laya.Point.TEMP.x = qd ? F.instance().map.se.x : F.instance().map.ee.x;
+    Laya.Point.TEMP.y = qd ? F.instance().map.se.y : F.instance().map.ee.y;
+    y.instance.event(u.St, this.Y_, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    this.X_ = new Laya.Image("resources/img/props/silt_2.png");
+    this.X_.size(110, 60);
+    this.X_.anchorX = 0.5;
+    this.X_.anchorY = 1;
+    this.X_.pos(40, 60);
+    this.X_.visible = false;
+    this.Y_.addChild(this.X_);
+    if (qd) {
+      F.instance().battleState.Ri = true;
+      Eh.instance().F_("silt" + this.id, this.qd, 3, -0.1, true, L.Ji);
+    } else {
+      F.instance().battleState.Ci = true;
+      Eh.instance().F_("siltAi" + this.id, this.qd, 3, -0.1, true, L.Ji);
+    }
+    y.instance.on(u.rs, this, this.G_);
+  }
+  private G_(): void {
+    this.X_.scale(0, 0);
+    this.X_.visible = true;
+    Laya.Tween.to(
+      this.X_,
+      { scaleX: 1, scaleY: 1 },
+      50,
+      null,
+      Laya.Handler.create(this, () => {
+        this.X_.skin = "resources/img/props/silt_3.png";
+        Laya.Tween.to(
+          this.X_,
+          { alpha: 0 },
+          100,
+          null,
+          Laya.Handler.create(this, () => {
+            this.X_.alpha = 1;
+            this.X_.visible = false;
+          }),
+        );
+      }),
+    );
+  }
+  gameOver(): void {
+    super.gameOver();
+    y.instance.off(u.rs, this, this.G_);
+    this.Y_.removeSelf();
+    Laya.Tween.killAll(this.X_);
+    this.X_.removeSelf();
+    if (this.qd) Eh.instance().O_("silt" + this.id);
+    else Eh.instance().O_("siltAi" + this.id);
+  }
+}
+PropsFactory.instance().register(18, () => Laya.Pool.createByClass(SiltProp));
+
+/** 藏宝图 — periodically drops treasure. (`$i`) */
+export class TreasureMapProp extends InstantProp {
+  private B_ = 60000;
+  private I_ = 0;
+  update(t: number): void {
+    this.H_(t);
+  }
+  private H_(t: number): void {
+    this.I_ += t;
+    if (this.I_ < this.B_) return;
+    Laya.Point.TEMP.x = 0;
+    Laya.Point.TEMP.y = 0;
+    this.props.localToGlobal(Laya.Point.TEMP);
+    y.instance.event(u.zt, this.qd, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    this.I_ = 0;
+  }
+  gameOver(): void {
+    super.gameOver();
+    this.B_ = 0;
+  }
+}
+PropsFactory.instance().register(19, () => Laya.Pool.createByClass(TreasureMapProp));
