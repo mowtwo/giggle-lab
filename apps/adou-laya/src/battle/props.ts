@@ -881,3 +881,215 @@ export class TrapProp extends PropBase {
   }
 }
 PropsFactory.instance().register(8, () => Laya.Pool.createByClass(TrapProp));
+
+/** 地雷 — buried mine that emerges then explodes (AoE charm) when stepped on. (`Ri`) */
+export class LandmineProp extends PropBase {
+  protected rk = 5;
+  protected s_ = true;
+  protected i_ = true;
+  private o_!: Map<number, any>;
+  private container: any;
+  constructor() {
+    super();
+    this.Qv = 2;
+  }
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    this.o_ = new Map();
+  }
+  protected Nv(t: any, s: any): void {
+    const { x: i, y: h } = t;
+    const e = new Laya.Image("resources/img/props/landmine_1.png");
+    e.size(80, 80);
+    e.anchorX = 0.5;
+    e.anchorY = 0.5;
+    y.instance.event(u.bt, e, i, h);
+    e.x += e.width / 2;
+    e.y += e.height / 2;
+    const a = new Laya.Image("resources/img/props/mound.png");
+    this.o_.set((q.instance().So += 1), { img: e, l_: a, x: i, y: h, c_: 0 });
+    const n = new Laya.Image("resources/img/props/leadLight0.png");
+    n.pos(56 - e.width / 2, 28 - e.height / 2);
+    n.size(17, 17);
+    n.anchorX = 0.5;
+    n.anchorY = 0.5;
+    n.visible = false;
+    e.addChild(n);
+    const r = F.instance().map.ue[i][h].endsWith("0");
+    const o = s.Mv(2, r);
+    o.setItem(this, i, h);
+    this.container = o;
+    this.reset();
+    this.u_(e, a);
+  }
+  update(t: number): void {
+    super.update(t);
+  }
+  private u_(t: any, s: any): void {
+    const i = new Laya.Sprite();
+    i.graphics.drawRect(0, 0, t.width, t.height, "#fff");
+    t.addChild(i);
+    t.mask = i;
+    s.size(75, 34);
+    s.anchorX = 0.5;
+    s.anchorY = 1;
+    s.pos(t.x, t.y + 74 - t.height / 2);
+    t.parent.addChild(s);
+    let h = 1;
+    Laya.timer.loop(50, this, () => {
+      h -= 0.1;
+      t.y += (t.height - t.height * h) / 5;
+      i.graphics.clear();
+      i.graphics.drawRect(0, 0, t.width, t.height * h, "#fff");
+      s.y += 0.9;
+      s.scaleX -= 0.04;
+      s.scaleY -= 0.04;
+      if (h <= 0.6) {
+        Laya.timer.clearAll(this);
+        this.p_(t);
+      }
+    });
+  }
+  private p_(t: any): void {
+    Laya.Tween.create(t)
+      .to("scaleX", 1.05)
+      .to("scaleY", 0.95)
+      .duration(300)
+      .chain()
+      .to("scaleX", 1)
+      .to("scaleY", 1)
+      .duration(300)
+      .then(() => this.p_(t), this);
+  }
+  e_(t: number, s: number, _i: any): void {
+    for (const k of this.o_)
+      if (k[1].x === t && k[1].y === s) {
+        this.a_(k[0]);
+        break;
+      }
+  }
+  private a_(t: number): void {
+    const s = this.o_.get(t);
+    this.container.setItem(null, s.x, s.y);
+    this.o_.delete(t);
+    const i = s.img.getChildAt(0);
+    i.visible = true;
+    const h = q.instance().registerImgLoop(
+      i,
+      ["resources/img/props/leadLight0.png", "resources/img/props/leadLight1.png"],
+      50,
+    );
+    Laya.Tween.to(
+      i,
+      { x: 43 - s.img.width / 2, y: 24 - s.img.height / 2 },
+      50,
+      null,
+      Laya.Handler.create(this, () => {
+        Laya.Tween.to(
+          i,
+          { x: 41 - s.img.width / 2, y: 27 - s.img.height / 2 },
+          20,
+          null,
+          Laya.Handler.create(this, () => {
+            q.instance().removeEvent("imgLoop", h);
+            i.visible = false;
+            s.img.mask.removeSelf();
+            s.img.mask = null;
+            $.instance().playSound("landmine_explode");
+            s.img.skin = "resources/img/effect/explode0.png";
+            s.img.size(72, 72);
+            s.img.anchorX = 0.5;
+            s.img.anchorY = 1;
+            s.img.x += 40 - s.img.width / 2;
+            s.img.y += 56 - s.img.height / 2;
+            s.c_ = q.instance().registerImgLoop(
+              s.img,
+              [
+                "resources/img/effect/explode0.png",
+                "resources/img/effect/explode1.png",
+                "resources/img/effect/explode2.png",
+                "resources/img/effect/explode3.png",
+                "resources/img/effect/explode4.png",
+                "resources/img/effect/explode5.png",
+                "resources/img/effect/explode6.png",
+              ],
+              50,
+              0,
+              1,
+              () => {
+                Laya.Tween.to(
+                  s.img,
+                  { scaleX: 1.2, scaleY: 1.2, alpha: 0 },
+                  100,
+                  null,
+                  Laya.Handler.create(this, () => {
+                    s.img.removeSelf();
+                    s.img.destroy(true);
+                  }),
+                );
+              },
+            );
+            Laya.Tween.create(s.l_)
+              .to("alpha", 0)
+              .duration(100)
+              .then(() => {
+                s.l_.removeSelf();
+                s.l_.destroy(true);
+              });
+            Eh.instance().y_(s.img.x, s.img.y);
+          }),
+        );
+      }),
+    );
+  }
+  gameOver(): void {
+    super.gameOver();
+    for (const t of this.o_) {
+      q.instance().removeEvent("imgLoop", t[1].c_);
+      t[1].img.destroy(true);
+      t[1].l_.destroy(true);
+    }
+  }
+}
+PropsFactory.instance().register(9, () => Laya.Pool.createByClass(LandmineProp));
+
+/** 攻速符 — burns to grant a unit/general +40% attack speed. (`Ci`) */
+export class AttackSpeedSpellProp extends TrainingSpellProp {
+  constructor() {
+    super();
+    this.rk = 4;
+    this.Ek = [
+      "resources/img/props/attSpeedSpellBurn0.png",
+      "resources/img/props/attSpeedSpellBurn1.png",
+      "resources/img/props/attSpeedSpellBurn2.png",
+      "resources/img/props/attSpeedSpellBurn3.png",
+      "resources/img/props/attSpeedSpellBurn4.png",
+      "resources/img/props/attSpeedSpellBurn5.png",
+    ];
+  }
+  Jv(t: any, s: any = null): boolean {
+    const i = s.Mv(t.containerType, this.qd).getItem(t.x, t.y);
+    return !!i && !(i instanceof gi && i.Zw === -1);
+  }
+  protected Nv(t: any, s: any = null): void {
+    if (t.containerType === 2 || t.containerType === 1) y.instance.event(u.bt, this.props, t.x, t.y);
+    else if (t.containerType === 3) y.instance.event(u.Mt, this.props, t.x);
+    const i = s.Mv(t.containerType, this.qd).getItem(t.x, t.y);
+    if (i instanceof gi && i.Zw !== -1) this.xk = i.Zw;
+    else this.xk = i.id;
+    q.instance().registerImgLoop(this.Wv, this.Ek, 100, 0, 1, (id: number) => {
+      q.instance().removeEvent("imgLoop", id);
+      this.Bk();
+      this.reset();
+    });
+  }
+  protected Bk(): void {
+    th.instance().applyBuff(this.xk, 1, 0.4, true);
+    EntityRegistry.instance().Kk(this.xk, 1, 1, 0.4, true);
+  }
+  reset(): void {
+    super.reset();
+    this.Wv.skin = "resources/img/props/attSpeedSpell_1.png";
+  }
+}
+PropsFactory.instance().register(10, () => Laya.Pool.createByClass(AttackSpeedSpellProp));
