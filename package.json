@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm build:adou && pnpm build:next",
+    "build": "pnpm build:adou:rebuilt && pnpm build:next",
     "build:next": "next build",
     "build:adou": "node scripts/build-adou.mjs",
     "build:adou:rebuilt": "ADOU_MODE=rebuilt node scripts/build-adou.mjs",
