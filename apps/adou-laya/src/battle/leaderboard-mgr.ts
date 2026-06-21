@@ -17,7 +17,7 @@ import { GameEvent } from "../core/game-event";
 import { MathE } from "../core/math-e";
 import { UpdateMgr } from "../core/update-mgr";
 import { RankScoreMgr } from "./rank-score-mgr";
-import { PlatformMgr } from "./platform-mgr";
+import { PlatformMgr } from "../platform/platform-mgr";
 import { ServerReportMgr } from "./server-report-mgr";
 import { AvatarMgr } from "./avatar-mgr";
 

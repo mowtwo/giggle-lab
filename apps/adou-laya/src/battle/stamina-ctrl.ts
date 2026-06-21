@@ -16,7 +16,7 @@ import { UpdateMgr } from "../core/update-mgr";
 import { TipMgr } from "../core/tip-mgr";
 import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
-import { PlatformMgr } from "./platform-mgr";
+import { PlatformMgr } from "../platform/platform-mgr";
 import { ut } from "./analytics-mgr";
 
 const F = GameMgr;

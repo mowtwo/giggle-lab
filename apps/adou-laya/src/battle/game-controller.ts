@@ -23,7 +23,7 @@ import { AnimPlayer } from "./anim-player";
 import { RankScoreMgr } from "./rank-score-mgr";
 import { FocusMgr } from "./focus-mgr";
 import { AvatarMgr } from "./avatar-mgr";
-import { PlatformMgr } from "./platform-mgr";
+import { PlatformMgr } from "../platform/platform-mgr";
 import { ServerReportMgr } from "./server-report-mgr";
 import { AnalyticsMgr } from "./analytics-mgr";
 import { StaminaCtrl } from "./stamina-ctrl";
