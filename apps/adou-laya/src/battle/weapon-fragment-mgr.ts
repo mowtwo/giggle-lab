@@ -26,7 +26,7 @@ export class WeaponFragment {
   rarity: number;
   type: number;
   id: number;
-  private mb: number;
+  mb: number;
   private gb: number;
 
   constructor(weaponId: number, fragmentNum: number, name: string, rarity: number, type: number, id: number, mb: number, gb = -1) {
