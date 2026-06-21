@@ -1370,3 +1370,30 @@ export class SwordBullet extends SimpleHitAreaBullet {
   }
 }
 reg("SwordBullet", SwordBullet);
+
+/** Tiao-qi (lift) bullet that carries a tossed enemy. (`ee`) */
+export class TiaoQiBullet extends AttachCustomShapeBullet {
+  static sw = "TiaoQiBullet";
+  protected Zd(): void {}
+  protected onReset(t: any): boolean | void {
+    const s = t.Cw;
+    this.Pm.width = s.width;
+    this.Pm.height = s.height;
+    this.Pm.anchor(s.sB.x, s.sB.y);
+    this.Pm.pos(s.parent.width * s.iB.x, s.parent.height * s.iB.y);
+  }
+  protected Hm(): void {}
+  protected onUpdate(): void {}
+  protected $m(t: any): void {
+    if (t.Bw) {
+      t.Bw = false;
+      void t.ZM;
+    }
+  }
+  protected qm(): void {
+    this.Am();
+  }
+  protected Zm(): void {}
+  protected tw(): void {}
+}
+reg("TiaoQiBullet", TiaoQiBullet);
