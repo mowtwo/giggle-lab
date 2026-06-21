@@ -84,7 +84,7 @@ const wn = TutorialMgr;
 const Fh = BulletTrailPool;
 
 export class GameController extends Singleton {
-  private OH = false;
+  OH = false;
 
   init(): void {
     Laya.InputManager.multiTouchEnabled = false;
