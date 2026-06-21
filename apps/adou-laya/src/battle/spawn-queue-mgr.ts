@@ -20,8 +20,8 @@ const $a = GeneralMergeFactory;
 
 export class SpawnQueueMgr extends Singleton {
   pU = false;
-  private yU: number[] = [];
-  private fU!: string[] | null;
+  yU: number[] = [];
+  fU!: string[] | null;
   private gU!: string[] | null;
 
   init(): void {
