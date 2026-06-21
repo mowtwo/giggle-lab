@@ -936,3 +936,89 @@ export class ShenBiArrow extends Bullet {
   protected Zm(): void {}
 }
 reg("ShenBiArrow", ShenBiArrow);
+
+/** Dao-qi (blade-wave) bullet thrown by knife generals. (`te`) */
+export class DaoQiBullet extends Bullet {
+  static sw = "DaoQiBullet";
+  private JE: any;
+  protected Zd(): void {
+    this.JE = new Laya.Image("resources/img/weapon/bullet/newDQ.png");
+    this.Tm(new TrailBehavior("daoqiTrail", { uE: 70, trailColor: "#8ae0f1ff" }), true);
+    this.Pm.anchor(0.5, 0.5);
+    this.Pm.size(91, 45);
+    this.JE.size(91, 45);
+    this.JE.anchor(0.5, 0.5);
+    this.JE.pos(this.Pm.width / 2, this.Pm.height / 2);
+    this.Pm.addChild(this.JE);
+  }
+  protected onReset(t: any): void {
+    const s = t.Cw;
+    this.Pm.width = s?.width;
+    this.Pm.height = s?.height;
+  }
+  protected Hm(): void {}
+  protected onUpdate(): void {}
+  protected $m(t: any): void {
+    t.hit(this.Sm, this.bm);
+    const s = t.enemy;
+    q.instance().playDaoQiHit(s, s.width / 2, s.height / 2);
+  }
+  protected qm(): void {}
+  protected Zm(): void {}
+  protected tw(): void {}
+}
+reg("DaoQiBullet", DaoQiBullet);
+
+/** Spinning star bullet (DiaoChan / star weapons). (`se`) */
+export class StarBullet extends Bullet {
+  static sw = "StarBullet";
+  private JE: any;
+  private Yv = new Laya.Point();
+  constructor(poolKey?: string) {
+    super(poolKey);
+    this.km = Js.AL;
+    this.Yv = new Laya.Point();
+  }
+  protected Zd(): void {
+    this.JE = new Laya.Image("resources/img/props/star.png");
+    this.Tm(new TrailBehavior("arrowTrail", { uE: 23, trailColor: "#f9f68dff" }), true);
+    this.Pm.anchor(0.5, 0.5);
+    this.Pm.size(28, 32);
+    this.JE.size(28, 32);
+    this.Pm.addChild(this.JE);
+    this.Tm(new KnockbackBehavior(1), true);
+  }
+  protected onReset(_t: any): void {}
+  protected Hm(): void {
+    const t = this.Pm;
+    (function spin() {
+      Laya.Tween.to(t, { rotation: t.rotation + 360 }, 400, null, Laya.Handler.create(t, spin));
+    })();
+    const self = this;
+    (function pulse() {
+      const i = 0.8 + 0.5 * Math.random();
+      const h = 300 + 500 * Math.random();
+      Laya.Tween.to(
+        t,
+        { scaleX: i, scaleY: i },
+        h,
+        Laya.Ease.sineInOut,
+        Laya.Handler.create(self, () => {
+          Laya.Tween.to(t, { scaleX: 1, scaleY: 1 }, h, Laya.Ease.sineInOut, Laya.Handler.create(self, pulse));
+        }),
+      );
+    })();
+  }
+  protected onUpdate(): void {}
+  protected $m(t: any): void {
+    if (t) {
+      t.hit(this.Sm, this.bm);
+      const s = t.enemy.localToGlobal(this.Yv.setTo(-t.enemy.width / 2, -t.enemy.height / 2));
+      q.instance().playBoomStar(s.x, s.y);
+    }
+  }
+  protected qm(): void {}
+  protected Zm(): void {}
+  protected tw(): void {}
+}
+reg("StarBullet", StarBullet);

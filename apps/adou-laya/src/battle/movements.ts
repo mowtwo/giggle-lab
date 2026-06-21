@@ -329,3 +329,48 @@ export class TargetEnemyInstantaneous extends BulletMovementBase {
   }
 }
 TargetEnemyInstantaneous.zL = "TargetEnemyInstantaneous";
+
+/** Bezier arc to a fixed target point (not a tracked enemy). (`Fe`) */
+export class TargetPositionBezierMovement extends BulletMovementBase {
+  private cw = 0;
+  private uw = new Laya.Point();
+  private _lastPosition = new Laya.Point();
+  private pw = new Laya.Point();
+  private CD = 0;
+
+  static zL = "TargetPositionBezierMovement";
+
+  HL(): void {
+    this.cw = 0;
+    this._lastPosition.setTo(this.Ym.x, this.Ym.y);
+    this.uw.setTo(this.Ym.x, this.Ym.y);
+    this.pw.setTo(
+      this.uw.x + (this.GL.x - this.uw.x) / 2,
+      this.uw.y + (this.GL.y - this.uw.y) / 2 - this.CD,
+    );
+  }
+  tm(t: number, s: number): void {
+    this.cw += (t * this.YL * s) / 500;
+    const i = this.Ym.Pm;
+    if (this.cw < 1) {
+      f.quadraticBezierPoint(this.uw, this.pw, this.GL, i, this.cw);
+      if (this.Ym.fm) i.rotation = f.angle(this._lastPosition, i);
+      this._lastPosition.setTo(i.x, i.y);
+    } else this.Ym.Am();
+    this.Ym.PL = this.cw > 0.8;
+  }
+  Zd(): void {}
+  jL(t: number): void {
+    this.CD = t;
+  }
+  protected NL(): void {}
+  static create(t: number): any {
+    return super.create(t);
+  }
+  bw(t?: any): number {
+    if (!t) t = this.uw;
+    this.pw.setTo(t.x + (this.GL.x - t.x) / 2, t.y + (this.GL.y - t.y) / 2 - this.CD);
+    return f.bezierTangentDeg(t, this.pw, this.GL, 0) + 90;
+  }
+}
+TargetPositionBezierMovement.zL = "TargetPositionBezierMovement";
