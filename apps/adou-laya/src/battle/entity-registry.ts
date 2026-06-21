@@ -27,6 +27,12 @@ import { MathE } from "../core/math-e";
 import { EffectMgr } from "./effect-mgr";
 import { BuffMgr } from "./buff-mgr";
 import { BoardMgr } from "./board-mgr";
+import { PoolFactory } from "./pool-factory";
+import { di } from "./soldier-types";
+import { GeneralMergeFactory } from "./general-merge-factory";
+import { BaseSoldier } from "./base-soldier";
+import { GeneralPart } from "./general-part";
+import { Farmer } from "./farmer";
 
 const F = GameMgr;
 const y = EventMgr;
@@ -35,6 +41,11 @@ const f = MathE;
 const q = EffectMgr;
 const th = BuffMgr;
 const wi = BoardMgr;
+const Hs = PoolFactory;
+const $a = GeneralMergeFactory;
+const zs = BaseSoldier;
+const gi = GeneralPart;
+const ki = Farmer;
 
 export class EntityRegistry extends Singleton {
   private ma: any[] = [];
@@ -359,9 +370,293 @@ export class EntityRegistry extends Singleton {
     this.aS.delete(t);
   }
 
-  // --- spawn / merge (pending the remaining entity classes; see note above) -
-  // C_/LS/mS/wS/vS/kS/xS/SS/AS/ES/BS/IS/DS/bS/pS/fS/$S/gS/YS are ported
-  // alongside the soldier registry (di), the merge factory ($a) and battle-props (Zi).
-  pS(_t: number, _s: number, _i = true): void {}
-  gS(_t: any): void {}
+  // --- spawn / merge / level ------------------------------------------------
+
+  /** Build a spawn request + create the unit. (`C_`) */
+  C_(t: number, s: string, i: any, h: number, e: number, a = 1, n: any = null): any {
+    return this.LS({ containerType: t, text: s, qd: i, x: h, y: e, Xe: a, Xd: n });
+  }
+
+  /** Create + register a unit from a spawn request. (`LS`) */
+  LS(t: any): any {
+    if (F.instance().battleState.Vi) return null;
+    const { containerType: s, text: i, qd: h, x: e, y: a, Xe: n = 1, Xd: r } = t;
+    const o = this.mS(i);
+    const l = this.wS(o, i);
+    this.vS(l, s, i, h, e, a);
+    this.kS(l, o);
+    if (r) this._S(l.id, r);
+    this.xS(l, s, h, e, a);
+    this.SS(l, s, h, e, a, o);
+    let c = n;
+    if (o === "Soldier" && s === 3 && n === 1) c = this.bS(h, n);
+    if (c > 1) l.cL(c - l.level, false);
+    this.MS(l);
+    return l;
+  }
+
+  /** Shovel-prop chance to spawn a soldier at level 2 (pending battle-props mgr Zi). (`bS`) */
+  bS(_t: any, s: number): number {
+    // The shovel (prop 22) doubling chance reads the in-battle props mgr (Zi),
+    // which is ported with the props subsystem; until then no doubling.
+    return s;
+  }
+
+  /** Map a unit's display text to its kind. (`mS`) */
+  mS(t: string): string {
+    if (t === "农") return "Farmer";
+    const s = F.instance().generals;
+    return s.soldierTypes.indexOf(t) !== -1 ? "Soldier" : s.nameChars.indexOf(t) !== -1 ? "GeneralPart" : "Soldier";
+  }
+
+  /** Pool-produce the right entity for a kind. (`wS`) */
+  wS(t: string, s: string): any {
+    switch (t) {
+      case "Farmer":
+        return Hs.instance().produce(ki);
+      case "GeneralPart":
+        return Hs.instance().produce(di.rv[4]);
+      case "Soldier": {
+        const i = F.instance().generals.soldierTypes.indexOf(s);
+        return Hs.instance().produce(di.rv[i]);
+      }
+      default:
+        throw new Error(`未知的单位类型: ${t}`);
+    }
+  }
+
+  /** Set the unit's cell + initialise it. (`vS`) */
+  vS(t: any, s: number, i: string, h: any, e: number, a: number): void {
+    t.aL(s, e, a);
+    t.init(i, h);
+  }
+
+  /** Register the unit into the right map by its class. (`kS`) */
+  kS(t: any, _s: string): void {
+    if (t instanceof zs) this.hS.set(t.id, t);
+    else if (t instanceof gi) this.eS.set(t.id, t);
+    else if (t instanceof ki) this.aS.set(t.id, t);
+  }
+
+  /** Place the unit in its board container. (`xS`) */
+  xS(t: any, s: number, i: any, h: number, e: number): void {
+    const a = wi.instance().Mv(s, i);
+    if (a) a.setItem(t, h, e);
+  }
+
+  /** Emit the place event for the container type. (`SS`) */
+  SS(t: any, s: number, i: any, h: number, e: number, a: string): void {
+    switch (s) {
+      case 3:
+        this.AS(t, i, h);
+        break;
+      case 1:
+        this.ES(t, i, h, e, a);
+        break;
+      case 5:
+        this.BS(t, h, e, a);
+    }
+  }
+  AS(t: any, s: any, i: number): void {
+    if (s) y.instance.event(u.Mt, t.Yn, i);
+    else y.instance.event(u.bt, t.Yn, 4, -5);
+  }
+  ES(t: any, s: number, i: number, _h: number, e: string): void {
+    y.instance.event(u.bt, t.Yn, s, i);
+    if (e === "GeneralPart") {
+      t.changeState("GeneralPartWait");
+      y.instance.event(u.ts, t);
+    }
+  }
+  BS(t: any, s: number, i: number, h: string): void {
+    y.instance.event(u.ss, t.Yn, s, i);
+    if (h === "GeneralPart") {
+      t.changeState("GeneralPartWait");
+      y.instance.event(u.ts, t);
+    }
+  }
+
+  /** Disband the general that member `t` belongs to (by id). (`IS`) */
+  IS(t: number): void {
+    const s = this.Qk.get(t);
+    if (s) this.cS(s.va[0].id);
+  }
+
+  /** Merge a set of general-parts into a General. (`DS`) */
+  DS(t: any[], s = true): any {
+    for (let k = 0; k < t.length; k++) t[k].changeState("GeneralPartMerge");
+    const h = t[0].qd;
+    let e = t[0].Id;
+    let a = "";
+    for (let k = 0; k < t.length; k++) {
+      a += t[k].Qd;
+      if (e < t[k].Id) e = t[k].Id;
+    }
+    const n = F.instance().generals.generalNames.findIndex((g: any) => g === a);
+    const r = $a.TS(n);
+    if (s) {
+      if (h) r.weaponId = F.instance().player.equip[n];
+      else {
+        const ai = F.instance().battleState.Pi.Ai;
+        for (let k = 0; k < ai.length; k++)
+          if (F.instance().generals.generalNames[n] === ai[k].general) {
+            const wid = ai[k].Hn;
+            const wt = F.instance().weaponData.weapons.get(wid)?.type;
+            if (wt !== undefined && wt !== 4) {
+              r.weaponId = wid;
+              break;
+            }
+          }
+      }
+    } else r.weaponId = 20;
+    r.init(t, h, n);
+    r.RS(e);
+    const l: number[] = [];
+    for (let k = 0; k < t.length; k++) {
+      const o = t[k];
+      l.push(o.id);
+      o.Zw = r.id;
+      for (let m = 0; m < o.Xd.length; m++) th.instance().applyBuff(r.id, o.Xd[m].Lg, o.Xd[m].num, o.Xd[m].CS);
+    }
+    this.nS.set(r.id, l);
+    this.MS(r);
+    if (h && s) F.instance().player.addMergedGeneral(n);
+    return r;
+  }
+
+  /** Level a unit up/down (soldier/prop/farmer/general). (`pS`) */
+  pS(t: number, s: number, i = true): void {
+    let jS = this.hS.get(t);
+    if (jS) {
+      jS.cL(s, i);
+      return;
+    }
+    jS = this.eS.get(t);
+    if (jS) {
+      const g = this.Qk.get(this.uS(jS.id));
+      if (g) {
+        const e = F.instance().generals;
+        const table = g.Ya ? e.Wa : e.Ha;
+        if (g.level + s - 1 < 0 || g.level + s - 1 >= table.length) return;
+        g.RS(table[g.level + s - 1] - g.Id, i);
+      } else jS.cL(s, i);
+      return;
+    }
+    jS = this.aS.get(t);
+    if (jS) jS.cL(s, i);
+  }
+
+  /** Replace a unit with a random different unit type. (`fS`) */
+  fS(t: number): void {
+    let jS = this.hS.get(t);
+    let s = true;
+    if (!jS) {
+      jS = this.eS.get(t);
+      s = false;
+    }
+    const i = jS.qd;
+    const h = jS.Td;
+    const e = jS.Cd.x;
+    const a = jS.Cd.y;
+    const n = jS.level;
+    const r = jS.Xd.concat();
+    if (s) this.Lx(t);
+    else this.gx(t);
+    this.C_(h, this.$S(jS.Qd), i, e, a, n, r);
+  }
+  /** Pick a random different unit type from the merged pool. (`$S`) */
+  $S(t: string): string {
+    const s = F.instance().soldierPool.hh;
+    this.ma.length = 0;
+    for (let i = 0; i < s.length; i++) if (s[i] !== t && s[i] !== "铲") this.ma.push(s[i]);
+    return this.ma[f.range(0, this.ma.length, true) as number];
+  }
+
+  /** Auto-merge check when a general-part lands. (`gS`) */
+  gS(t: any): void {
+    if (t.Zw !== -1) return;
+    const s = F.instance().generals.mergeRecipes;
+    const i = t.Td;
+    let h: any;
+    let e: number;
+    let a: number;
+    if (i === 5) {
+      const grid = wi.instance().Mv(5, t.qd)!;
+      h = grid.mv;
+      e = h.length;
+      a = h[0].length;
+    } else {
+      h = wi.instance().Mv(1, t.qd)!.mv;
+      e = F.instance().map.ue.length;
+      a = F.instance().map.ue[0].length;
+    }
+    void a;
+    const n: any[] = [];
+    for (let k = 0; k < s.length; k++)
+      for (let m = 0; m < s[k].length; m++)
+        if (t.Qd === s[k][m]) {
+          n.push({ arr: s[k], i: m, type: k });
+          break;
+        }
+    let r: number;
+    let o: any[] = [];
+    for (let k = 0; k < n.length; k++) {
+      let ok = true;
+      o.length = 0;
+      for (let m = 0; m < n[k].arr.length; m++) {
+        r = t.Cd.x + (m - n[k].i);
+        if (r < 0 || r >= e) {
+          ok = false;
+          continue;
+        }
+        const l = h[r][t.Cd.y];
+        if (l && l.Qd === n[k].arr[m]) o.push(l);
+        else ok = false;
+      }
+      if (ok) {
+        if (this.US(n[k].type, t.qd)) continue;
+        this.DS(o);
+        return;
+      }
+    }
+    if (!F.instance().generals.Xa) return;
+    if (i === 5) return;
+    o.length = 0;
+    if (F.instance().generals.familyNames.indexOf(t.Qd) >= 0) {
+      r = t.Cd.x + 1;
+      if (r >= e) return;
+      const l = h[r][t.Cd.y];
+      if (!l || F.instance().generals.givenNames.indexOf(l.Qd) < 0) return;
+      o.push(t);
+      o.push(l);
+    } else if (F.instance().generals.givenNames.indexOf(t.Qd) >= 0) {
+      r = t.Cd.x - 1;
+      if (r < 0) return;
+      const l = h[r][t.Cd.y];
+      if (!l || F.instance().generals.familyNames.indexOf(l.Qd) < 0) return;
+      o.push(l);
+      o.push(t);
+    }
+    this.DS(o, false);
+  }
+
+  gameOver(): void {
+    this.ma.length = 0;
+    for (const t of this.Qk) t[1].gameOver();
+    this.Qk.clear();
+    this.nS.clear();
+    this.ma.length = 0;
+    for (const t of this.hS) this.ma.push(t[0]);
+    for (const t of this.ma) this.Lx(t);
+    this.ma.length = 0;
+    for (const t of this.eS) this.ma.push(t[0]);
+    for (const t of this.ma) this.gx(t);
+    this.ma.length = 0;
+    for (const t of this.aS) this.ma.push(t[0]);
+    for (const t of this.ma) this.uk(t);
+    this.hS.clear();
+    this.eS.clear();
+    this.aS.clear();
+    this.rS.length = 0;
+  }
 }
