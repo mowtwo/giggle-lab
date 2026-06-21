@@ -24,7 +24,6 @@ const F = GameMgr;
 const j = UpdateMgr;
 const ye = SatCollision;
 const Vs = HitEnemyStrategy;
-const Eh = EnemySpatialMgr;
 
 export class BulletSpawnMgr extends Singleton {
   private FB = 100;
@@ -44,7 +43,7 @@ export class BulletSpawnMgr extends Singleton {
 
   init(): void {
     this.HB = [];
-    this.WB = Eh.instance();
+    this.WB = EnemySpatialMgr.instance();
     this.zB = F.instance();
     this.yd = this.zB.map.gridWid;
     this.fd = this.zB.map.gridHei;
