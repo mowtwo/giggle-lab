@@ -40,8 +40,8 @@ export class BattlePropsMgr extends C {
   private Sx: any[] = [];
   private bx: any[] = [];
   private Mx: any[] = [];
-  private Px: any[] = [];
-  private Ax: any[] = [];
+  Px: any[] = [];
+  Ax: any[] = [];
   private Ex = false;
   private Bx: any[] = [null, null];
   private Ix: any[] = [null, null, null, null, null, null];

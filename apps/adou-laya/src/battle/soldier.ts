@@ -52,11 +52,11 @@ export abstract class Soldier extends DraggableObject {
   Nd = false;
 
   protected dg: any;
-  protected qd: any;
+  qd: any;
   Yn: any; // soldier sprite (also the event dispatcher)
   protected qa: any;
   protected Vd: any; // level FontClip
-  protected Qd: any; // type key
+  Qd: any; // type key
   protected hL: any; // body sprite (set up in setupVisual)
   currentState = "none";
   protected eL: any; // arrival callback
