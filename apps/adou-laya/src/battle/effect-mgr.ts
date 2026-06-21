@@ -2380,7 +2380,7 @@ export class EffectMgr extends Singleton {
     targetH: number,
     onAllDone: any,
     onEachDone: any,
-    soundName: string,
+    soundName = "",
     speedMul = 1,
     flyMul = 1,
     baseRadius = 60,
