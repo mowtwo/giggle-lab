@@ -177,7 +177,7 @@ export abstract class Soldier extends DraggableObject {
   }
 
   /** Record the unit's cell type + grid cell. (`aL`) */
-  protected setCell(cellType = 0, x = -1, y = -1): void {
+  protected aL(cellType = 0, x = -1, y = -1): void {
     this.Dd = this.Td;
     this.Td = cellType;
     this.Rd.copy(this.Cd);
@@ -185,8 +185,8 @@ export abstract class Soldier extends DraggableObject {
   }
 
   /** Place/move the unit (mode 1 = to grid cell, 3 = active prop, else to node). (`nL`) */
-  protected moveTo(cellType: number, x: number, y: number, onArrive: any, _e = false, node?: any): void {
-    this.setCell(cellType, x, y);
+  protected nL(cellType: number, x: number, y: number, onArrive: any, _e = false, node?: any): void {
+    this.aL(cellType, x, y);
     Laya.Point.TEMP.setTo(0, 0);
     this.Yn.localToGlobal(Laya.Point.TEMP);
     if (cellType === 1) {
@@ -230,9 +230,9 @@ export abstract class Soldier extends DraggableObject {
   }
 
   /** Move to a grid cell with a set-down effect on arrival. (`lL`) */
-  protected moveToCell(cellType: number, x: number, y: number): void {
+  protected lL(cellType: number, x: number, y: number): void {
     if (this.Td === 1) evt.event(u.j, this.id);
-    this.moveTo(cellType, x, y, () => {
+    this.nL(cellType, x, y, () => {
       if (this.Yn.parent) {
         this.onMoved();
         EffectMgr.instance().playSetSoldierEffect(
@@ -300,7 +300,7 @@ export abstract class Soldier extends DraggableObject {
 
   gameOver(): void {
     super.gameOver();
-    this.setCell();
+    this.aL();
     UpdateMgr.instance().unregister(this.Yn.name);
     UpdateMgr.instance().unregister(this.id + "_jump");
     Laya.timer.clearAll(this);
