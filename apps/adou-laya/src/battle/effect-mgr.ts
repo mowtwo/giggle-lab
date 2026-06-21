@@ -820,7 +820,7 @@ export class EffectMgr extends Singleton {
   }
 
   /** Toggle the drag target-range circle indicator. (`Vl`) */
-  toggleTargetCircle(show: boolean | null, radius: number, x: number, y: number): void {
+  toggleTargetCircle(show: boolean | null, radius = 0, x = 0, y = 0): void {
     if (!this.No) {
       this.No = new Laya.Sprite();
       this.No.alpha = 0.2;

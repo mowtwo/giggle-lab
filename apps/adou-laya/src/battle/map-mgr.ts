@@ -141,7 +141,7 @@ export class MapMgr {
   readonly ge = 80;
   re = 0;
 
-  private de: GridNode[] | null = null; // player path
+  de: GridNode[] | null = null; // player path
   private Le: GridNode[] | null = null; // enemy path
 
   me = false;

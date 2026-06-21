@@ -31,14 +31,14 @@ export function effectStates(effectRelation: any, type: any): any[] {
 }
 
 /** Apply a set of states to a target. (`us`) */
-export function applyStates(target: any, states: any[], on: boolean, fg: any): void {
+export function applyStates(target: any, states: any[], on: boolean, fg?: any): void {
   for (let i = 0; i < states.length; i++) target.setState(states[i], on, fg);
 }
 
 /** Attribute buff (att power / speed / range …). (`ls`) */
 export class AttrBuff extends Buff {
   /** Whether this delta is a reduction. (`Rg`) */
-  protected isReduction(_type: any, num: number, _i?: any): boolean {
+  isReduction(_type: any, num: number, _i?: any): boolean {
     if (num === 0) return false;
     return !(num > 0);
   }
@@ -116,7 +116,7 @@ export class CallbackBuff extends Buff {
   describe(): string {
     return "";
   }
-  protected isReduction(): boolean {
+  isReduction(): boolean {
     return true;
   }
 
