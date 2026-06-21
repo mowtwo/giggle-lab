@@ -23,8 +23,19 @@ import { BulletSpawnMgr } from "./bullet-spawn-mgr";
 import { BuffMgr } from "./buff-mgr";
 import { HitStrategyFactory, HitStrategy103 } from "./hit-strategy";
 import { SimpleDynamicArrow } from "./bullet";
-import { FireExplosiveArrow, TrailBehavior } from "./bullet-variants";
-import { TargetDirectionWaveMovement, TargetPositionBezierMovement, TargetEnemyBezierMovement } from "./movements";
+import { FireExplosiveArrow, TrailBehavior, VirtualBullet, ExplosionBehavior } from "./bullet-variants";
+import { TargetDirectionWaveMovement, TargetPositionBezierMovement, TargetEnemyBezierMovement, TargetObjectInstantaneous } from "./movements";
+import { BulletEvent } from "./bullet-movement";
+import { AnimPlayer } from "./anim-player";
+import { WeaponMgr } from "./weapon-factory";
+
+const Gh = VirtualBullet;
+const jh = ExplosionBehavior;
+const ai = BulletEvent;
+const fi = TargetObjectInstantaneous;
+const Zt = AnimPlayer;
+const ma = WeaponMgr;
+const Ga = Laya.Pool;
 
 const F = GameMgr;
 const $ = AudioMgr;
