@@ -32,9 +32,9 @@ export const FarmerState = {
 
 export class Farmer extends Soldier {
   objectType = 4;
-  private Av = 20000;
-  private Ev = 1000;
-  private Bv = 0;
+  Av = 20000;
+  Ev = 1000;
+  Bv = 0;
   private gold = 1;
   private step = 0;
   private fL = 1;
