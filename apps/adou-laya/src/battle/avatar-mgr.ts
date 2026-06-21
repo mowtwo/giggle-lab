@@ -20,8 +20,8 @@ export class AvatarMgr extends Singleton {
   static DG = ["军士", "校尉", "少将", "中将", "上将", "大将", "元帅", "诸侯", "霸主", "君主", "皇帝"];
 
   private MG = true;
-  private PG = 1;
-  private AG = new Map<number, string>([
+  PG = 1;
+  AG = new Map<number, string>([
     [1, "射雕老汉"],
     [2, "老朽"],
     [3, "和尚"],
@@ -40,7 +40,7 @@ export class AvatarMgr extends Singleton {
     [16, "红面刘备"],
   ]);
   private EG: Array<(t: number) => void> = [];
-  private BG = [1, 2, 4, 8, 12, 3, 5, 9, 10, 7, 11, 6, 13, 14, 15, 16];
+  BG = [1, 2, 4, 8, 12, 3, 5, 9, 10, 7, 11, 6, 13, 14, 15, 16];
   private player!: any;
 
   get IG(): Map<number, { check: () => boolean; TG: string }> {
