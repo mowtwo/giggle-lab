@@ -1,12 +1,15 @@
 // Target-tracking bullet movements.
 //
-// Faithful reconstruction of the bundle's `oi` (homing bezier arc toward an
-// enemy) and `fi` (lock onto a moving object) — reconstruction/reference/
-// bundle.pretty.js lines ~10949-11041 and ~11228-11274. Both extend the bullet
-// movement base and drive the bullet sprite each frame. Opaque field names kept
-// verbatim.
+// Faithful reconstruction of the bundle's bullet movements: `oi` (homing bezier
+// arc toward an enemy), `fi` (lock onto a moving object), `Kh` (straight line
+// along a direction), `Xh` (sine-wave along a direction) and `Qh` (snap to an
+// enemy) — reconstruction/reference/bundle.pretty.js lines ~10949-11041,
+// ~11228-11274, ~17937, ~18513 and ~18596. All extend the bullet movement base
+// and drive the bullet sprite each frame. Opaque field names kept verbatim.
 //
 //   TargetEnemyBezierMovement=oi  TargetObjectInstantaneous=fi
+//   TargetDirectionLineMovement=Kh  TargetDirectionWaveMovement=Xh
+//   TargetEnemyInstantaneous=Qh
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -200,3 +203,129 @@ export class TargetObjectInstantaneous extends BulletMovementBase {
   }
 }
 TargetObjectInstantaneous.zL = "TargetObjectInstantaneous";
+
+/** Straight line along a fixed direction. (`Kh`) */
+export class TargetDirectionLineMovement extends BulletMovementBase {
+  static zL = "TargetDirectionLineMovement";
+
+  Zd(): void {
+    Laya.Vector2.normalize(this.XL, this.XL);
+  }
+  HL(): void {
+    if (this.Ym.fm) this.Ym.rotation = f.angle(Laya.Vector2.ZERO, this.XL);
+  }
+  tm(t: number, s: number): void {
+    const i = this.Ym.Pm;
+    i.x += this.XL.x * t * this.YL * s;
+    i.y += this.XL.y * t * this.YL * s;
+  }
+  jL(): void {}
+  protected NL(): void {}
+  static create(): any {
+    return super.create();
+  }
+}
+TargetDirectionLineMovement.zL = "TargetDirectionLineMovement";
+
+/** Sine-wave path along a fixed direction. (`Xh`) */
+export class TargetDirectionWaveMovement extends BulletMovementBase {
+  private _lastPosition = new Laya.Point();
+  private yE = 0;
+  private fE = 0;
+  private a = 0;
+  private b = 0;
+  private offset = 0;
+
+  static zL = "TargetDirectionWaveMovement";
+
+  Zd(): void {
+    Laya.Vector2.normalize(this.XL, this.XL);
+  }
+  HL(): void {
+    this.yE = Laya.timer.currTimer;
+    this.fE = 0;
+    if (this.Ym.fm) this.Ym.rotation = f.angle(Laya.Vector2.ZERO, this.XL);
+  }
+  tm(t: number, s: number): void {
+    this.fE += t;
+    const i = (Laya.timer.currTimer - this.yE) / 50;
+    const h = (this.fE / 10) * this.YL * s;
+    const e = this.Ym.Pm;
+    const a = this.Ym.wm.x + this.XL.x * h;
+    const n = this.Ym.wm.y + this.XL.y * h;
+    const r = Math.sin(i * this.a + this.offset) * this.b;
+    e.x = a + r * this.XL.y;
+    e.y = n - r * this.XL.x;
+    e.rotation = f.angle(this._lastPosition, e);
+    this._lastPosition.setTo(e.x, e.y);
+  }
+  jL(t: number, s: number, i: number): void {
+    this.a = t;
+    this.b = s;
+    this.offset = i;
+  }
+  protected NL(): void {}
+  static create(t: number, s: number, i: number): any {
+    return super.create(t, s, i);
+  }
+}
+TargetDirectionWaveMovement.zL = "TargetDirectionWaveMovement";
+
+/** Snap the bullet onto an enemy each frame. (`Qh`) */
+export class TargetEnemyInstantaneous extends BulletMovementBase {
+  private ZE: any;
+  private offsetX = 0;
+  private offsetY = 0;
+  private fw = false;
+  private xw: any;
+
+  static zL = "TargetEnemyInstantaneous";
+
+  tm(_t: number, _s: number): void {
+    if (!this.fw) this.$w();
+  }
+  private $w(): void {
+    this.Ym.Pm.x = this.ZE.enemy.x + this.offsetX;
+    this.Ym.Pm.y = this.ZE.enemy.y + this.offsetY;
+  }
+  HL(): void {
+    this.$w();
+  }
+  Zd(): void {
+    const t = F.instance().map;
+    this.offsetX = t.gridWid / 2;
+    this.offsetY = t.gridHei / 2;
+    if (this.fw) {
+      this.Ym.Am(true);
+      this.Ym.Im();
+    }
+  }
+  protected VL(t: number): void {
+    this.ZE = this.xw.kw.get(t);
+    if (this.ZE) {
+      this.fw = false;
+      this.ZE.once(
+        "onDead",
+        () => {
+          this.fw = true;
+          this.Ym.Am();
+        },
+        this,
+      );
+    } else this.fw = true;
+  }
+  jL(): void {
+    this.fw = true;
+    this.xw = Eh.instance();
+  }
+  protected NL(): void {
+    if (this.ZE) {
+      this.ZE.offAllCaller(this);
+      this.ZE = null;
+    }
+  }
+  static create(): any {
+    return super.create();
+  }
+}
+TargetEnemyInstantaneous.zL = "TargetEnemyInstantaneous";
