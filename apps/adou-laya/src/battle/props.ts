@@ -19,6 +19,7 @@ import { TipMgr } from "../core/tip-mgr";
 import { EntityRegistry } from "./entity-registry";
 import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 import { AudioMgr } from "../core/audio-mgr";
+import { EffectMgr } from "./effect-mgr";
 
 const F = GameMgr;
 const X = LayerZ;
@@ -28,6 +29,7 @@ const tt = TipMgr;
 const Ki = EntityRegistry;
 const Eh = EnemySpatialMgr;
 const $ = AudioMgr;
+const q = EffectMgr;
 
 /** Pools + produces prop instances by enum type. (`_i`) */
 export class PropsFactory {
@@ -450,3 +452,214 @@ export class WritingBrushProp extends PropBase {
   }
 }
 PropsFactory.instance().register(2, () => Laya.Pool.createByClass(WritingBrushProp));
+
+/** 练兵符 — burns to raise/lower a unit's level by chance. (`Ai`) */
+export class TrainingSpellProp extends PropBase {
+  protected rk = 3;
+  protected xk = -1;
+  protected Ak = 0;
+  protected Ek = [
+    "resources/img/props/trainingSpellBurn0.png",
+    "resources/img/props/trainingSpellBurn1.png",
+    "resources/img/props/trainingSpellBurn2.png",
+    "resources/img/props/trainingSpellBurn3.png",
+    "resources/img/props/trainingSpellBurn4.png",
+    "resources/img/props/trainingSpellBurn5.png",
+  ];
+  constructor() {
+    super();
+    this.Zv = true;
+  }
+  protected Nv(t: any, s: any = null): void {
+    if (t.containerType === 2 || t.containerType === 1) y.instance.event(u.bt, this.props, t.x, t.y);
+    else if (t.containerType === 3) y.instance.event(u.Mt, this.props, t.x);
+    const i = s.Mv(t.containerType, this.qd);
+    this.xk = i.getItem(t.x, t.y).id;
+    this.Ak = q.instance().registerImgLoop(this.Wv, this.Ek, 100, 0, 1, (id: number) => {
+      q.instance().removeEvent("imgLoop", id);
+      this.Bk();
+      this.reset();
+    });
+    $.instance().playSound("talisman_burn");
+  }
+  protected Bk(): void {
+    const t = this.Ik();
+    Laya.Point.TEMP.x = 0;
+    Laya.Point.TEMP.y = 0;
+    this.props.localToGlobal(Laya.Point.TEMP);
+    if (t > 0) q.instance().playLvlUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    else q.instance().playLvlDown(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    y.instance.event(u.q, this.xk, t, false);
+  }
+  protected Ik(): number {
+    const t = EntityRegistry.instance().Dk(this.xk);
+    let s = 0;
+    s = t.level < 3 ? 1 : t.level === 3 ? (Math.random() <= 0.7 ? 1 : -1) : Math.random() <= 0.6 ? 1 : -1;
+    return s;
+  }
+  reset(): void {
+    super.reset();
+    this.Wv.skin = "resources/img/props/trainingSpell_1.png";
+  }
+  gameOver(): void {
+    if (this.Ak > 0) q.instance().removeEvent("imgLoop", this.Ak);
+    this.Ak = 0;
+    Laya.Tween.killAll(this.Wv);
+    this.xk = -1;
+    super.gameOver();
+  }
+}
+PropsFactory.instance().register(3, () => Laya.Pool.createByClass(TrainingSpellProp));
+
+/** 升级符 — always raises a unit's level. (`Ei`) */
+export class UpgradeSpellProp extends TrainingSpellProp {
+  constructor() {
+    super();
+    this.Ek = [
+      "resources/img/props/upLvlSpellBurn0.png",
+      "resources/img/props/upLvlSpellBurn1.png",
+      "resources/img/props/upLvlSpellBurn2.png",
+      "resources/img/props/upLvlSpellBurn3.png",
+      "resources/img/props/upLvlSpellBurn4.png",
+      "resources/img/props/upLvlSpellBurn5.png",
+    ];
+  }
+  protected Ik(): number {
+    return 1;
+  }
+  reset(): void {
+    super.reset();
+    this.Wv.skin = "resources/img/props/upLvlSpell_1.png";
+  }
+}
+PropsFactory.instance().register(4, () => Laya.Pool.createByClass(UpgradeSpellProp));
+
+/** 续命丹 — 55% +1 life / else -1 life, 10 charges. (`Bi`) */
+export class LifePillProp extends PropBase {
+  protected rk = 4;
+  private count = 10;
+  private Tk: any = null;
+  private Rk = new Laya.Point();
+  private Ck = 0;
+  private Uk = false;
+  private Fk: any;
+  private Ok: any;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    this.Fk = new Laya.Text();
+    this.Fk.text = this.count.toString();
+    this.Fk.size(this.props.width, this.props.height);
+    this.Fk.fontSize = 30;
+    this.Fk.color = "#ffffff";
+    this.Fk.stroke = 5;
+    this.Fk.align = "right";
+    this.Fk.valign = "bottom";
+    this.Fk.zIndex = 10;
+    this.props.addChild(this.Fk);
+    this.Ok = new Laya.Image("resources/img/props/lifePillStink.png");
+    this.Ok.size(160, 168);
+    this.Ok.anchorX = 0.5;
+    this.Ok.anchorY = 0.5;
+    this.Ok.pos(this.props.width / 2, this.props.height / 2);
+    this.Ok.zIndex = 1;
+    this.Ok.visible = false;
+    this.props.addChild(this.Ok);
+  }
+  tk(t: any, s: any = null): void {
+    if (this.ek() || this.count <= 0) return;
+    super.tk(t, s);
+  }
+  protected Nv(_t: any, _s: any = null): void {
+    const i = ++this.Ck;
+    this.Uk = false;
+    const h = Math.random() < 0.55;
+    const e = h ? 1 : -1;
+    const a = h ? "resources/img/props/lifePill_1.png" : "resources/img/props/lifePill_2.png";
+    this.Yk();
+    if (this.qd) this.ak();
+    const n = this.Xk(a);
+    this.Tk = n;
+    y.instance.event(u.Xt, this.qd, n, () => {
+      if (i === this.Ck) {
+        this.Uk = true;
+        this.Yk();
+        this.Gk(e);
+      }
+    });
+    Laya.timer.once(800, this, this.Hk, [i]);
+  }
+  private Xk(t: string): any {
+    const s = new Laya.Image(t);
+    s.size(this.props.width, this.props.height);
+    s.anchorX = 0.5;
+    s.anchorY = 0.5;
+    y.instance.event(u.Ut, s, X.wr);
+    const i = s.parent;
+    this.Rk.x = this.props.width / 2;
+    this.Rk.y = this.props.height / 2;
+    this.props.localToGlobal(this.Rk);
+    i.globalToLocal(this.Rk);
+    s.pos(this.Rk.x, this.Rk.y);
+    return s;
+  }
+  private Yk(): void {
+    if (this.Tk) {
+      Laya.Tween.killAll(this.Tk);
+      this.Tk.removeSelf();
+      this.Tk.destroy();
+      this.Tk = null;
+    }
+  }
+  private Hk(t: number): void {
+    if (t === this.Ck && !this.Uk) {
+      this.Ck++;
+      this.Yk();
+    }
+  }
+  private Gk(t: number): void {
+    Laya.timer.clearAll(this);
+    const s = F.instance().battleState;
+    s.Xi = false;
+    if (this.qd) s.playerLives += t;
+    else s.enemyLives += t;
+    this.count -= 1;
+    this.Fk.text = this.count.toString();
+    if (t < 0) this.Wk();
+    this.zk();
+  }
+  private zk(): void {
+    if (this.count <= 0) {
+      this.count = 10;
+      this.Fk.text = "10";
+      this.Kv = 0;
+      y.instance.event(u.$t, this.qd, this.Xv, this.Gv);
+    }
+  }
+  private Wk(): void {
+    this.Ok.visible = true;
+    this.Ok.alpha = 1;
+    this.Ok.scale(1, 1);
+    Laya.Tween.killAll(this.Ok);
+    Laya.Tween.to(
+      this.Ok,
+      { scaleX: 2, scaleY: 2, alpha: 0 },
+      200,
+      null,
+      Laya.Handler.create(this, () => {
+        this.Ok.visible = false;
+        this.Ok.alpha = 1;
+        this.Ok.scale(1, 1);
+      }),
+    );
+  }
+  gameOver(): void {
+    this.Ck++;
+    Laya.timer.clearAll(this);
+    this.Yk();
+    Laya.Tween.killAll(this.Ok);
+    this.Ok.visible = false;
+    super.gameOver();
+    this.count = 10;
+  }
+}
+PropsFactory.instance().register(5, () => Laya.Pool.createByClass(LifePillProp));

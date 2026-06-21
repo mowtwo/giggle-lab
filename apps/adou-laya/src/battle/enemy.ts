@@ -453,8 +453,8 @@ export class Enemy extends GameObject {
       Laya.timer.once(50, this, () => {
         if (this.Bw) {
           this.dg.battleState.Xi = true;
-          if (this.qd) this.dg.battleState.Qi -= 1;
-          else this.dg.battleState.Zi -= 1;
+          if (this.qd) this.dg.battleState.playerLives -= 1;
+          else this.dg.battleState.enemyLives -= 1;
         }
       });
       this.gL = Laya.timer.currTimer;
