@@ -26,6 +26,7 @@ import { GameEvent } from "../core/game-event";
 import { MathE } from "../core/math-e";
 import { EffectMgr } from "./effect-mgr";
 import { BuffMgr } from "./buff-mgr";
+import { BoardMgr } from "./board-mgr";
 
 const F = GameMgr;
 const y = EventMgr;
@@ -33,6 +34,7 @@ const u = GameEvent;
 const f = MathE;
 const q = EffectMgr;
 const th = BuffMgr;
+const wi = BoardMgr;
 
 export class EntityRegistry extends Singleton {
   private ma: any[] = [];
@@ -329,10 +331,37 @@ export class EntityRegistry extends Singleton {
     }
   }
 
-  // --- spawn / merge / removal (pending the entity classes; see note above) -
-  // C_/LS/mS/wS/vS/kS/xS/SS/AS/ES/BS/Lx/gx/uk/IS/DS/bS/pS/fS/$S/gS/YS are
-  // ported alongside GeneralPart (gi), Farmer (ki), the soldier registry (di),
-  // the merge factory ($a), the board-container mgr (wi) and battle-props (Zi).
+  /** Remove a soldier by id (clears its board cell). (`Lx`) */
+  Lx(t: number): void {
+    const s = this.hS.get(t);
+    if (!s) return;
+    const i = wi.instance().Mv(s.Td, s.qd);
+    if (i) i.removeItem(s.Cd.x, s.Cd.y);
+    s.gameOver();
+    this.hS.delete(t);
+  }
+  /** Remove a prop unit by id. (`gx`) */
+  gx(t: number): void {
+    const s = this.eS.get(t);
+    if (!s) return;
+    const i = wi.instance().Mv(s.Td, s.qd);
+    if (i) i.removeItem(s.Cd.x, s.Cd.y);
+    s.gameOver();
+    this.eS.delete(t);
+  }
+  /** Remove a farmer by id. (`uk`) */
+  uk(t: number): void {
+    const s = this.aS.get(t);
+    if (!s) return;
+    const i = wi.instance().Mv(s.Td, s.qd);
+    if (i) i.removeItem(s.Cd.x, s.Cd.y);
+    s.gameOver();
+    this.aS.delete(t);
+  }
+
+  // --- spawn / merge (pending the remaining entity classes; see note above) -
+  // C_/LS/mS/wS/vS/kS/xS/SS/AS/ES/BS/IS/DS/bS/pS/fS/$S/gS/YS are ported
+  // alongside the soldier registry (di), the merge factory ($a) and battle-props (Zi).
   pS(_t: number, _s: number, _i = true): void {}
   gS(_t: any): void {}
 }
