@@ -64,6 +64,40 @@ import { Prop } from "./battle/prop";
 import { DamageStatsMgr } from "./battle/dps-mgr";
 import { WeaponFactory, WeaponMgr } from "./battle/weapon-factory";
 
+// --- Cutover: register every @regClass scene / dialog / component ---
+// Importing each module runs its @regClass side-effect, binding the original
+// .ls/.lh resources to our reconstructed classes. In hybrid mode these override
+// the original bundle's classes by UUID; in rebuilt mode they are the only
+// implementations. Transitively pulls in the entire manager graph + factories.
+import "./scenes/load-scene";
+import "./scenes/load-mask-scene";
+import "./scenes/main-scene";
+import "./scenes/match-scene";
+import "./scenes/battle-scene";
+import "./scenes/game-over-scene";
+import "./scenes/shop-scene";
+import "./scenes/weapon-scene";
+import "./scenes/rank-scene";
+import "./scenes/setting-scene";
+import "./scenes/avatar-setting-scene";
+import "./scenes/map-edit-scene";
+import "./dialogs/weapon-intro-dialog";
+import "./dialogs/pause-dialog";
+import "./dialogs/privacy-policy-dialog";
+import "./dialogs/rank-reward-dialog";
+import "./dialogs/recycle-weapon-dialog";
+import "./dialogs/replace-props-tip-dialog";
+import "./dialogs/misc-dialogs";
+import "./dialogs/get-stamina-dialog";
+import "./dialogs/new-weapon-dialog";
+import "./dialogs/auth-delete-dialogs";
+import "./dialogs/deck-dialog";
+import "./dialogs/boss-tip-dialog";
+import "./dialogs/unit-info-dialog";
+import "./dialogs/gm-dialog";
+import "./components/map-bg-components";
+import "./components/effect-component";
+
 // Foundation modules ported so far. As scenes/dialogs are added they import
 // these and register themselves via @regClass on import side-effect.
 const ported = {
