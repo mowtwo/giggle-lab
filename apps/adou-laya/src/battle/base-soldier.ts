@@ -24,6 +24,8 @@ const u = GameEvent;
 
 export class BaseSoldier extends Soldier {
   type = -1;
+  /** Current attack target list; filled by the soldier-attack controller. (`Ew`) */
+  Ew: any = [];
   protected fL = 1;
   protected gL = 0;
   protected mL = false;
