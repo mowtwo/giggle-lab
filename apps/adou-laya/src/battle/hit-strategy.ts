@@ -30,6 +30,7 @@ export class HitEnemyStrategy extends HitStrategy {
   DL = 0;
   TL = false;
   RL = false;
+  KB = false;
   CL = "";
   UL = 0;
   static readonly AL = new HitEnemyStrategy();
