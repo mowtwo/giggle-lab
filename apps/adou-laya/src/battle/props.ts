@@ -24,6 +24,9 @@ import { GeneralPart } from "./general-part";
 import { SpawnQueueMgr } from "./spawn-queue-mgr";
 import { CellReservationMgr } from "./cell-reservation-mgr";
 import { BoardMgr } from "./board-mgr";
+import { SceneMgr } from "../core/scene-mgr";
+import { MathE } from "../core/math-e";
+import { PrefabFactory } from "./prefab-factory";
 import { SpecialIndex } from "./attr-type";
 import { AudioMgr } from "../core/audio-mgr";
 import { EffectMgr } from "./effect-mgr";
@@ -42,6 +45,9 @@ const Na = SpawnQueueMgr;
 const Oi = CellReservationMgr;
 const L = SpecialIndex;
 const wi = BoardMgr;
+const K = SceneMgr;
+const f = MathE;
+const z = PrefabFactory;
 const $ = AudioMgr;
 const q = EffectMgr;
 
@@ -1390,3 +1396,207 @@ export class TreasureMapProp extends InstantProp {
   }
 }
 PropsFactory.instance().register(19, () => Laya.Pool.createByClass(TreasureMapProp));
+
+/** 流星雨 — calls down a barrage of meteors over the lane. (`Ni`) */
+export class MeteorShowerProp extends InstantProp {
+  private W_ = false;
+  protected cd = 300000;
+  protected Kv = 0;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    this.W_ = false;
+    this.Kv = 0;
+  }
+  tk(): void {
+    this.z_();
+  }
+  private z_(): void {
+    if (this.W_) return;
+    this.W_ = true;
+    const t = F.instance();
+    const s = this.qd ? t.map.de : t.map.Le;
+    if (!s || s.length < 10) return;
+    const i = s.slice(-10);
+    const h: any[] = [];
+    for (let k = 0; k < i.length; k++) {
+      const e = i[k];
+      const a = f.range(1, 2, true) as number;
+      for (let m = 0; m < a; m++) {
+        $.instance().playSound("meteor_fall");
+        const dx = f.range(0.3 * -t.map.gridWid, 0.3 * t.map.gridWid, true) as number;
+        const dy = f.range(0.3 * -t.map.gridHei, 0.3 * t.map.gridHei, true) as number;
+        const ax = e.x * t.map.gridWid + t.map.gridWid / 2 + dx;
+        const ny = e.y * t.map.gridHei + t.map.gridHei / 2 + dy;
+        let r = 0;
+        let o = 0;
+        const pt = this.qd ? f.pointAtAngle2({ x: ax, y: ny }, 1000, 210) : f.pointAtAngle2({ x: ax, y: ny }, 1000, 330);
+        r = pt.x;
+        o = pt.y;
+        h.push({ j_: r, N_: o, q_: ax, V_: ny });
+      }
+    }
+    f.shuffle(h);
+    let e = 0;
+    for (let k = 0; k < h.length; k++) {
+      const s2 = h[k];
+      Laya.timer.once(e, this, () => {
+        this.Q_(s2.j_, s2.N_, s2.q_, s2.V_);
+      });
+      e += f.range(50, 100, true) as number;
+    }
+    this.Kv = 0;
+    this.Wv.gray = true;
+  }
+  private Q_(t: number, s: number, i: number, h: number): void {
+    const e = z.instance().getItem("meteor", this);
+    const a = f.range(0.8, 1) as number;
+    e.x = t;
+    e.y = s;
+    e.scale(a, a);
+    e.zIndex = 1;
+    y.instance.event(u.bt, e);
+    const n = q.instance().registerImgLoop(
+      e,
+      ["resources/img/props/meteor_2.png", "resources/img/props/meteor_3.png"],
+      50,
+    );
+    e.rotation = f.angle({ x: t, y: s }, { x: i, y: h }) + 90;
+    let r = 0;
+    let o = 0;
+    const l = 1000 * (f.range(0.8, 1.2, false) as number);
+    Laya.Tween.create(e)
+      .to("x", i)
+      .to("y", h)
+      .to("alpha", 1)
+      .to("scaleX", a)
+      .to("scaleY", a)
+      .duration(l)
+      .onUpdate(() => {
+        r += Laya.timer.delta;
+        if (!(r < 30 * o)) {
+          for (let k = 0; k < 3; k++) this.Z_(e.x, e.y);
+          r = 0;
+          o += 0.05;
+        }
+      }, this)
+      .then(() => {
+        q.instance().removeEvent("imgLoop", n);
+        this.K_(i, h);
+        this.J_(e);
+        e.rotation = 0;
+        e.skin = "resources/img/props/pit.png";
+        e.scale(0.8 * a, 0.8 * a);
+        e.x -= (0.5 - e.anchorX) * e.width;
+        e.y -= (0.5 - e.anchorY) * e.height;
+        Laya.Tween.create(e)
+          .to("alpha", 0)
+          .duration(1000)
+          .delay(1000)
+          .then(() => {
+            e.skin = "resources/img/props/meteor_2.png";
+            e.alpha = 1;
+            e.removeSelf();
+            z.instance().recover("meteor", e);
+          });
+      });
+    const c = new Laya.Image("resources/img/props/redCircle.png");
+    c.size(107, 95);
+    c.anchor(0.5, 0.5);
+    c.pos(i, h);
+    c.scale(0, 0);
+    c.alpha = 0.5;
+    y.instance.event(u.bt, c);
+    Laya.Tween.create(c)
+      .to("scaleX", a)
+      .to("scaleY", a)
+      .to("alpha", 1)
+      .duration(l)
+      .chain()
+      .to("alpha", 0)
+      .to("scaleX", 1.5 * a)
+      .to("scaleY", 1.5 * a)
+      .duration(500)
+      .then(() => {
+        c.removeSelf();
+      });
+  }
+  private Z_(t: number, s: number): void {
+    const i = z.instance().getItem("fireParticl", this);
+    y.instance.event(u.bt, i);
+    i.pos(t, s);
+    i.rotation = f.range(0, 360) as number;
+    i.pos(t, s + (f.range(-i.height, i.height) as number));
+    let h = 0;
+    Laya.Tween.create(i)
+      .to("alpha", 0)
+      .to("scaleX", 0)
+      .to("scaleY", 0)
+      .duration(600)
+      .onUpdate(() => {
+        h += Laya.timer.delta / 600;
+        i.color = f.rgbToHex(1, 1 - h, 1 - h);
+      }, this)
+      .then(() => {
+        i.alpha = 1;
+        i.scale(1, 1);
+        i.removeSelf();
+        z.instance().recover("fireParticl", i);
+      });
+  }
+  private K_(t: number, s: number): void {
+    const i = Eh.instance();
+    const h = F.instance();
+    const e = h.map.gridWid;
+    for (const [, n] of i.kw) {
+      if (n.qd !== this.qd) continue;
+      if (!n.Bw) continue;
+      const dx = n.enemy.x - t;
+      const dy = n.enemy.y - s;
+      if (Math.sqrt(dx * dx + dy * dy) <= e) {
+        const dmg = h.enemyHp(h.map.re, this.qd).uh;
+        n.hit(dmg, null);
+      }
+    }
+  }
+  private J_(t: any): void {
+    q.instance().playRocketEffect(t, t.width / 2, t.height / 2, 2);
+    K.instance().shakeBattleScene(100);
+  }
+  update(t: number): void {
+    super.update(t);
+    if (this.W_ && this.Kv < this.cd) {
+      this.Kv += t;
+      if (this.Kv >= this.cd) {
+        this.W_ = false;
+        this.Kv = this.cd;
+        this.Wv.gray = false;
+      }
+    }
+  }
+  gameOver(): void {
+    super.gameOver();
+    this.W_ = false;
+    this.Kv = 0;
+    this.Wv.gray = false;
+  }
+}
+PropsFactory.instance().register(20, () => Laya.Pool.createByClass(MeteorShowerProp));
+
+/** 占位道具 (no active effect). (`Vi`) */
+export class PlaceholderProp extends InstantProp {
+  private vx = 1;
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+  }
+}
+PropsFactory.instance().register(22, () => Laya.Pool.createByClass(PlaceholderProp));
+
+/** 铲子强化 — upgrades the side's shovel. (`Qi`) */
+export class ShovelUpgradeProp extends InstantProp {
+  init(qd: any, type: number): void {
+    super.init(qd, type);
+    if (qd) F.instance().battleState.Gi = true;
+    else F.instance().battleState.Hi = true;
+  }
+}
+PropsFactory.instance().register(24, () => Laya.Pool.createByClass(ShovelUpgradeProp));
