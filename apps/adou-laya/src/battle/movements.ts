@@ -429,3 +429,21 @@ export class TargetEnemyMovement extends BulletMovementBase {
   }
 }
 TargetEnemyMovement.zL = "TargetEnemyMovement";
+
+/** Move straight along the bullet's current rotation. (`Ge`) */
+export class ForwardMovement extends BulletMovementBase {
+  static zL = "ForwardMovement";
+  Zd(): void {}
+  tm(t: number, s: number): void {
+    const i = this.Ym.Pm;
+    const h = f.angleToDirection(i.rotation);
+    i.x += h.x * t * this.YL * s;
+    i.y += h.y * t * this.YL * s;
+  }
+  jL(): void {}
+  protected NL(): void {}
+  static create(): any {
+    return super.create();
+  }
+}
+ForwardMovement.zL = "ForwardMovement";
