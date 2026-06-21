@@ -36,10 +36,10 @@ const bi = ShovelProp;
 
 export class BattlePropsMgr extends C {
   kx = new Map<number, any>();
-  private xx: any[] = [];
-  private Sx: any[] = [];
+  xx: any[] = [];
+  Sx: any[] = [];
   private bx: any[] = [];
-  private Mx: any[] = [];
+  Mx: any[] = [];
   Px: any[] = [];
   Ax: any[] = [];
   private Ex = false;
