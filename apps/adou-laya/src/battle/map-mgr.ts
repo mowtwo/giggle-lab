@@ -124,7 +124,7 @@ export class MapMgr {
   };
 
   // Working grid (mutated to the active map by changeMap).
-  private readonly ue: string[][] = UE_TEMPLATE.map((row) => row.slice());
+  readonly ue: string[][] = UE_TEMPLATE.map((row) => row.slice());
 
   te: Pt | null = null;
   se: Pt | null = null;
