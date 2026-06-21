@@ -26,9 +26,9 @@ export class Prop extends DraggableObject {
   protected Gv = 0;
   protected Hv = { containerType: 0, x: -1, y: -1 };
   protected props: any;
-  protected Wv: any;
+  Wv: any;
   type = 0;
-  protected qd: any;
+  qd: any;
   protected zv: any;
 
   protected pg(): any {

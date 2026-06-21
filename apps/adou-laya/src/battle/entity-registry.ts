@@ -375,7 +375,7 @@ export class EntityRegistry extends Singleton {
   // --- spawn / merge / level ------------------------------------------------
 
   /** Build a spawn request + create the unit. (`C_`) */
-  C_(t: number, s: string, i: any, h: number, e: number, a = 1, n: any = null): any {
+  C_(t: number, s: string, i: any, h: number, e = 0, a = 1, n: any = null): any {
     return this.LS({ containerType: t, text: s, qd: i, x: h, y: e, Xe: a, Xd: n });
   }
 

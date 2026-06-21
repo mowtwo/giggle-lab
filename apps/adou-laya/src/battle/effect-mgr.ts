@@ -1424,7 +1424,7 @@ export class EffectMgr extends Singleton {
   }
 
   /** Unit-info tooltip (lazy box) anchored to a target, flipping by position. (`Qo`) */
-  showUnitInfo(show: boolean, target: any, descText: string, nameText: string, rarityIndex: number, parent: any = null): void {
+  showUnitInfo(show: boolean, target?: any, descText?: string, nameText?: string, rarityIndex?: number, parent: any = null): void {
     if (!this.dc) {
       this.dc = new Laya.Box();
       this.dc.size(250, 168);
