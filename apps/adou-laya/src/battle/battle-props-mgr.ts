@@ -194,12 +194,16 @@ export class BattlePropsMgr extends C {
       e = this.Px;
     }
     if (h.length === 0 && e.length === 0) return;
-    // 改造:主动技能栏仅 2 槽,且铲子(0)/推土车(1)是 shovelAd 救场道具,
-    // 不能进常规技能栏(否则 setItem 越界 / BulldozerProp 初始化崩溃)。
+    // 改造:技能板是 6×2 网格(BoardMgr.bv(4,t,6,2)),主动技能在第 0 列、被动在
+    // 第 1 列,各 6 槽(原版同样 6 槽,见 bundle bv(4,t,6,2))。原版 Kx 不设上限,
+    // 依赖经济系统天然不超过 6;但本作"技能背包"可无限选择,会超出 6 导致 2D
+    // setItem 写 dv[6] 越界崩溃,故这里补一个 6 的安全上限。
+    // 另外:铲子(0)/推土车(1)是 shovelAd 救场道具,由按钮触发,不进常规技能栏
+    // (技能背包也已禁止选择 0/1),这里跳过它们。
     let slot = 0;
     for (let i = 0; i < h.length; i++) {
       if (h[i] === 0 || h[i] === 1) continue;
-      if (slot >= 2) break;
+      if (slot >= 6) break;
       let lv: number;
       if (t) lv = this.Ue.isUpgradeable(h[i]) ? this.Nx(h[i]) : 1;
       else if (this.Ex && this.Ux[i] != null) lv = this.Ue.isUpgradeable(h[i]) ? this.Ux[i] : 1;

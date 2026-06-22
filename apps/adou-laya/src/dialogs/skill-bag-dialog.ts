@@ -15,7 +15,8 @@ import { TipMgr } from "../core/tip-mgr";
 
 // props 稀有度配色(稀有/卓越/史诗/传说)。
 const RARITY_COLORS = ["#95e45a", "#2dddff", "#D955FF", "#E99431"];
-const MAX_ACTIVE = 2;
+// 技能板是 6×2 网格:主动 6 槽(第 0 列)、被动 6 槽(第 1 列),与 BattlePropsMgr.Kx 对齐。
+const MAX_ACTIVE = 6;
 const MAX_PASSIVE = 6;
 
 export class SkillBagDialog extends Laya.Sprite {
