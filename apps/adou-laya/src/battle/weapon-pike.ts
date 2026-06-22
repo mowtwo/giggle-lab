@@ -167,7 +167,7 @@ export class PikeWeaponBase extends WeaponComponent {
   protected vI(): void {
     super.vI();
     Laya.Tween.killAll(this.XT);
-    if (this.general.SD === "赵云") this.nI.y = 0.8 * this.Hn.height;
+    if (this.general.SD === "赵云" && this.nI) this.nI.y = 0.8 * this.Hn.height;
   }
 
   protected AI(t: any): void {
