@@ -22,7 +22,6 @@ import { SceneMgr } from "../core/scene-mgr";
 import { TipMgr } from "../core/tip-mgr";
 import { PrefabFactory } from "../battle/prefab-factory";
 import { MathE } from "../core/math-e";
-import { BattlePropsMgr } from "../battle/battle-props-mgr";
 import { pt } from "../battle/analytics-mgr";
 
 const Zt = AnimPlayer;
@@ -35,7 +34,6 @@ const K = SceneMgr;
 const tt = TipMgr;
 const z = PrefabFactory;
 const f = MathE;
-const Zi = BattlePropsMgr;
 
 @regClass("36WnNn_bSKilkYpbnYn_9A")
 export class GameOverScene extends Laya.Scene {
@@ -216,7 +214,8 @@ export class GameOverScene extends Laya.Scene {
     } else {
       this.gold.visible = true;
       this.goldLight.visible = true;
-      this.getBtnAd.visible = true;
+      // 去掉"看广告拿金币":隐藏看广告翻倍按钮,只保留普通领取。
+      this.getBtnAd.visible = false;
       this.getTxt.text = "领取";
       this.getBtn.y = 1190;
       if (this.isWin) {
@@ -1014,10 +1013,7 @@ export class GameOverScene extends Laya.Scene {
     console.log("关闭结算场景");
     K.instance().closeScene("GameOverScene");
     K.instance().openScene("MainScene");
-    if (F.instance().player.openProps) {
-      const t2 = Zi.instance().Jx();
-      if (t2.length > 0) K.instance().openScene("ShopScene", false, t2);
-    }
+    // 去掉"结束后提示选技能":不再自动打开技能选择(ShopScene)。
     F.instance().battleState.Wi.length = 0;
     this.BN.length = 0;
     Laya.Tween.killAll(this.arrow);

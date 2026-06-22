@@ -15,7 +15,6 @@ import { GameMgr } from "../core/game-mgr";
 import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 import { MathE } from "../core/math-e";
-import { UpdateMgr } from "../core/update-mgr";
 import { RankScoreMgr } from "./rank-score-mgr";
 import { PlatformMgr } from "../platform/platform-mgr";
 import { ServerReportMgr } from "./server-report-mgr";
@@ -25,7 +24,6 @@ const F = GameMgr;
 const y = EventMgr;
 const u = GameEvent;
 const f = MathE;
-const j = UpdateMgr;
 const En = RankScoreMgr;
 const Mt = PlatformMgr;
 const st = ServerReportMgr;
@@ -150,10 +148,9 @@ export class LeaderboardMgr extends Singleton {
     console.log("打印ai数据", this.Pi.rank, this.Pi.level);
     this.Pi.Ai.length = 0;
     this.aH(o.weapon0, o.weapon1, o.weapon2, o.weapon3, o.weapon4);
-    if (j.instance().daysSinceRegister() >= 2 && F.instance().player.roundDay === 1) this.Pi.Ei = 1;
-    else if (F.instance().player.lastLoseDifficulty !== -1 && Math.random() < 0)
-      this.Pi.Ei = F.instance().player.lastLoseDifficulty;
-    else this.Pi.Ei = f.weightedIndex(this.da.get(t).Ei);
+    // 难度随机(不依赖玩家数据):排除难度0(太简单),难度2、3权重更大。
+    // 权重 难度1:难度2:难度3 = 1:3:3。
+    this.Pi.Ei = 1 + f.weightedIndex([1, 3, 3]);
     console.error("本局对手强度预估", this.Pi.Ei);
     this.Pi.Bi = f.range(30 + this.Pi.id + this.Pi.Ei, 40 + this.Pi.id + this.Pi.Ei);
     this.Pi.win = f.range(10 * this.Pi.id + 10, 15 * this.Pi.id + 10, true);

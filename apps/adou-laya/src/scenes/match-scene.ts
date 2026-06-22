@@ -221,7 +221,8 @@ export class MatchScene extends Laya.Scene {
     this.title.visible = false;
     this.xBtn.visible = false;
     j.instance().pause(false);
-    (F.instance().player.round === 0 ? Cn.instance().GH() : Cn.instance().startGame()).then((t: any) => {
+    // 去掉新手教程的刻意安排(必赢/必输局):所有对局(含首局)都走普通流程。
+    Cn.instance().startGame().then((t: any) => {
       t.addChild(this);
       t.scale(1.03, 1.03);
       Laya.Tween.create(t).to("scaleX", 1).to("scaleY", 1).duration(800).ease(lo.sineOut);
