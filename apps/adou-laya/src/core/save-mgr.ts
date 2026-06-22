@@ -396,7 +396,8 @@ export class SaveMgr extends Singleton {
   }
 
   get openProps(): boolean {
-    return this._data._openProps;
+    // 改造:技能系统对玩家恒开,使其能在"技能背包"里自由分配并生效。
+    return true;
   }
   set openProps(v: boolean) {
     this._data._openProps = v;

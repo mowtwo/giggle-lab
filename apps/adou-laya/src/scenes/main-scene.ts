@@ -30,6 +30,7 @@ import { TipMgr } from "../core/tip-mgr";
 import { MathE } from "../core/math-e";
 import { RankScoreMgr } from "../battle/rank-score-mgr";
 import { AnalyticsMgr } from "../battle/analytics-mgr";
+import { SkillBagDialog } from "../dialogs/skill-bag-dialog";
 
 const Kr = PrivacyAgreementMgr;
 const Cn = GameController;
@@ -180,6 +181,33 @@ export class MainScene extends Laya.Scene {
     y.instance.on(u.Zt, this, this.GV);
     this.HV();
     if (Cn.instance().OH) this.WV();
+    this.createSkillBagEntry();
+  }
+
+  /** 技能背包入口(左下角,与右下角武器背包对称):打开技能自由分配界面。 */
+  private createSkillBagEntry(): void {
+    const btn = new Laya.Sprite();
+    btn.pos(40, 1130);
+    btn.size(110, 140);
+    const icon = new Laya.Image("resources/img/mainUI/bag1.png");
+    icon.size(100, 100);
+    icon.pos(5, 0);
+    btn.addChild(icon);
+    const label = new Laya.Label("技能背包");
+    label.fontSize = 24;
+    label.color = "#f7de76";
+    label.bold = true;
+    (label as any).stroke = 4;
+    (label as any).strokeColor = "#5a3a12";
+    label.width = 110;
+    label.align = "center";
+    label.y = 104;
+    btn.addChild(label);
+    btn.on(Laya.Event.CLICK, this, () => {
+      this.addChild(new SkillBagDialog());
+    });
+    q.instance().bindButtons([btn]);
+    this.addChild(btn);
   }
 
   onOpened(_t?: any): void {
