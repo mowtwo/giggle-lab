@@ -1226,6 +1226,9 @@ export class RecruitFarmerProp extends InstantProp {
   }
   private R_(t: any): void {
     const s = EntityRegistry.instance().C_(t.containerType, "农", this.qd, t.x, t.y);
+    // 修复崩溃:C_/LS 在对局结束(battleState.Vi)等情况下会返回 null;此时跳过本次
+    // 自动招募即可(下个间隔再试),否则解引用 s.Yn 会崩(原版无此判空)。
+    if (!s) return;
     this.props.parent.addChild(s.Yn);
     s.Yn.pos(0, 0);
     s.Yn.zIndex = 900;
