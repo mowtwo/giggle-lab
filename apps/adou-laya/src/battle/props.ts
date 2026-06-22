@@ -251,7 +251,7 @@ export class BulldozerProp extends PropBase {
   tk(): void {
     $.instance().playSound("bulldozer_land");
     this.wk();
-    this.props.zIndex = X.entityZIndexFromPixelY(this.props.y, GameMgr.instance().map.gridHei);
+    X.setEntityZIndex(this.props, GameMgr.instance().map.gridHei);
   }
   vk(): void {
     if (this.step === 0 && this.path.length > 0) this.step = 1;
@@ -288,7 +288,7 @@ export class BulldozerProp extends PropBase {
     }
     this.props.x += r;
     this.props.y += o;
-    this.props.zIndex = X.entityZIndexFromPixelY(this.props.y, GameMgr.instance().map.gridHei);
+    X.setEntityZIndex(this.props, GameMgr.instance().map.gridHei);
   }
   private Lk(): { offsetX: number; offsetY: number } {
     const t = GameMgr.instance().map;

@@ -57,6 +57,15 @@ export class LayerZ {
     return this.nr + 2 * row;
   }
 
+  /**
+   * 性能:仅在 zIndex 真正变化时才写入,避免单位每帧移动都重设 zIndex
+   * (同一网格行内 z 不变),减少 setter 调用与渲染层重排。
+   */
+  static setEntityZIndex(node: any, cellHeight: number): void {
+    const z = LayerZ.entityZIndexFromPixelY(node.y, cellHeight);
+    if (node.zIndex !== z) node.zIndex = z;
+  }
+
   /** Entity z-index from a grid row index. */
   static entityZIndexFromGridRow(row: number): number {
     return this.nr + 2 * row;

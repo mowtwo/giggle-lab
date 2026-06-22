@@ -80,7 +80,7 @@ export abstract class Soldier extends DraggableObject {
 
   /** Drag/tap ends: restore z by row. (`Pd`) */
   protected onDragEnd(): void {
-    this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
+    X.setEntityZIndex(this.Yn, this.dg.map.gridHei);
     evt.event(u.Ct);
   }
 
@@ -92,7 +92,7 @@ export abstract class Soldier extends DraggableObject {
     this.Nd = !(this.dg.generals.Aa.indexOf(type) >= 0);
     this.Vd = this.Yn.getChildByName("lvl");
     this.Vd.value = "1";
-    this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
+    X.setEntityZIndex(this.Yn, this.dg.map.gridHei);
     this.Qd = type;
     if (this.Td === 3 || this.Td === 1) this.changeState("none");
     this.Zd(type);
@@ -172,7 +172,7 @@ export abstract class Soldier extends DraggableObject {
       AudioMgr.instance().playSound("soldier_set");
       if (this.eL) this.eL();
       UpdateMgr.instance().unregister(this.id + "_jump");
-      this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
+      X.setEntityZIndex(this.Yn, this.dg.map.gridHei);
     }
   }
 
@@ -203,7 +203,7 @@ export abstract class Soldier extends DraggableObject {
       if (this.qd) {
         evt.event(u.Mt, this.Yn, x);
         this.Yn.parent.globalToLocal(Laya.Point.TEMP);
-        this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
+        X.setEntityZIndex(this.Yn, this.dg.map.gridHei);
         this.eL = onArrive;
         this.rL = x;
         this.oL = y;
@@ -213,7 +213,7 @@ export abstract class Soldier extends DraggableObject {
       } else {
         x = 4;
         y = -5;
-        this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
+        X.setEntityZIndex(this.Yn, this.dg.map.gridHei);
         this.eL = onArrive;
         this.targetX = this.Yn.x * this.dg.map.gridWid;
         this.targetY = this.Yn.y * this.dg.map.gridHei;

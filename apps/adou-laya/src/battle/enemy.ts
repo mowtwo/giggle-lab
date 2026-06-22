@@ -290,7 +290,7 @@ export class Enemy extends GameObject {
       this.enemy.x += (sx * this.Xu * t) / 1000;
       this.enemy.y += (a * this.Xu * t) / 1000;
     }
-    this.enemy.zIndex = X.entityZIndexFromPixelY(this.enemy.y, GameMgr.instance().map.gridHei);
+    X.setEntityZIndex(this.enemy, GameMgr.instance().map.gridHei);
     this.Aw = e + (this.path.length - 1 - this.pk) * this.dg.map.gridWid;
     this.vP();
   }

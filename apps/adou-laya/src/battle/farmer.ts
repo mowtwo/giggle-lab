@@ -101,7 +101,7 @@ export class Farmer extends Soldier {
     } else if (t === "FarmerCrazy") {
       this.Tv.visible = true;
       this.jd = true;
-      this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
+      X.setEntityZIndex(this.Yn, this.dg.map.gridHei);
       const cx = this.Cd.x;
       const cy = this.Cd.y;
       EventMgr.instance.event(u.Et, this.qd, cx, cy);
@@ -133,7 +133,7 @@ export class Farmer extends Soldier {
       this.hL.rotation = 0;
       this.Dv.rotation = 0;
       this.jd = false;
-      this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
+      X.setEntityZIndex(this.Yn, this.dg.map.gridHei);
     }
   }
 
