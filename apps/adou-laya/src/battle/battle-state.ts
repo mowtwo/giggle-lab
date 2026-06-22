@@ -68,8 +68,9 @@ export class BattleState {
   }
 
   get gold(): number {
-    // 无限金币:玩家战斗内货币恒为极大值,征兵等消费扣不动。
-    return 999999;
+    // 战斗内征兵货币(馒头/包子)保持正常经济:打怪/农民产出、征兵消耗,
+    // 不做无限化(无限化会破坏战斗策略与体验)。账号金币的无限在 SaveMgr.gold。
+    return this._gold;
   }
   set gold(t: number) {
     this._gold = t;
