@@ -235,45 +235,50 @@ export class MainScene extends Laya.Scene {
   private createMapSelector(): void {
     const maps = ["巨鹿", "云梦泽", "虎牢关", "赤壁"];
     const box = new Laya.Sprite();
-    box.pos(0, 686);
+    box.pos(0, 400); // 段位与棋盘之间的空隙,避免与棋盘/对话区重叠。
     this.addChild(box);
 
-    // 半透明背板,避免选择器文字与背景动画/棋盘字重叠看不清。
+    const W = 384;
+    const X0 = (640 - W) / 2;
     const bg = new Laya.Sprite();
-    bg.graphics.drawRect(120, -6, 400, 106, "#2b2018", "#a3702a", 2);
-    bg.alpha = 0.62;
+    bg.pos(X0, -4);
+    this.paintPlaque(bg, W, 110);
     box.addChild(bg);
 
     const tag = new Laya.Label("选择地图");
-    tag.fontSize = 24;
-    tag.color = "#a3702a";
+    tag.fontSize = 22;
+    tag.color = "#d8b06a";
     tag.width = 640;
     tag.align = "center";
+    tag.y = 8;
     box.addChild(tag);
 
     const nameLbl = new Laya.Label(maps[this.clampMap(GameMgr.instance().player.selectedMapId)]);
-    nameLbl.fontSize = 46;
-    nameLbl.color = "#7a3b1a";
+    nameLbl.fontSize = 48;
+    nameLbl.color = "#f7de76";
     nameLbl.bold = true;
-    (nameLbl as any).stroke = 4;
-    (nameLbl as any).strokeColor = "#f3e2bf";
+    (nameLbl as any).stroke = 5;
+    (nameLbl as any).strokeColor = "#5a3a12";
     nameLbl.width = 640;
     nameLbl.align = "center";
-    nameLbl.y = 34;
+    nameLbl.y = 42;
     box.addChild(nameLbl);
 
     const mkArrow = (text: string, x: number, dir: number): void => {
-      const a = new Laya.Label(text);
-      a.fontSize = 52;
-      a.color = "#7a3b1a";
-      a.bold = true;
-      a.width = 60;
-      a.height = 70;
-      a.align = "center";
-      a.valign = "middle";
-      a.pos(x, 30);
+      const a = new Laya.Sprite();
+      a.pos(x, 28);
+      a.size(56, 56);
       a.mouseEnabled = true;
-      a.graphics.drawRect(0, 0, 60, 70, "#ffffff01");
+      this.paintCircleBtn(a, 56);
+      const al = new Laya.Label(text);
+      al.fontSize = 38;
+      al.color = "#f7de76";
+      al.bold = true;
+      al.width = 56;
+      al.height = 56;
+      al.align = "center";
+      al.valign = "middle";
+      a.addChild(al);
       a.on(Laya.Event.CLICK, this, () => {
         const cur = this.clampMap(GameMgr.instance().player.selectedMapId);
         const next = (cur + dir + maps.length) % maps.length;
@@ -282,39 +287,50 @@ export class MainScene extends Laya.Scene {
       });
       box.addChild(a);
     };
-    mkArrow("◀", 150, -1);
-    mkArrow("▶", 430, 1);
+    mkArrow("◀", X0 - 6, -1);
+    mkArrow("▶", X0 + W - 50, 1);
   }
 
   private clampMap(v: number): number {
     return v >= 0 && v <= 3 ? v : 0;
   }
 
-  /** 存档导入/导出入口(单机存档备份,改造新增)。 */
+  /** 画一个木牌风格背板(深褐底 + 亮橙边 + 顶部高光),用于自定义按钮。 */
+  private paintPlaque(sp: any, w: number, h: number): void {
+    const g = sp.graphics;
+    g.drawRect(0, 0, w, h, "#3a2a1c", "#c9923e", 3);
+    g.drawRect(4, 4, w - 8, (h - 8) * 0.42, "#4d3823");
+  }
+
+  /** 画一个圆形按钮底(用于地图切换箭头)。 */
+  private paintCircleBtn(sp: any, d: number): void {
+    sp.graphics.drawCircle(d / 2, d / 2, d / 2 - 1, "#5a3a1e", "#e0a94a", 3);
+  }
+
+  /** 存档导入/导出入口(单机存档备份,改造新增)。放底部,避免与其它元素重叠。 */
   private createSaveIO(): void {
-    const mk = (text: string, y: number, onClick: () => void): void => {
+    const mk = (text: string, x: number, onClick: () => void): void => {
       const box = new Laya.Sprite();
-      box.pos(10, y);
-      box.size(154, 38);
+      box.pos(x, 1285);
+      box.size(230, 56);
       box.mouseEnabled = true;
-      const bg = new Laya.Sprite();
-      bg.graphics.drawRect(0, 0, 154, 38, "#2b2018", "#a3702a", 1);
-      bg.alpha = 0.62;
-      box.addChild(bg);
+      this.paintPlaque(box, 230, 56);
       const lbl = new Laya.Label(text);
-      lbl.fontSize = 22;
+      lbl.fontSize = 26;
       lbl.color = "#f7de76";
       lbl.bold = true;
-      lbl.width = 154;
-      lbl.height = 38;
+      (lbl as any).stroke = 3;
+      (lbl as any).strokeColor = "#1a1008";
+      lbl.width = 230;
+      lbl.height = 56;
       lbl.align = "center";
       lbl.valign = "middle";
       box.addChild(lbl);
       box.on(Laya.Event.CLICK, this, onClick);
       this.addChild(box);
     };
-    mk("导出存档", 936, () => this.doExportSave());
-    mk("导入存档", 982, () => this.doImportSave());
+    mk("导出存档", 40, () => this.doExportSave());
+    mk("导入存档", 300, () => this.doImportSave());
   }
 
   private doExportSave(): void {
