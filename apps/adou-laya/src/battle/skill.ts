@@ -43,6 +43,11 @@ export abstract class Skill {
   }
 
   activate(): void {
+    // 防御:技能必须先 initialize(绑定 owner HD)才能激活。原版假定 HD 必然
+    // 已绑定;但将领在加入战场注册表(EventMgr u.m)后、技能 initialize 之前若
+    // 被 BattleMgr.pX 提前驱动(mL 默认 true),HD 可能尚未就绪,直接解引用
+    // this.HD.WD 会崩。未绑定时本帧不激活即可,下一帧 HD 就绪后正常触发。
+    if (!this.HD) return;
     if (!this.OD && this.HD.WD && this.zD()) {
       this.GD = 0;
       this.OD = true;
