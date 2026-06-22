@@ -26,14 +26,6 @@ import { TargetEnemyBezierMovement, TargetObjectInstantaneous } from "./movement
 const F = GameMgr;
 const $ = AudioMgr;
 const f = MathE;
-const Eh = EnemySpatialMgr;
-const fe = BulletSpawnMgr;
-const si = HitStrategyFactory;
-const yi = KnifeBullet;
-const pi = PikeBullet;
-const ri = SimpleDynamicArrow;
-const oi = TargetEnemyBezierMovement;
-const fi = TargetObjectInstantaneous;
 const li = Laya.Point;
 
 /** Knife soldier (melee arc onto the nearest enemy). (`di.rv[0]`) */
@@ -54,7 +46,7 @@ export class KnifeSoldier extends BaseSoldier {
     this.hL.scale(1, 1);
   }
   protected ov(): void {
-    this.Ew = Eh.instance().lv(
+    this.Ew = EnemySpatialMgr.instance().lv(
       this.Yn.x + this.Yn.width / 2,
       this.Yn.y + this.Yn.height / 2,
       this.Da,
@@ -77,13 +69,13 @@ export class KnifeSoldier extends BaseSoldier {
       }
     }
     const spec = {
-      type: yi,
+      type: KnifeBullet,
       bm: this,
       Sm: this.Ta,
-      Um: si.produce(100, { FL: t.id, BL: true, IL: "hitEnable", DL: 500 / this.fL }),
+      Um: HitStrategyFactory.produce(100, { FL: t.id, BL: true, IL: "hitEnable", DL: 500 / this.fL }),
       xm: "knifeSoliderAttack",
     };
-    fe.instance().Tw(spec).Xm();
+    BulletSpawnMgr.instance().Tw(spec).Xm();
     $.instance().playSound("knife_attack");
     this.hL.on(Laya.Event.STOPPED, this, () => {
       this.hL.offAll(Laya.Event.STOPPED);
@@ -104,7 +96,7 @@ export class BowSoldier extends BaseSoldier {
     this.Mw = 0;
     this.Wd = 1000;
     this.config = {
-      type: ri,
+      type: SimpleDynamicArrow,
       ow: { xm: "弓箭小兵箭矢", ew: "resources/img/weapon/arrow_0.png" },
       Sm: this.Ta,
       bm: this,
@@ -124,7 +116,7 @@ export class BowSoldier extends BaseSoldier {
     for (let i = 0; i < this.Ew.length; i++) {
       const h = this.Ew[i];
       if (t) {
-        const e = Eh.instance().kw.get(h.id);
+        const e = EnemySpatialMgr.instance().kw.get(h.id);
         if (!e || !e.Bw) continue;
       }
       if (h.Aw < s.Aw) s = h;
@@ -149,18 +141,18 @@ export class BowSoldier extends BaseSoldier {
   /** Fire the arrow at the locked target. (`Dw`) */
   private Dw(): void {
     $.instance().playSound("bow_attack");
-    const t = Eh.instance().kw.get(this.Iw);
+    const t = EnemySpatialMgr.instance().kw.get(this.Iw);
     if (!(t && t.Bw)) this.Iw = this.Pw(true).id;
-    this.config.Um = si.produce(100, { FL: this.Iw });
-    this.config.Om = oi.create(120, true).qL(this.Iw);
+    this.config.Um = HitStrategyFactory.produce(100, { FL: this.Iw });
+    this.config.Om = TargetEnemyBezierMovement.create(120, true).qL(this.Iw);
     this.hL.play("attack", false, true, 650, 1000);
     F.instance().toLocal(this.Yn, true);
     this.config.Sm = this.Ta;
-    fe.instance().Tw(this.config, Laya.Point.TEMP).Xm();
+    BulletSpawnMgr.instance().Tw(this.config, Laya.Point.TEMP).Xm();
   }
   /** Target enemy center point. (`gw`) */
   private gw(t: number): any {
-    const s = Eh.instance().kw.get(t);
+    const s = EnemySpatialMgr.instance().kw.get(t);
     return s
       ? li.create().setTo(s.enemy.x + F.instance().map.gridWid / 2, s.enemy.y + F.instance().map.gridHei / 2)
       : null;
@@ -270,9 +262,9 @@ export class PikeSoldier extends BaseSoldier {
       this.hL.offAll(Laya.Event.STOPPED);
     });
     this.hL.play("attack", false);
-    const r = fe.instance().Tw({
-      type: pi,
-      Om: fi.create(this.pv, this.fv.x, this.fv.y, false, false),
+    const r = BulletSpawnMgr.instance().Tw({
+      type: PikeBullet,
+      Om: TargetObjectInstantaneous.create(this.pv, this.fv.x, this.fv.y, false, false),
       bm: this,
       Sm: this.Ta,
       Cw: { pos: { x: this.fv.x, y: this.fv.y }, bold: 15, length: 71, rotation: e, BL: false },
@@ -346,7 +338,7 @@ export class CavalrySoldier extends BaseSoldier {
   protected ov(): void {
     this.hL.play("attack", false);
     const t: any = {
-      type: pi,
+      type: PikeBullet,
       bm: this,
       Sm: this.Ta / 2,
       xm: "cavalrySweep",
@@ -362,9 +354,9 @@ export class CavalrySoldier extends BaseSoldier {
       },
     };
     $.instance().playSound("cavalry_attack");
-    const s = fe.instance().Tw(t);
+    const s = BulletSpawnMgr.instance().Tw(t);
     t.Cw.length = this.Da;
-    const i = fe.instance().Tw(t);
+    const i = BulletSpawnMgr.instance().Tw(t);
     Laya.timer.once(150, this, () => {
       s.Xm();
       i.Xm();

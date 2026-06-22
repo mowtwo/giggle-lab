@@ -20,7 +20,6 @@ import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 
 const f = MathE;
 const F = GameMgr;
-const Eh = EnemySpatialMgr;
 
 /** Homing bezier arc toward an enemy by id. (`oi`) */
 export class TargetEnemyBezierMovement extends BulletMovementBase {
@@ -106,7 +105,7 @@ export class TargetEnemyBezierMovement extends BulletMovementBase {
     this.ww = i;
     this.Sw = h;
     this.fw = true;
-    this.xw = Eh.instance();
+    this.xw = EnemySpatialMgr.instance();
   }
 
   protected VL(t: number): void {
@@ -316,7 +315,7 @@ export class TargetEnemyInstantaneous extends BulletMovementBase {
   }
   jL(): void {
     this.fw = true;
-    this.xw = Eh.instance();
+    this.xw = EnemySpatialMgr.instance();
   }
   protected NL(): void {
     if (this.ZE) {
@@ -409,7 +408,7 @@ export class TargetEnemyMovement extends BulletMovementBase {
     this.fw = true;
   }
   protected VL(t: number): void {
-    this.ZE = Eh.instance().kw.get(t);
+    this.ZE = EnemySpatialMgr.instance().kw.get(t);
     if (this.ZE) {
       this.fw = false;
       this.gw();

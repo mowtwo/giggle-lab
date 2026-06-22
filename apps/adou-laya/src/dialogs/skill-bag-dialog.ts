@@ -101,6 +101,9 @@ export class SkillBagDialog extends Laya.Sprite {
     for (let i = 0; i < props.length; i++) {
       const def = props[i];
       if (!def || !def.name) continue;
+      // 铲子(0)/推土车(1)是 shovelAd 看广告救场道具,不兼容常规技能栏;
+      // 行军丹(23)加体力,无限体力下无用。三者都不在技能背包展示。
+      if (i === 0 || i === 1 || i === 23) continue;
       const row = this.makeRow(i, def, vw, rowH);
       row.pos(0, idx * (rowH + gap));
       content.addChild(row);

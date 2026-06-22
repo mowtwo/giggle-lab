@@ -30,7 +30,6 @@ const $ = AudioMgr;
 const f = MathE;
 const th = BuffMgr;
 const q = EffectMgr;
-const Eh = EnemySpatialMgr;
 const si = HitStrategyFactory;
 const te = DaoQiBullet;
 const ee = TiaoQiBullet;

@@ -29,7 +29,6 @@ const $ = AudioMgr;
 const f = MathE;
 const th = BuffMgr;
 const q = EffectMgr;
-const Eh = EnemySpatialMgr;
 const Ki = EntityRegistry;
 const ai = BulletEvent;
 const yi = KnifeBullet;
@@ -714,7 +713,7 @@ class SevenStarKnife extends KnifeWeaponBase {
     const h = this.CI(t.id);
     if (Math.random() < 0.1) {
       const baseY = this._D.y;
-      const e = Eh.instance().RA(this.general.qd);
+      const e = EnemySpatialMgr.instance().RA(this.general.qd);
       const a = this.UD(e, s);
       this.general.mL = false;
       (this as any).kD = true;

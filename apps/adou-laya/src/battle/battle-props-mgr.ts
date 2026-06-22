@@ -190,7 +190,12 @@ export class BattlePropsMgr extends C {
       e = this.Px;
     }
     if (h.length === 0 && e.length === 0) return;
+    // 改造:主动技能栏仅 2 槽,且铲子(0)/推土车(1)是 shovelAd 救场道具,
+    // 不能进常规技能栏(否则 setItem 越界 / BulldozerProp 初始化崩溃)。
+    let slot = 0;
     for (let i = 0; i < h.length; i++) {
+      if (h[i] === 0 || h[i] === 1) continue;
+      if (slot >= 2) break;
       let lv: number;
       if (t) lv = this.Ue.isUpgradeable(h[i]) ? this.Nx(h[i]) : 1;
       else if (this.Ex && this.Ux[i] != null) lv = this.Ue.isUpgradeable(h[i]) ? this.Ux[i] : 1;
@@ -198,10 +203,14 @@ export class BattlePropsMgr extends C {
         const max = this.Ue.Ue[h[i]].Xe?.length || 1;
         lv = f.range(1, max + 1, true);
       } else lv = 1;
-      const a = this.Zx(t, h[i], 4, i, 0, lv);
+      const a = this.Zx(t, h[i], 4, slot, 0, lv);
       if (!t && a.zv) this.Ax.push(a);
+      slot++;
     }
+    // 改造:被动技能栏仅 6 槽,超出忽略,避免 setItem 越界崩溃。
+    let pslot = 0;
     for (let s = 0; s < e.length; s++) {
+      if (pslot >= 6) break;
       let lv: number;
       if (t) lv = this.Ue.isUpgradeable(e[s]) ? this.Nx(e[s]) : 1;
       else if (this.Ex && this.Fx[s] != null) lv = this.Ue.isUpgradeable(e[s]) ? this.Fx[s] : 1;
@@ -209,7 +218,8 @@ export class BattlePropsMgr extends C {
         const max = this.Ue.Ue[e[s]].Xe?.length || 1;
         lv = f.range(1, max + 1, true);
       } else lv = 1;
-      this.Zx(t, e[s], 4, s, 1, lv);
+      this.Zx(t, e[s], 4, pslot, 1, lv);
+      pslot++;
     }
   }
 

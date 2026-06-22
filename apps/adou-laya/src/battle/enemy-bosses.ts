@@ -34,7 +34,6 @@ const f = MathE;
 const L = SpecialIndex;
 const q = EffectMgr;
 const Ki = EntityRegistry;
-const Eh = EnemySpatialMgr;
 const th = BuffMgr;
 const ss = EnemyFactory;
 
@@ -222,7 +221,7 @@ class DiaoChan extends EnemyBoss {
           if (!Ki.instance().Dk(target.id)) return;
           Ki.instance().Lx(target.id);
           const cell = this.XP();
-          Eh.instance().GP(
+          EnemySpatialMgr.instance().GP(
             this.qd,
             target.type,
             target.Xe,
@@ -293,11 +292,11 @@ class DongZhuo extends EnemyBoss {
     });
     this.ZM.play(this.CP, false);
     Laya.timer.once(500, this, () => {
-      const list = Eh.instance().lv(this.centerX, this.centerY, this.dh, this.qd);
+      const list = EnemySpatialMgr.instance().lv(this.centerX, this.centerY, this.dh, this.qd);
       t = list.length;
       for (let k = list.length - 1; k >= 0; k--) {
         if (list[k].id === this.id) continue;
-        Eh.instance().HP(list[k].id);
+        EnemySpatialMgr.instance().HP(list[k].id);
         const img = new Laya.Image("resources/img/gameObject/enemy/mob_2.png");
         img.size(this.dg.map.gridWid, this.dg.map.gridHei);
         img.anchorX = 0.5;
@@ -359,7 +358,7 @@ class HuaXiong extends EnemyBoss {
         this.changeState(1);
       },
       () => {
-        Eh.instance().rg(5, this.qd);
+        EnemySpatialMgr.instance().rg(5, this.qd);
       },
     );
   }
@@ -570,7 +569,7 @@ class ZhangJiao extends EnemyBoss {
     this.ZM.yb(1);
     this.ZM.play("attackjiao", false);
     Laya.timer.once(500, this, () => {
-      this.WP = Eh.instance().lv(this.enemy.x, this.enemy.y, this.dh, this.qd);
+      this.WP = EnemySpatialMgr.instance().lv(this.enemy.x, this.enemy.y, this.dh, this.qd);
       for (let t = 0; t < this.WP.length; t++) {
         th.instance().applyBuff(this.WP[t].id, 6, 0.2, true, 5000);
         th.instance().applyBuff(this.WP[t].id, 4, 0.5, true, 5000);

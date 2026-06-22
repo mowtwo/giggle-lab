@@ -27,7 +27,6 @@ const y = EventMgr;
 const u = GameEvent;
 const j = UpdateMgr;
 const f = MathE;
-const Eh = EnemySpatialMgr;
 const Ki = EntityRegistry;
 const eh = WeaponFragmentMgr;
 const wn = TutorialMgr;
@@ -51,7 +50,7 @@ export class BattleMgr extends Singleton {
 
   init(): void {
     this.dg = F.instance();
-    this.xw = Eh.instance();
+    this.xw = EnemySpatialMgr.instance();
     this.oX = y.instance;
     this.lX = this.dg.battleState;
   }

@@ -46,7 +46,6 @@ const L = SpecialIndex;
 const y = EventMgr;
 const u = GameEvent;
 const q = EffectMgr;
-const Eh = EnemySpatialMgr;
 const fe = BulletSpawnMgr;
 const th = BuffMgr;
 const oi = TargetEnemyBezierMovement;
@@ -580,7 +579,7 @@ export class ExplosionBehavior extends BulletBehavior {
     this.EE = t.BE == null || t.BE;
     this.IE = t.DE == null || t.DE;
     this.TE = t.RE == null || t.RE;
-    this.xw = Eh.instance();
+    this.xw = EnemySpatialMgr.instance();
   }
   $m(_t: any, s: any): void {
     if (this.IE) this.CE(s);
@@ -874,7 +873,7 @@ export class LightningArrow extends Bullet {
     this.config.Sm = this.Sm;
   }
   protected $m(t: any): void {
-    const s = Eh.instance();
+    const s = EnemySpatialMgr.instance();
     for (let i = 0; i < s.kw.size / 2; i++)
       if (Math.random() < 0.5) {
         this.config.Sm = this.Sm;

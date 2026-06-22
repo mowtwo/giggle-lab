@@ -23,7 +23,6 @@ import { HitStrategyFactory } from "./hit-strategy";
 const F = GameMgr;
 const f = MathE;
 const X = LayerZ;
-const Eh = EnemySpatialMgr;
 const fe = BulletSpawnMgr;
 const si = HitStrategyFactory;
 
@@ -99,7 +98,7 @@ export class WeaponComponent {
     this.weaponId = t;
     this.type = s;
     this.xE = fe.instance();
-    this.xw = Eh.instance();
+    this.xw = EnemySpatialMgr.instance();
     this.dg = F.instance();
     if (t >= 0) {
       const cfg = this.dg.weaponData.weapons.get(t);

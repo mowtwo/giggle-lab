@@ -43,7 +43,6 @@ const y = EventMgr;
 const u = GameEvent;
 const tt = TipMgr;
 const Ki = EntityRegistry;
-const Eh = EnemySpatialMgr;
 const th = BuffMgr;
 const ci = BowSoldier;
 const gi = GeneralPart;
@@ -251,11 +250,11 @@ export class BulldozerProp extends PropBase {
     if (this.step === 1) {
       this.move(t);
       const s = this.Lk();
-      Eh.instance().mk(this.qd, this.props.x + this.props.width / 2, this.props.y + this.props.height / 2, s.offsetX, s.offsetY);
+      EnemySpatialMgr.instance().mk(this.qd, this.props.x + this.props.width / 2, this.props.y + this.props.height / 2, s.offsetX, s.offsetY);
     } else if (this.step === 2) {
       this.props.alpha -= t / 5000;
       const s = this.Lk();
-      Eh.instance().mk(this.qd, this.props.x + this.props.width / 2, this.props.y + this.props.height / 2, s.offsetX, s.offsetY);
+      EnemySpatialMgr.instance().mk(this.qd, this.props.x + this.props.width / 2, this.props.y + this.props.height / 2, s.offsetX, s.offsetY);
       if (this.props.alpha <= 0) {
         this.props.alpha = 0;
         y.instance.event(u.Lt, this.id);
@@ -889,7 +888,7 @@ export class TrapProp extends PropBase {
     i.img.skin = "resources/img/props/trap_2.png";
     this.container.setItem(null, i.x, i.y);
     this.h_.delete(t);
-    Eh.instance().n_(s, 5000);
+    EnemySpatialMgr.instance().n_(s, 5000);
     Laya.timer.once(5000, this, () => {
       i.img.removeSelf();
       i.img.destroy(true);
@@ -1056,7 +1055,7 @@ export class LandmineProp extends PropBase {
                 s.l_.removeSelf();
                 s.l_.destroy(true);
               });
-            Eh.instance().y_(s.img.x, s.img.y);
+            EnemySpatialMgr.instance().y_(s.img.x, s.img.y);
           }),
         );
       }),
@@ -1150,7 +1149,7 @@ export class ExorcismSpellProp extends InstantProp {
   }
   private L_(t: any, s: any, i: number, h: number): void {
     if (s === this.qd) {
-      if (Math.random() > 0.5) Eh.instance().m_(t, true);
+      if (Math.random() > 0.5) EnemySpatialMgr.instance().m_(t, true);
       else {
         Laya.Point.TEMP.x = i;
         Laya.Point.TEMP.y = h;
@@ -1166,9 +1165,9 @@ export class ExorcismSpellProp extends InstantProp {
             this.w_(t);
           }),
         );
-        Eh.instance().m_(t, false);
+        EnemySpatialMgr.instance().m_(t, false);
       }
-    } else Eh.instance().m_(t, true);
+    } else EnemySpatialMgr.instance().m_(t, true);
   }
   private w_(_t: any): void {
     q.instance().registerImgLoop(this.g_, this.Ek, 50, 0, 1, (id: number) => {
@@ -1338,10 +1337,10 @@ export class SiltProp extends InstantProp {
     this.Y_.addChild(this.X_);
     if (qd) {
       F.instance().battleState.Ri = true;
-      Eh.instance().F_("silt" + this.id, this.qd, 3, -0.1, true, L.Ji);
+      EnemySpatialMgr.instance().F_("silt" + this.id, this.qd, 3, -0.1, true, L.Ji);
     } else {
       F.instance().battleState.Ci = true;
-      Eh.instance().F_("siltAi" + this.id, this.qd, 3, -0.1, true, L.Ji);
+      EnemySpatialMgr.instance().F_("siltAi" + this.id, this.qd, 3, -0.1, true, L.Ji);
     }
     y.instance.on(u.rs, this, this.G_);
   }
@@ -1374,8 +1373,8 @@ export class SiltProp extends InstantProp {
     this.Y_.removeSelf();
     Laya.Tween.killAll(this.X_);
     this.X_.removeSelf();
-    if (this.qd) Eh.instance().O_("silt" + this.id);
-    else Eh.instance().O_("siltAi" + this.id);
+    if (this.qd) EnemySpatialMgr.instance().O_("silt" + this.id);
+    else EnemySpatialMgr.instance().O_("siltAi" + this.id);
   }
 }
 PropsFactory.instance().register(18, () => Laya.Pool.createByClass(SiltProp));
@@ -1550,7 +1549,7 @@ export class MeteorShowerProp extends InstantProp {
       });
   }
   private K_(t: number, s: number): void {
-    const i = Eh.instance();
+    const i = EnemySpatialMgr.instance();
     const h = F.instance();
     const e = h.map.gridWid;
     for (const [, n] of i.kw) {

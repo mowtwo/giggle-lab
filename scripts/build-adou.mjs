@@ -51,11 +51,13 @@ async function compileBundle() {
   return result.outputFiles[0].text;
 }
 
-function injectRebuilt(indexHtml, { dropOriginal }) {
+function injectRebuilt(indexHtml, { dropOriginal, version }) {
   const bundleTag =
     '<script type="text/javascript" src="js/bundle.js"></script>';
+  // Cache-bust the rebuilt bundle: the URL is otherwise static, so browsers
+  // (and the dev static server) happily serve a stale copy after a rebuild.
   const rebuiltTag =
-    '<script type="text/javascript" src="js/adou-rebuilt.js"></script>';
+    `<script type="text/javascript" src="js/adou-rebuilt.js?v=${version}"></script>`;
 
   if (dropOriginal) {
     // Final cutover: our bundle replaces the original entirely.
@@ -81,7 +83,7 @@ async function main() {
   const dropOriginal = mode === "rebuilt";
   writeFileSync(
     indexPath,
-    injectRebuilt(readFileSync(indexPath, "utf8"), { dropOriginal }),
+    injectRebuilt(readFileSync(indexPath, "utf8"), { dropOriginal, version: compiled.length }),
   );
   if (dropOriginal) {
     rmSync(path.join(outDir, "js/bundle.js"), { force: true });

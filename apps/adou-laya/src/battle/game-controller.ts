@@ -67,7 +67,6 @@ const Rn = StaminaCtrl;
 const Dn = LeaderboardMgr;
 const Na = SpawnQueueMgr;
 const wi = BoardMgr;
-const Eh = EnemySpatialMgr;
 const Ki = EntityRegistry;
 const Pn = BoardInputMgr;
 const mn = GeneralAIController;
@@ -100,7 +99,7 @@ export class GameController extends Singleton {
     z.instance().init();
     Na.instance().init();
     wi.instance().init();
-    Eh.instance().init();
+    EnemySpatialMgr.instance().init();
     Ki.instance().init();
     Pn.instance().init();
     mn.instance().init();
@@ -162,7 +161,7 @@ export class GameController extends Singleton {
     Na.instance().startGame();
     Dn.instance().startGame();
     vn.instance().startGame();
-    Eh.instance().startGame();
+    EnemySpatialMgr.instance().startGame();
     Ki.instance().startGame();
     q.instance().startGame();
     th.instance().startGame();
@@ -201,7 +200,7 @@ export class GameController extends Singleton {
     Pn.instance().gameOver();
     y.instance.event(u.Dt);
     Na.instance().gameOver();
-    Eh.instance().gameOver();
+    EnemySpatialMgr.instance().gameOver();
     Ki.instance().gameOver();
     q.instance().gameOver();
     Dn.instance().gameOver(t);

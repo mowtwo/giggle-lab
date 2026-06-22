@@ -31,7 +31,6 @@ const $ = AudioMgr;
 const f = MathE;
 const th = BuffMgr;
 const q = EffectMgr;
-const Eh = EnemySpatialMgr;
 const ai = BulletEvent;
 const pi = PikeBullet;
 const ri = SimpleDynamicArrow;
@@ -493,7 +492,7 @@ class IronPike extends PikeWeaponBase {
     this.TD = new Set();
   }
   protected zT(t: any): void {
-    const s = Eh.instance();
+    const s = EnemySpatialMgr.instance();
     t.once(
       ai.im,
       (id: any) => {
@@ -661,7 +660,7 @@ class TigerHeadPike extends PikeWeaponBase {
     this.$T(t);
   }
   private $T(t: any): void {
-    const s = Eh.instance();
+    const s = EnemySpatialMgr.instance();
     t.on(
       ai.im,
       (id: any) => {

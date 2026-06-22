@@ -42,7 +42,6 @@ const $ = AudioMgr;
 const j = UpdateMgr;
 const f = MathE;
 const q = EffectMgr;
-const Eh = EnemySpatialMgr;
 const fe = BulletSpawnMgr;
 const th = BuffMgr;
 const si = HitStrategyFactory;
@@ -188,7 +187,7 @@ export class BattleShout extends Skill {
   }
   private VR(): void {
     this.$R.radius = (this.jR[0].width * this.jR[0].scaleX) / 2;
-    const t = Eh.instance().lv(this.$R.x, this.$R.y, this.$R.radius, this.HD.qd);
+    const t = EnemySpatialMgr.instance().lv(this.$R.x, this.$R.y, this.$R.radius, this.HD.qd);
     for (let s = 0; s < t.length; s++) {
       const i = t[s];
       if (!this.NR.has(i.id)) {
@@ -462,7 +461,7 @@ export class ArrowRain extends Skill {
     if (this.dC >= this.gC) return Promise.resolve();
     const t = this.HD.QE;
     const s = this.HD.Ew;
-    const i = Eh.instance();
+    const i = EnemySpatialMgr.instance();
     const h: any[] = [];
     for (let k = 1; k <= this.fC; k++) {
       let e = this.fC > s.length ? s[k % s.length].id : s[f.range(0, s.length - 1, true) as number].id;
@@ -538,7 +537,7 @@ export class JumpSlash extends Skill {
   }
   qD(): any {
     this.HD.mL = false;
-    const t = Eh.instance();
+    const t = EnemySpatialMgr.instance();
     let s: any;
     if (this.iT === 0) s = t.GA(this.HD.qd);
     else if (this.iT === 1) s = t.XA(this.HD.qd);
@@ -654,7 +653,7 @@ export class JumpSlash extends Skill {
         return;
       }
       if (this.oT >= 0) {
-        const tt = Eh.instance();
+        const tt = EnemySpatialMgr.instance();
         const ss = tt.GA(this.HD.qd);
         if (!ss) {
           this.oT = 0;
@@ -787,7 +786,7 @@ export class PhantomSkill extends Skill {
     this.TC = `Phantom${this.HD.id}${this.HD.weaponId}_${this.HD.qd}`;
     this.IC = this.HD.id + "_PhantomAttackSkill";
     this.dg = F.instance();
-    this.xw = Eh.instance();
+    this.xw = EnemySpatialMgr.instance();
     this.RC = this.HD.qd ? this.dg.map.de : this.dg.map.Le;
     this.vC.clear();
     const t = this.RC;
