@@ -235,14 +235,14 @@ export class MainScene extends Laya.Scene {
   private createMapSelector(): void {
     const maps = ["巨鹿", "云梦泽", "虎牢关", "赤壁"];
     const box = new Laya.Sprite();
-    box.pos(0, 400); // 段位与棋盘之间的空隙,避免与棋盘/对话区重叠。
+    box.pos(0, 456); // 星星与棋盘之间的空隙,避免压住星级与棋盘装饰。
     this.addChild(box);
 
     const W = 384;
     const X0 = (640 - W) / 2;
     const bg = new Laya.Sprite();
-    bg.pos(X0, -4);
-    this.paintPlaque(bg, W, 110);
+    bg.pos(X0, -2);
+    this.paintPlaque(bg, W, 100);
     box.addChild(bg);
 
     const tag = new Laya.Label("选择地图");
@@ -250,35 +250,29 @@ export class MainScene extends Laya.Scene {
     tag.color = "#d8b06a";
     tag.width = 640;
     tag.align = "center";
-    tag.y = 8;
+    tag.y = 6;
     box.addChild(tag);
 
     const nameLbl = new Laya.Label(maps[this.clampMap(GameMgr.instance().player.selectedMapId)]);
-    nameLbl.fontSize = 48;
+    nameLbl.fontSize = 46;
     nameLbl.color = "#f7de76";
     nameLbl.bold = true;
     (nameLbl as any).stroke = 5;
     (nameLbl as any).strokeColor = "#5a3a12";
     nameLbl.width = 640;
     nameLbl.align = "center";
-    nameLbl.y = 42;
+    nameLbl.y = 38;
     box.addChild(nameLbl);
 
-    const mkArrow = (text: string, x: number, dir: number): void => {
+    const mkArrow = (dir: number, x: number): void => {
       const a = new Laya.Sprite();
-      a.pos(x, 28);
+      a.pos(x, 22);
       a.size(56, 56);
       a.mouseEnabled = true;
-      this.paintCircleBtn(a, 56);
-      const al = new Laya.Label(text);
-      al.fontSize = 38;
-      al.color = "#f7de76";
-      al.bold = true;
-      al.width = 56;
-      al.height = 56;
-      al.align = "center";
-      al.valign = "middle";
-      a.addChild(al);
+      a.graphics.drawCircle(28, 28, 27, "#5a3a1e", "#e0a94a", 3);
+      // 用图形绘制三角箭头,在圆内精确居中(不依赖文字基线/字体)。
+      const tri = dir < 0 ? [36, 16, 36, 40, 18, 28] : [20, 16, 20, 40, 38, 28];
+      a.graphics.drawPoly(0, 0, tri, "#f7de76");
       a.on(Laya.Event.CLICK, this, () => {
         const cur = this.clampMap(GameMgr.instance().player.selectedMapId);
         const next = (cur + dir + maps.length) % maps.length;
@@ -287,8 +281,8 @@ export class MainScene extends Laya.Scene {
       });
       box.addChild(a);
     };
-    mkArrow("◀", X0 - 6, -1);
-    mkArrow("▶", X0 + W - 50, 1);
+    mkArrow(-1, X0 - 6);
+    mkArrow(1, X0 + W - 50);
   }
 
   private clampMap(v: number): number {
@@ -300,11 +294,6 @@ export class MainScene extends Laya.Scene {
     const g = sp.graphics;
     g.drawRect(0, 0, w, h, "#3a2a1c", "#c9923e", 3);
     g.drawRect(4, 4, w - 8, (h - 8) * 0.42, "#4d3823");
-  }
-
-  /** 画一个圆形按钮底(用于地图切换箭头)。 */
-  private paintCircleBtn(sp: any, d: number): void {
-    sp.graphics.drawCircle(d / 2, d / 2, d / 2 - 1, "#5a3a1e", "#e0a94a", 3);
   }
 
   /** 存档导入/导出入口(单机存档备份,改造新增)。放底部,避免与其它元素重叠。 */
