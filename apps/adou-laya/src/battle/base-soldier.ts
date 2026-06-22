@@ -29,6 +29,11 @@ export class BaseSoldier extends Soldier {
   protected fL = 1;
   protected gL = 0;
   protected mL = false;
+  // 防卡死看门狗:攻击动画期间 mL(在场可行动)被置 false,靠动画 STOPPED 事件恢复;
+  // 若动画被打断/替换而 STOPPED 未触发,mL 永久卡 false,BattleMgr.pX 的
+  // `if(!t.mL||t.zd)continue` 会永远跳过它 → 士兵卡住不攻击。详见 update()。
+  private _mlStuckMs = 0;
+  private static MAX_ML_STUCK_MS = 3000; // 远大于士兵最长攻击动画
   protected root: any;
   protected vL: any; // anim id, set by per-type subclasses
 
@@ -105,6 +110,20 @@ export class BaseSoldier extends Soldier {
   }
 
   update(delta: number): void {
+    // 防卡死兜底:在场士兵(Td===1)若 mL 持续 false 超过最长攻击动画时长,几乎一定是
+    // 攻击动画的 STOPPED 恢复回调丢失导致的卡死,强制恢复可行动,避免士兵永久不攻击。
+    // 不在场的士兵(手牌/队列,Td!==1)mL 本就为 false,不在此列。
+    if (this.Td === 1 && !this.zd) {
+      if (!this.mL) {
+        this._mlStuckMs += delta;
+        if (this._mlStuckMs >= BaseSoldier.MAX_ML_STUCK_MS) {
+          this._mlStuckMs = 0;
+          this.mL = true;
+        }
+      } else {
+        this._mlStuckMs = 0;
+      }
+    }
     if (this.currentState === "UnitIdle") this.idle(delta);
   }
 
