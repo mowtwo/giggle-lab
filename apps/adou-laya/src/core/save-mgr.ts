@@ -61,6 +61,7 @@ interface PlayerData {
   _curStar: number;
   _lastStar: number;
   _mergedGenerals: number[];
+  _selectedMapId: number;
 }
 
 export class SaveMgr extends Singleton {
@@ -103,6 +104,7 @@ export class SaveMgr extends Singleton {
     _curStar: 0,
     _lastStar: 0,
     _mergedGenerals: [],
+    _selectedMapId: 0,
   };
 
   init(): void {
@@ -240,6 +242,15 @@ export class SaveMgr extends Singleton {
   set gold(v: number) {
     this._data._gold = v;
     EventMgr.instance.event(GameEvent.qt);
+    this.setData();
+  }
+
+  /** 玩家在首页自选的地图索引(0-3)。改造新增。 */
+  get selectedMapId(): number {
+    return this._data._selectedMapId ?? 0;
+  }
+  set selectedMapId(v: number) {
+    this._data._selectedMapId = v;
     this.setData();
   }
 

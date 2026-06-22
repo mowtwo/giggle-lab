@@ -121,6 +121,9 @@ export class GameMgr extends Singleton {
 
   /** Map index for the current day / progression. (`zn`) */
   mapIndexForDay(): number {
+    // 改造:优先使用玩家在首页自选的地图(0-3);否则回退到按天数/进度匹配。
+    const selected = this.player.selectedMapId;
+    if (selected >= 0 && selected <= 3) return selected;
     const player = this.player;
     if (MathE.daysBetween(player.registerTime, Date.now()) < 1) {
       const idx = Math.floor((player.roundDay - 1) / 7) % GameMgr.jn.length;

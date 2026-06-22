@@ -166,6 +166,7 @@ export class MainScene extends Laya.Scene {
     this.HV();
     if (GameController.instance().OH) this.WV();
     this.createSkillBagEntry();
+    this.createMapSelector();
   }
 
   /** 技能背包入口(左下角,与右下角武器背包对称):打开技能自由分配界面。 */
@@ -227,6 +228,65 @@ export class MainScene extends Laya.Scene {
     });
     EffectMgr.instance().bindButtons([btn]);
     this.addChild(btn);
+  }
+
+  /** 首页地图选择器:玩家自主选择要玩的地图(改造新增,替代按天数自动匹配)。 */
+  private createMapSelector(): void {
+    const maps = ["巨鹿", "云梦泽", "虎牢关", "赤壁"];
+    const box = new Laya.Sprite();
+    box.pos(0, 686);
+    this.addChild(box);
+
+    // 半透明背板,避免选择器文字与背景动画/棋盘字重叠看不清。
+    const bg = new Laya.Sprite();
+    bg.graphics.drawRect(120, -6, 400, 106, "#2b2018", "#a3702a", 2);
+    bg.alpha = 0.62;
+    box.addChild(bg);
+
+    const tag = new Laya.Label("选择地图");
+    tag.fontSize = 24;
+    tag.color = "#a3702a";
+    tag.width = 640;
+    tag.align = "center";
+    box.addChild(tag);
+
+    const nameLbl = new Laya.Label(maps[this.clampMap(GameMgr.instance().player.selectedMapId)]);
+    nameLbl.fontSize = 46;
+    nameLbl.color = "#7a3b1a";
+    nameLbl.bold = true;
+    (nameLbl as any).stroke = 4;
+    (nameLbl as any).strokeColor = "#f3e2bf";
+    nameLbl.width = 640;
+    nameLbl.align = "center";
+    nameLbl.y = 34;
+    box.addChild(nameLbl);
+
+    const mkArrow = (text: string, x: number, dir: number): void => {
+      const a = new Laya.Label(text);
+      a.fontSize = 52;
+      a.color = "#7a3b1a";
+      a.bold = true;
+      a.width = 60;
+      a.height = 70;
+      a.align = "center";
+      a.valign = "middle";
+      a.pos(x, 30);
+      a.mouseEnabled = true;
+      a.graphics.drawRect(0, 0, 60, 70, "#ffffff01");
+      a.on(Laya.Event.CLICK, this, () => {
+        const cur = this.clampMap(GameMgr.instance().player.selectedMapId);
+        const next = (cur + dir + maps.length) % maps.length;
+        GameMgr.instance().player.selectedMapId = next;
+        nameLbl.text = maps[next];
+      });
+      box.addChild(a);
+    };
+    mkArrow("◀", 150, -1);
+    mkArrow("▶", 430, 1);
+  }
+
+  private clampMap(v: number): number {
+    return v >= 0 && v <= 3 ? v : 0;
   }
 
   onOpened(_t?: any): void {
