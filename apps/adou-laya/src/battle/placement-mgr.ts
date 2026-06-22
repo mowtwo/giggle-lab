@@ -134,6 +134,15 @@ export class PlacementMgr extends C {
       if (this.kF(s.id)) TipMgr.instance().showTip(PlacementMgr._F);
       return { success: false, reason: "该单位不可拖动" };
     }
+    // 修复原版卡死老 bug:已合成武将由两个 GeneralPart(占两格)组成,但拖拽只会
+    // 选中其中一格。走通用交换(RF)只移动这一个 part,会让武将占格/视图错乱——
+    // 表现为"换不过来 / 换过去后武将睡眠卡死 / 吃掉其他格子"。禁止单格拖动已合成
+    // 武将(Zw!==-1),拖动会按既有失败路径弹回原位;未合成的 part(Zw===-1)仍可
+    // 正常拖动去合成。
+    if (s instanceof gi && s.Zw !== -1) {
+      TipMgr.instance().showTip("已合成的武将不能移动位置");
+      return { success: false, reason: "已合成的武将不能移动位置" };
+    }
     if (a !== 1 && a !== 3) return { success: false, reason: "士兵只能放置到地图或刷新栏" };
     const c = this.dg.map.ue;
     if (s instanceof ki) {

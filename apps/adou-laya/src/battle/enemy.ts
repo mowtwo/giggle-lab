@@ -35,6 +35,10 @@ const va = General;
 export class Enemy extends GameObject {
   qd = true;
   Bw = false;
+  // 防"锁血怪"看门狗:已出场敌人若 Bw(可被瞄准)长时间为 false,说明冻结/击飞的
+  // 恢复 tween 被移动纠正处的 Laya.Tween.killAll(this.enemy) 误清,强制恢复。详见 update()。
+  private _bwStuckMs = 0;
+  private static MAX_BW_STUCK_MS = 5000; // 最长眩晕(冻结 eB=3000)+ 余量
   id = 0;
   type = 0;
   yM = false;
@@ -173,6 +177,21 @@ export class Enemy extends GameObject {
     return this.curState !== 0 && this.qd === t && this.curState !== 4 && this.Bw;
   }
   update(t: number): void {
+    // 防"锁血怪":存活且已出场(state 1/2/3)的敌人若 Bw 持续为 false 超过最长眩晕
+    // 时长 + 余量,几乎一定是冻结/击飞的恢复 tween 被 Laya.Tween.killAll(this.enemy)
+    // (移动纠正 $f/line 470)连带清掉了 —— 否则恢复 tween 会在 3s 内把 Bw 置回 true。
+    // 强制恢复可被瞄准,避免敌人永久无人攻击(原版遗留的卡死类老 bug)。
+    if (this.curState !== 0 && this.curState !== 4) {
+      if (!this.Bw) {
+        this._bwStuckMs += t;
+        if (this._bwStuckMs >= Enemy.MAX_BW_STUCK_MS) {
+          this._bwStuckMs = 0;
+          this.Bw = true;
+        }
+      } else {
+        this._bwStuckMs = 0;
+      }
+    }
     switch (this.curState) {
       case 0:
         break;
