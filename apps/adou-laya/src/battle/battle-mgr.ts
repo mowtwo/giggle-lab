@@ -40,6 +40,10 @@ export class BattleMgr extends Singleton {
   private lX: any;
   private hS!: Map<number, any>;
   private Qk!: Map<number, any>;
+  // 性能:非攻击单位的"找目标"扫描降频(累计 delta,达到间隔才扫描一次)。
+  private scanAccum = 0;
+  private static SCAN_INTERVAL = 120; // ms
+  private static ENEMY_LIMIT = 120; // 同屏敌方单位上限(节流刷怪,防卡死)
 
   init(): void {
     this.dg = GameMgr.instance();
@@ -98,6 +102,11 @@ export class BattleMgr extends Singleton {
   }
   private fX(): void {
     if (this.hX < this.iX) return;
+    // 性能:同屏单位过多时本波暂缓生成(节流),等场上单位消耗后再刷,避免卡死。
+    if (this.xw.kw && this.xw.kw.size >= BattleMgr.ENEMY_LIMIT) {
+      this.hX = 0;
+      return;
+    }
     this.hX = 0;
     this.xw.rg(this.dg.map.re, true, this.nX === this.eX);
     this.xw.rg(this.dg.map.re, false, this.rX === this.eX);
@@ -114,13 +123,19 @@ export class BattleMgr extends Singleton {
     this.hS = EntityRegistry.instance().hS;
     this.Qk = EntityRegistry.instance().Qk;
   }
-  private pX(_t: number): void {
+  private pX(dt: number): void {
     const s = Date.now();
+    // 性能:非攻击单位的找目标扫描降频到每 SCAN_INTERVAL 毫秒一次(而非每帧),
+    // 大幅减少 lv() 空间查询次数;攻击中的查询已受攻击冷却控制,保持原样。
+    this.scanAccum += dt;
+    const doScan = this.scanAccum >= BattleMgr.SCAN_INTERVAL;
+    if (doScan) this.scanAccum = 0;
     for (const t of this.hS.values()) {
       if (!t.mL || t.zd) continue;
       const i = t.Yn.x + t.Yn.width / 2;
       const h = t.Yn.y + t.Yn.height / 2;
       if (t.currentState !== "UnitAttack") {
+        if (!doScan) continue;
         t.Ew = this.xw.lv(i, h, t.Da, t.qd);
         if (t.Ew && t.Ew.length > 0 && s - t.gL >= 1000 * t.dL) t.changeState("UnitAttack");
       } else if (t.currentState === "UnitAttack") {
