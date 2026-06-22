@@ -242,10 +242,9 @@ export class MainScene extends Laya.Scene {
   }
 
   aW(): void {
-    const t = F.instance().player.stamina;
-    this.staminaTxt.text = t.toString();
-    if (t < F.instance().stamina.an) this.staminaTxt.color = "#e95b55";
-    else this.staminaTxt.color = t > 5 && t <= 10 ? "#2797d6" : "#f7de76";
+    // 去除体力限制:始终展示为无穷大,不再读取真实体力值。
+    this.staminaTxt.text = "∞";
+    this.staminaTxt.color = "#f7de76";
   }
 
   X$(): void {

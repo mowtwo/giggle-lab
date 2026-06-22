@@ -68,7 +68,8 @@ export class BattleState {
   }
 
   get gold(): number {
-    return this._gold;
+    // 无限金币:玩家战斗内货币恒为极大值,征兵等消费扣不动。
+    return 999999;
   }
   set gold(t: number) {
     this._gold = t;

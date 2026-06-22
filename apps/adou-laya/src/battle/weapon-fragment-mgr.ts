@@ -158,7 +158,14 @@ export class WeaponFragmentMgr extends Singleton {
     return e ? this.Ob(e.type) : [];
   }
   private Db(): Array<[number, number]> {
-    return F.instance().player.weaponFragments;
+    // 默认拥有所有武器各 10 把:用全武器清单(每把 = fragmentNum 碎片)替代真实存档碎片。
+    const weapons = F.instance().weaponData.weapons;
+    const result: Array<[number, number]> = [];
+    for (const [id, w] of weapons) {
+      if (w.type === 4) continue;
+      result.push([id, 10 * w.fragmentNum]);
+    }
+    return result;
   }
   Wb(t: number): number {
     const s = this.Db().find((x) => x[0] === t);
@@ -217,9 +224,8 @@ export class WeaponFragmentMgr extends Singleton {
   }
   /** Whether the player has been registered for at least `Kb` days. (`Zb`) */
   Zb(): boolean {
-    const s = F.instance().player.registerTime;
-    if (!s) return false;
-    return f.daysBetween(s, Date.now()) + 1 >= WeaponFragmentMgr.Kb;
+    // 去除"注册满3天才解锁武器系统"的限制:始终解锁。
+    return true;
   }
   Jb(): number {
     return WeaponFragmentMgr.Kb;

@@ -213,7 +213,7 @@ export class SaveMgr extends Singleton {
     console.log("this._data._saveTime", this._data._saveTime);
     console.log("Date.now()", Date.now());
     if (MathE.daysBetween(this._data._saveTime, Date.now()) >= 1) {
-      this._data._props.length = 0;
+      // 已移除"每日刷新玩家已选技能":不再清空 _props。
       this._data._winDay = 0;
       this._data._loseDay = 0;
       this._data._lastLoseDifficulty = -1;
@@ -234,7 +234,8 @@ export class SaveMgr extends Singleton {
   }
 
   get gold(): number {
-    return this._data._gold;
+    // 无限金币:玩家账号金币恒为极大值,所有消费都扣不动。
+    return 999999;
   }
   set gold(v: number) {
     this._data._gold = v;
@@ -483,7 +484,9 @@ export class SaveMgr extends Singleton {
   }
 
   isAvatarUnlocked(id: number): boolean {
-    return this._data._avatarUnlocks[id - 1] === 1;
+    // 解锁所有头像。
+    void id;
+    return true;
   }
   setAvatarUnlocked(id: number): void {
     if (this._data._avatarUnlocks[id - 1] !== 1) {

@@ -59,14 +59,13 @@ export class StaminaCtrl extends Singleton {
 
   /** Whether the player can afford one battle. (`EH`) */
   EH(): boolean {
-    return this.yH.stamina >= this.PH.an;
+    // 去除体力限制:永远允许开始游戏。
+    return true;
   }
 
   /** Spend one battle's stamina. (`BH`) */
   BH(): void {
-    const t = this.yH.stamina >= this.PH.hn;
-    this.yH.stamina -= this.PH.an;
-    if (t) this.yH.lastRecoverTime = Date.now();
+    // 去除体力限制:开始游戏不再扣除体力。
   }
 
   /** Whether an ad refill is still available today. (`IH`) */
