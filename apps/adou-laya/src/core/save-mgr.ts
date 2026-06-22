@@ -254,6 +254,26 @@ export class SaveMgr extends Singleton {
     this.setData();
   }
 
+  /** 导出当前存档为 JSON 字符串。改造新增。 */
+  exportSave(): string {
+    return JSON.stringify(this._data);
+  }
+
+  /**
+   * 用 JSON 覆盖本地存档。存档只在启动时读入内存,所以写入后必须刷新页面
+   * (location.reload)才能让新存档生效——由调用方负责刷新。返回是否成功。
+   */
+  importSave(json: string): boolean {
+    try {
+      const data = JSON.parse(json);
+      if (!data || typeof data !== "object" || data._registerTime === undefined) return false;
+      Laya.LocalStorage.setItem(this.key, JSON.stringify(data));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   get round(): number {
     return this._data._win + this._data._lose;
   }

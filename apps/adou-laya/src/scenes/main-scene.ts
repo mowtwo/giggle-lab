@@ -167,6 +167,7 @@ export class MainScene extends Laya.Scene {
     if (GameController.instance().OH) this.WV();
     this.createSkillBagEntry();
     this.createMapSelector();
+    this.createSaveIO();
   }
 
   /** 技能背包入口(左下角,与右下角武器背包对称):打开技能自由分配界面。 */
@@ -287,6 +288,73 @@ export class MainScene extends Laya.Scene {
 
   private clampMap(v: number): number {
     return v >= 0 && v <= 3 ? v : 0;
+  }
+
+  /** 存档导入/导出入口(单机存档备份,改造新增)。 */
+  private createSaveIO(): void {
+    const mk = (text: string, y: number, onClick: () => void): void => {
+      const box = new Laya.Sprite();
+      box.pos(10, y);
+      box.size(154, 38);
+      box.mouseEnabled = true;
+      const bg = new Laya.Sprite();
+      bg.graphics.drawRect(0, 0, 154, 38, "#2b2018", "#a3702a", 1);
+      bg.alpha = 0.62;
+      box.addChild(bg);
+      const lbl = new Laya.Label(text);
+      lbl.fontSize = 22;
+      lbl.color = "#f7de76";
+      lbl.bold = true;
+      lbl.width = 154;
+      lbl.height = 38;
+      lbl.align = "center";
+      lbl.valign = "middle";
+      box.addChild(lbl);
+      box.on(Laya.Event.CLICK, this, onClick);
+      this.addChild(box);
+    };
+    mk("导出存档", 936, () => this.doExportSave());
+    mk("导入存档", 982, () => this.doImportSave());
+  }
+
+  private doExportSave(): void {
+    try {
+      const json = GameMgr.instance().player.exportSave();
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "adou-save.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      TipMgr.instance().showTip("存档已导出");
+    } catch {
+      TipMgr.instance().showTip("导出失败");
+    }
+  }
+
+  private doImportSave(): void {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json,.json";
+    input.onchange = (): void => {
+      const f = input.files && input.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = (): void => {
+        const ok = GameMgr.instance().player.importSave(String(reader.result || ""));
+        if (ok) {
+          TipMgr.instance().showTip("导入成功，即将刷新…");
+          window.setTimeout(() => location.reload(), 900);
+        } else {
+          TipMgr.instance().showTip("存档格式错误");
+        }
+      };
+      reader.readAsText(f);
+    };
+    input.click();
   }
 
   onOpened(_t?: any): void {
