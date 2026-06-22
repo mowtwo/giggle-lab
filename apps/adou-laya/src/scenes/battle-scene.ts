@@ -1040,11 +1040,8 @@ export class BattleScene extends Laya.Scene {
         this.dg.map.me = true;
         tt.instance().showTip(`恭喜您获得了${i}把铲子`);
       };
-      if (this.dg.player.hasUsedFreeShovel) Mt.instance().uu(h, null, gt);
-      else {
-        this.dg.player.hasUsedFreeShovel = true;
-        h();
-      }
+      // 改造:去掉看广告,铲子救场免费且不限次直接发放。
+      h();
     }
     if (this.dg.map.ke) {
       const t = () => {
@@ -1080,11 +1077,8 @@ export class BattleScene extends Laya.Scene {
         this.dg.map.ve = true;
         tt.instance().showTip("阿斗已经高枕无忧了");
       };
-      if (this.dg.player.hasUsedFreeBulldozer) Mt.instance().uu(t, null, dt);
-      else {
-        this.dg.player.hasUsedFreeBulldozer = true;
-        t();
-      }
+      // 改造:去掉看广告,推土车救场免费且不限次直接发放。
+      t();
     }
   }
 
@@ -1093,7 +1087,7 @@ export class BattleScene extends Laya.Scene {
       if (this.dg.map.me) return;
       if (this.dg.map.ke) return;
       this.shovelAd.visible = t;
-      this.shovelAd.getChildByName("adImg").visible = this.dg.player.hasUsedFreeShovel;
+      this.shovelAd.getChildByName("adImg").visible = false;
       if (t) {
         this.shovelAdImg.skin = "resources/img/battleUI/ad/shovel.png";
         this.shovelNum.text = `x${i}`;
@@ -1104,7 +1098,7 @@ export class BattleScene extends Laya.Scene {
       if (this.dg.map.ve) return;
       if (t && this.dg.map.ke) return;
       this.shovelAd.visible = t;
-      this.shovelAd.getChildByName("adImg").visible = this.dg.player.hasUsedFreeBulldozer;
+      this.shovelAd.getChildByName("adImg").visible = false;
       if (t) {
         this.shovelAdImg.skin = "resources/img/battleUI/ad/bulldozer.png";
         this.shovelNum.visible = false;
