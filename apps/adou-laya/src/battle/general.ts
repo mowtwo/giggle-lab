@@ -36,6 +36,11 @@ const $a = GeneralMergeFactory;
 export class General extends GameObject {
   objectType = 2;
   protected mL = true;
+  // 防卡死看门狗:攻击/技能期间 mL(可行动)会被置 false,并在 tween 回调里恢复;
+  // 若该 tween 被 Laya.Tween.killAll 清掉(新攻击打断旧动画/换武器等),mL 会永久
+  // 卡 false,BattleMgr.pX 的 `if(!t.mL)continue` 会永远跳过它 → 将领卡住不攻击。详见 update()。
+  private _mlStuckMs = 0;
+  private static MAX_ML_STUCK_MS = 6000; // 远大于最长攻击/技能动画
   Id = 0;
   addAttPower = 0;
   protected pL = 0;
@@ -83,7 +88,22 @@ export class General extends GameObject {
   static UR = "#319ef5";
   static YR = "#ffffff";
 
-  update(): void {}
+  update(t: number): void {
+    // 防卡死兜底:非基地将领(!SR)若 mL 持续为 false 超过最长动画时长,几乎一定是
+    // 攻击/技能的恢复 tween 被 killAll 清掉导致的卡死,强制恢复可行动,避免将领永久
+    // 不攻击(原版遗留的卡死类老 bug)。SR(阿斗基地)的 mL 由是否持有武器决定,不在此列。
+    if (!this.SR) {
+      if (!this.mL) {
+        this._mlStuckMs += t;
+        if (this._mlStuckMs >= General.MAX_ML_STUCK_MS) {
+          this._mlStuckMs = 0;
+          this.mL = true;
+        }
+      } else {
+        this._mlStuckMs = 0;
+      }
+    }
+  }
 
   get jd(): boolean {
     return this.va.every((t) => t.jd);
