@@ -1,15 +1,18 @@
 // SkillBagDialog — 自定义"技能背包"界面(改造新增,非原版还原)。
 //
 // 基于 Laya.Sprite 自建遮罩 + 居中面板(刻意不继承 Laya.Dialog,避免其内置
-// 的点击/遮罩自动关闭行为干扰格子的选择)。用可滚动列表展示所有技能(props),
-// 玩家点击任意技能即可选中/取消,没有数量限制,自由分配,选择直接写入存档
-// (SaveMgr 的 _props)。技能图标取自 resources/img/props/<name>_1.png。
+// 的点击/遮罩自动关闭行为干扰技能选择)。用可滚动的**列表**展示所有技能
+// (props),每行含图标 + 名称 + 描述;点击任意一行即可选中/取消,没有数量
+// 限制,自由分配,选择直接写入存档(SaveMgr 的 _props)。
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { GameMgr } from "../core/game-mgr";
 
 const F = GameMgr;
+
+// props 稀有度配色(稀有/卓越/史诗/传说)。
+const RARITY_COLORS = ["#95e45a", "#2dddff", "#D955FF", "#E99431"];
 
 export class SkillBagDialog extends Laya.Sprite {
   private _moved = false;
@@ -35,8 +38,8 @@ export class SkillBagDialog extends Laya.Sprite {
     this.addChild(mask);
 
     // 居中面板。
-    const W = 560;
-    const H = 940;
+    const W = 600;
+    const H = 980;
     const px = Math.floor((SW - W) / 2);
     const py = Math.floor((SH - H) / 2);
     const panel = new Laya.Sprite();
@@ -91,24 +94,19 @@ export class SkillBagDialog extends Laya.Sprite {
     const content = new Laya.Sprite();
     viewport.addChild(content);
 
-    const cols = 4;
-    const cw = 125;
-    const ch = 142;
+    const rowH = 112;
     const gap = 6;
     const props = F.instance().props.Ue;
     let idx = 0;
     for (let i = 0; i < props.length; i++) {
       const def = props[i];
       if (!def || !def.name) continue;
-      const col = idx % cols;
-      const row = Math.floor(idx / cols);
-      const cell = this.makeCell(i, def, cw, ch);
-      cell.pos(col * (cw + gap), row * (ch + gap));
-      content.addChild(cell);
+      const row = this.makeRow(i, def, vw, rowH);
+      row.pos(0, idx * (rowH + gap));
+      content.addChild(row);
       idx++;
     }
-    const rows = Math.ceil(idx / cols);
-    const contentH = rows * (ch + gap);
+    const contentH = idx * (rowH + gap);
 
     // 透明底,保证空隙处也能拖动滚动。
     content.graphics.drawRect(0, 0, vw, Math.max(contentH, vh), "#ffffff01");
@@ -144,37 +142,52 @@ export class SkillBagDialog extends Laya.Sprite {
     viewport.on(Laya.Event.MOUSE_OUT, this, endDrag);
   }
 
-  private makeCell(propIndex: number, def: any, w: number, h: number): any {
+  private makeRow(propIndex: number, def: any, w: number, h: number): any {
     const player = F.instance().player;
-    const cell = new Laya.Sprite();
-    cell.size(w, h);
-    cell.mouseEnabled = true;
+    const row = new Laya.Sprite();
+    row.size(w, h);
+    row.mouseEnabled = true;
 
     const border = new Laya.Sprite();
-    cell.addChild(border);
+    row.addChild(border);
 
     const icon = new Laya.Image("resources/img/props/" + def.name + "_1.png");
-    icon.size(74, 74);
-    icon.pos((w - 74) / 2, 16);
-    cell.addChild(icon);
+    icon.size(78, 78);
+    icon.pos(16, (h - 78) / 2);
+    row.addChild(icon);
 
     const name = new Laya.Label(def.txt || def.name);
-    name.fontSize = 20;
-    name.color = "#ffffff";
+    name.fontSize = 28;
+    name.color = RARITY_COLORS[def.rarity] || "#ffffff";
+    name.bold = true;
     (name as any).stroke = 3;
     (name as any).strokeColor = "#000000";
-    name.width = w;
-    name.align = "center";
-    name.y = 98;
-    cell.addChild(name);
+    name.pos(110, 14);
+    row.addChild(name);
+
+    let intro = def.intro || "";
+    try {
+      intro = F.instance().props.introAtLevel(propIndex, 1);
+    } catch {
+      /* keep base intro */
+    }
+    const desc = new Laya.Label(intro);
+    desc.fontSize = 19;
+    desc.color = "#cbb892";
+    desc.pos(110, 52);
+    desc.width = w - 150;
+    desc.height = h - 56;
+    (desc as any).wordWrap = true;
+    desc.leading = 3;
+    row.addChild(desc);
 
     const check = new Laya.Label("✓");
-    check.fontSize = 30;
+    check.fontSize = 36;
     check.color = "#5bd85b";
     (check as any).stroke = 3;
     (check as any).strokeColor = "#000000";
-    check.pos(w - 28, 6);
-    cell.addChild(check);
+    check.pos(w - 46, (h - 40) / 2);
+    row.addChild(check);
 
     const redraw = (): void => {
       const has = player.hasProps(propIndex);
@@ -184,21 +197,21 @@ export class SkillBagDialog extends Laya.Sprite {
         0,
         w,
         h,
-        has ? "#3a5a2a" : "#1c1510",
+        has ? "#3a5a2a" : "#241a12",
         has ? "#5bd85b" : "#5a4a36",
-        3,
+        2,
       );
       check.visible = has;
-      icon.alpha = has ? 1 : 0.65;
+      icon.alpha = has ? 1 : 0.7;
     };
     redraw();
 
-    cell.on(Laya.Event.CLICK, this, () => {
+    row.on(Laya.Event.CLICK, this, () => {
       if (this._moved) return;
       if (player.hasProps(propIndex)) player.removeProps(propIndex);
       else player.addProps(propIndex, 1, !!def.Xe);
       redraw();
     });
-    return cell;
+    return row;
   }
 }

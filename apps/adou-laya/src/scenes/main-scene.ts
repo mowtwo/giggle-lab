@@ -186,23 +186,58 @@ export class MainScene extends Laya.Scene {
 
   /** 技能背包入口(左下角,与右下角武器背包对称):打开技能自由分配界面。 */
   private createSkillBagEntry(): void {
+    // 复刻武器背包按钮(右下角 weaponBtn)的 sprite 拼接,镜像到左下角。
     const btn = new Laya.Sprite();
-    btn.pos(40, 1130);
-    btn.size(110, 140);
-    const icon = new Laya.Image("resources/img/mainUI/bag1.png");
-    icon.size(100, 100);
-    icon.pos(5, 0);
-    btn.addChild(icon);
+    btn.size(114, 110);
+    btn.anchorX = 0.5;
+    btn.anchorY = 0.5;
+    btn.pos(77, 1126); // 与右下角 weaponBtn(x=563)关于屏幕中线(640/2)对称。
+    btn.graphics.drawRect(0, 0, 114, 110, "#ffffff01"); // 透明命中区,整块可点。
+
+    const bag = new Laya.Sprite();
+    bag.size(114, 110);
+    bag.anchorX = 0.5;
+    bag.anchorY = 0.5;
+    bag.pos(57, 55);
+    btn.addChild(bag);
+
+    const mkImg = (
+      skin: string,
+      x: number,
+      y: number,
+      w: number,
+      hgt: number,
+      ax = 0,
+      ay = 0,
+      rot = 0,
+    ): any => {
+      const img = new Laya.Image(skin);
+      img.size(w, hgt);
+      img.pos(x, y);
+      img.anchorX = ax;
+      img.anchorY = ay;
+      if (rot) img.rotation = rot;
+      return img;
+    };
+    bag.addChild(mkImg("resources/img/mainUI/bag2.png", 22, 18, 80, 85));
+    bag.addChild(mkImg("resources/img/weapon/weapon_29.png", 65, 81, 28, 66, 0.5, 1, 34));
+    bag.addChild(mkImg("resources/img/weapon/weapon_38.png", 43, 84, 31, 76, 0.5, 1, -28));
+    bag.addChild(mkImg("resources/img/mainUI/bag3.png", 16, 59, 74, 49));
+    bag.addChild(mkImg("resources/img/mainUI/bag1.png", 22, 18, 64, 50));
+
     const label = new Laya.Label("技能背包");
-    label.fontSize = 24;
-    label.color = "#f7de76";
-    label.bold = true;
-    (label as any).stroke = 4;
-    (label as any).strokeColor = "#5a3a12";
-    label.width = 110;
+    label.width = 156;
+    label.height = 47;
+    label.pos(-22, 107);
+    label.fontSize = 26;
+    label.color = "#fdbe45";
     label.align = "center";
-    label.y = 104;
+    label.valign = "middle";
+    label.leading = 2;
+    (label as any).stroke = 6;
+    (label as any).strokeColor = "#000000";
     btn.addChild(label);
+
     btn.on(Laya.Event.CLICK, this, () => {
       this.addChild(new SkillBagDialog());
     });
@@ -273,6 +308,9 @@ export class MainScene extends Laya.Scene {
     // 去除体力限制:始终展示为无穷大,不再读取真实体力值。
     this.staminaTxt.text = "∞";
     this.staminaTxt.color = "#f7de76";
+    this.staminaTxt.fontSize = 52;
+    this.staminaTxt.width = 90;
+    this.staminaTxt.align = "center";
   }
 
   X$(): void {
