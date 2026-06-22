@@ -20,8 +20,6 @@ import { Ih } from "./bullet-factory";
 import { HitEnemyStrategy } from "./hit-strategy";
 import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 
-const F = GameMgr;
-const j = UpdateMgr;
 const ye = SatCollision;
 const Vs = HitEnemyStrategy;
 
@@ -44,10 +42,10 @@ export class BulletSpawnMgr extends Singleton {
   init(): void {
     this.HB = [];
     this.WB = EnemySpatialMgr.instance();
-    this.zB = F.instance();
+    this.zB = GameMgr.instance();
     this.yd = this.zB.map.gridWid;
     this.fd = this.zB.map.gridHei;
-    j.instance().register("bulletMgr", this, this.update);
+    UpdateMgr.instance().register("bulletMgr", this, this.update);
   }
 
   /** Spawn (pool) a bullet from a spec at position `s`. (`Tw`) */

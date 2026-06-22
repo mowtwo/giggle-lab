@@ -17,11 +17,7 @@ import { GameMgr } from "../core/game-mgr";
 import { AudioMgr } from "../core/audio-mgr";
 import { PrivacyAgreementMgr } from "../core/privacy-agreement-mgr";
 
-const K = SceneMgr;
-const q = EffectMgr;
-const F = GameMgr;
 const $ = AudioMgr;
-const Kr = PrivacyAgreementMgr;
 
 @regClass("6DGqZNBLRhuPudJfulUNKw")
 export class SettingScene extends Laya.Scene {
@@ -84,20 +80,20 @@ export class SettingScene extends Laya.Scene {
       this.iZ();
     });
     this.bg.on(Laya.Event.CLICK, this, () => {
-      K.instance().closeScene("SettingScene");
+      SceneMgr.instance().closeScene("SettingScene");
     });
     this.privacyBtn.on(Laya.Event.CLICK, this, this.xW);
     this.userBtn.on(Laya.Event.CLICK, this, this.SW);
-    q.instance().bindButtons([this.closeBtn, this.checkBox, this.privacyBtn, this.userBtn]);
+    EffectMgr.instance().bindButtons([this.closeBtn, this.checkBox, this.privacyBtn, this.userBtn]);
     this.closeBtn.on(Laya.Event.CLICK, this, () => {
-      K.instance().closeScene("SettingScene");
+      SceneMgr.instance().closeScene("SettingScene");
     });
   }
 
   onOpened(_t?: any): void {
-    this.yH = F.instance().player;
+    this.yH = GameMgr.instance().player;
     this.settingData = this.yH.settingData;
-    this.viewTxt.visible = Kr.instance().platformConfig().privacyDialogPolicyLinks;
+    this.viewTxt.visible = PrivacyAgreementMgr.instance().platformConfig().privacyDialogPolicyLinks;
     this.eZ = this.musicSliderBar.width - 8;
     this.aZ = this.soundSliderBar.width - 8;
     this.nZ(this.settingData.musicVolume);
@@ -170,12 +166,12 @@ export class SettingScene extends Laya.Scene {
 
   xW(t: any): void {
     t.stopPropagation();
-    Kr.instance().showPrivacy();
+    PrivacyAgreementMgr.instance().showPrivacy();
   }
 
   SW(t: any): void {
     t.stopPropagation();
-    Kr.instance().showUser();
+    PrivacyAgreementMgr.instance().showUser();
   }
 
   rZ(t: number): void {

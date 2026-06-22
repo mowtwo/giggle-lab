@@ -38,16 +38,9 @@ const ri = SimpleDynamicArrow;
 const Js = HitStrategy103;
 const Ns = HitStrategy102;
 const Zs = HitStrategy101;
-const si = HitStrategyFactory;
-const F = GameMgr;
-const f = MathE;
 const X = LayerZ;
 const L = SpecialIndex;
-const y = EventMgr;
 const u = GameEvent;
-const q = EffectMgr;
-const fe = BulletSpawnMgr;
-const th = BuffMgr;
 const oi = TargetEnemyBezierMovement;
 const fi = TargetObjectInstantaneous;
 const Xh = TargetDirectionWaveMovement;
@@ -84,7 +77,7 @@ export class KnockbackBehavior extends BulletBehavior {
     if (!(this.ZA.x === 0 && this.ZA.y === 0)) {
       Laya.Vector2.normalize(this.ZA, this.ZA);
       Laya.Vector2.scale(this.ZA, this.KA, this.ZA);
-      th.instance().applyBuff(t.id, 12, null, false, L.Ji, this.ZA);
+      BuffMgr.instance().applyBuff(t.id, 12, null, false, L.Ji, this.ZA);
     }
   }
 }
@@ -139,7 +132,7 @@ export class EagleArrow extends Bullet {
     const t = new Laya.Image("resources/img/weapon/bullet/eagleArrow_01.png");
     t.size(this.Pm.width, this.Pm.height);
     this.Pm.addChild(t);
-    this.hE = q
+    this.hE = EffectMgr
       .instance()
       .registerImgLoop(
         t,
@@ -168,7 +161,7 @@ export class EagleArrow extends Bullet {
   protected Hm(): void {}
   protected $m(t: any): void {
     t.hit(this.Sm, this.bm);
-    q.instance().playBowHit(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
+    EffectMgr.instance().playBowHit(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
     Laya.Tween.create(this.eE)
       .duration(200)
       .onStart(() => {
@@ -181,7 +174,7 @@ export class EagleArrow extends Bullet {
   protected qm(): void {}
   protected Zm(): void {}
   protected tw(): void {
-    q.instance().removeEvent("imgLoop", this.hE);
+    EffectMgr.instance().removeEvent("imgLoop", this.hE);
   }
 }
 reg("EagleArrow", EagleArrow);
@@ -270,7 +263,7 @@ export class FireArrow extends Bullet {
     s.pos(0, 0);
     s.size(22, 72);
     this.Pm.addChild(s);
-    this.hE = q
+    this.hE = EffectMgr
       .instance()
       .registerImgLoop(
         t,
@@ -288,12 +281,12 @@ export class FireArrow extends Bullet {
   protected onUpdate(_t: any): void {}
   protected $m(t: any): void {
     t.hit(this.Sm, this.bm);
-    q.instance().spawnFires(t.enemy, 3);
+    EffectMgr.instance().spawnFires(t.enemy, 3);
   }
   protected qm(): void {}
   protected Zm(): void {}
   protected tw(): void {
-    q.instance().removeEvent("imgLoop", this.hE);
+    EffectMgr.instance().removeEvent("imgLoop", this.hE);
   }
 }
 reg("FireArrow", FireArrow);
@@ -329,7 +322,7 @@ export class StaticFireBall extends Bullet {
   private hE = 0;
   private gE = 0;
   protected tw(): void {
-    q.instance().removeEvent("imgLoop", this.hE);
+    EffectMgr.instance().removeEvent("imgLoop", this.hE);
   }
   protected Hm(): void {
     this.TM = 0;
@@ -338,7 +331,7 @@ export class StaticFireBall extends Bullet {
     t.hit(this.Sm, this.bm);
     Laya.Point.TEMP.setTo(this.Pm.x, this.Pm.y);
     const s = t.enemy;
-    q.instance().playGroundFireTimed(s, s.width / 2, s.height / 2, 1000);
+    EffectMgr.instance().playGroundFireTimed(s, s.width / 2, s.height / 2, 1000);
   }
   protected qm(): void {
     this.TM = Laya.timer.currTimer;
@@ -352,7 +345,7 @@ export class StaticFireBall extends Bullet {
     t.alpha = 1;
     t.size(44, 44);
     this.Pm.addChild(t);
-    this.hE = q
+    this.hE = EffectMgr
       .instance()
       .registerImgLoop(
         t,
@@ -363,7 +356,7 @@ export class StaticFireBall extends Bullet {
           "resources/img/effect/fireGround_04.png",
         ],
         70,
-        f.range(0, 4, true) as number,
+        MathE.range(0, 4, true) as number,
       );
   }
   protected onUpdate(t: any): void {
@@ -446,8 +439,8 @@ export class FireDragonArrow extends Bullet {
     this.Pm.anchor(0.5, 0.5);
     this.Pm.size(this.img.width, this.img.height);
     this.Pm.addChild(this.img);
-    this.xE = fe.instance();
-    this.dg = F.instance();
+    this.xE = BulletSpawnMgr.instance();
+    this.dg = GameMgr.instance();
   }
   protected Hm(): void {
     if (this.LE) {
@@ -462,7 +455,7 @@ export class FireDragonArrow extends Bullet {
         { type: VirtualBullet, Om: fi.create(this.Pm, 0, 0), bm: this.bm, xm: "dragon_virtual_background" },
         this.wm,
       );
-      y.instance.event(u.xt, s.Pm);
+      EventMgr.instance.event(u.xt, s.Pm);
       s.Pm.name = "dragon_virtual_background";
       s.Tm(new TrailBehavior("fireDragonTrail"));
       s.Pm.zIndex = 555;
@@ -475,14 +468,14 @@ export class FireDragonArrow extends Bullet {
   protected onReset(_t: any): void {}
   protected onUpdate(_s: any): void {
     if (Laya.timer.currTimer - this.lastTime > 500) {
-      q.instance().spawnFires(this.Pm, 1, 10);
+      EffectMgr.instance().spawnFires(this.Pm, 1, 10);
       this.lastTime = Laya.timer.currTimer;
     }
     if (this.LE && this._E > this.currentLength) {
       Laya.Vector2.TEMP.setValue(this.Pm.x, this.Pm.y);
-      const dist = f.distance(this.wm, Laya.Vector2.TEMP as any);
+      const dist = MathE.distance(this.wm, Laya.Vector2.TEMP as any);
       Laya.Vector2.TEMP.setValue(this.Pm.width, this.Pm.height);
-      this.vE = f.distance(Laya.Vector2.ZERO as any, Laya.Vector2.TEMP as any) / 4;
+      this.vE = MathE.distance(Laya.Vector2.ZERO as any, Laya.Vector2.TEMP as any) / 4;
       if (dist > this.vE * (this.currentLength + 1)) {
         const self = FireDragonArrow;
         let s: any;
@@ -548,7 +541,7 @@ export class FireDragonArrow extends Bullet {
   }
   protected $m(t: any): void {
     t.hit(this.Sm, this.bm);
-    q.instance().spawnFires(t.enemy, 3);
+    EffectMgr.instance().spawnFires(t.enemy, 3);
   }
   protected qm(): void {}
   protected Zm(): void {
@@ -595,7 +588,7 @@ export class ExplosionBehavior extends BulletBehavior {
       const yM = h.yM;
       const e = h.centerX;
       const a = h.centerY;
-      const dist = f.distance(t, { x: e, y: a });
+      const dist = MathE.distance(t, { x: e, y: a });
       Laya.Point.TEMP.setTo(e, a);
       i.setValue(e - t.x, a - t.y);
       Laya.Vector2.normalize(i, i);
@@ -603,9 +596,9 @@ export class ExplosionBehavior extends BulletBehavior {
       Laya.Vector2.scale(i, r * this.force, i);
       const o = this.Sm * r;
       if (o > 0) h.hit(o, t.bm);
-      th.instance().applyBuff(h.id, 12, null, false, L.Ji, i);
+      BuffMgr.instance().applyBuff(h.id, 12, null, false, L.Ji, i);
     }
-    if (this.EE) q.instance().playRocketEffect(t.Pm.parent, t.x, t.y);
+    if (this.EE) EffectMgr.instance().playRocketEffect(t.Pm.parent, t.x, t.y);
   }
 }
 
@@ -619,7 +612,7 @@ export class BurnBehavior extends BulletBehavior {
     this.Mm = s;
   }
   $m(t: any, _s: any): void {
-    th.instance().applyBuff(t.id, 14, this.Mm, false, this._duration, this.Mm);
+    BuffMgr.instance().applyBuff(t.id, 14, this.Mm, false, this._duration, this.Mm);
   }
 }
 
@@ -673,7 +666,7 @@ export class HuoFengHuangArrow extends Bullet {
     const t = new Laya.Image("resources/img/weapon/bullet/huoFengHuang_01.png");
     t.size(this.Pm.width, this.Pm.height);
     this.Pm.addChild(t);
-    this.hE = q
+    this.hE = EffectMgr
       .instance()
       .registerImgLoop(
         t,
@@ -693,19 +686,19 @@ export class HuoFengHuangArrow extends Bullet {
   }
   protected onUpdate(_t: any): void {
     Laya.Vector2.TEMP.setValue(this.x, this.y);
-    const s = f.distance(this.wm, Laya.Vector2.TEMP as any);
+    const s = MathE.distance(this.wm, Laya.Vector2.TEMP as any);
     this.Pm.scale(1 + s / 500, 1 + s / 500);
   }
   protected Hm(): void {}
   protected $m(t: any): void {
     Laya.Vector2.TEMP.setValue(this.x, this.y);
-    const s = f.distance(this.wm, Laya.Vector2.TEMP as any);
+    const s = MathE.distance(this.wm, Laya.Vector2.TEMP as any);
     t.hit(Math.min(this.Sm + Math.floor(s / 250), 2 * this.Sm), this.bm);
   }
   protected qm(): void {}
   protected Zm(): void {}
   protected tw(): void {
-    q.instance().removeEvent("imgLoop", this.hE);
+    EffectMgr.instance().removeEvent("imgLoop", this.hE);
   }
 }
 reg("HuoFengHuangArrow", HuoFengHuangArrow);
@@ -759,7 +752,7 @@ export class LightningChain extends Bullet {
     this.WE = new Laya.Image("resources/img/weapon/bullet/lightningChain_01.png");
     this.jE = new Laya.Image("resources/img/weapon/bullet/lightningChainStart_01.png");
     this.$E = new Laya.Image("resources/img/weapon/bullet/lightningChainEnd_01.png");
-    this.NE = q
+    this.NE = EffectMgr
       .instance()
       .registerImgLoop(
         this.WE,
@@ -770,7 +763,7 @@ export class LightningChain extends Bullet {
         ],
         100,
       );
-    this.qE = q
+    this.qE = EffectMgr
       .instance()
       .registerImgLoop(
         this.jE,
@@ -781,7 +774,7 @@ export class LightningChain extends Bullet {
         ],
         100,
       );
-    this.VE = q
+    this.VE = EffectMgr
       .instance()
       .registerImgLoop(
         this.$E,
@@ -795,8 +788,8 @@ export class LightningChain extends Bullet {
     this.Pm.zIndex = X.mr;
     this.WE.anchorX = 0;
     this.WE.anchorY = 0.5;
-    this.WE.width = F.instance().map.gridWid;
-    this.WE.height = F.instance().map.gridHei;
+    this.WE.width = GameMgr.instance().map.gridWid;
+    this.WE.height = GameMgr.instance().map.gridHei;
     this.jE.width = this.WE.width / 2;
     this.jE.height = this.WE.height / 2;
     this.$E.width = this.WE.width / 1.5;
@@ -820,7 +813,7 @@ export class LightningChain extends Bullet {
       this.zE();
       this.WE.visible = true;
       t.hit(this.Sm, this.bm);
-      q.instance().playElectricEffect(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
+      EffectMgr.instance().playElectricEffect(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
     }
   }
   private zE(): void {
@@ -832,8 +825,8 @@ export class LightningChain extends Bullet {
     }
     Laya.Point.TEMP.setTo(0, 0);
     this.Pm.localToGlobal(Laya.Point.TEMP);
-    this.WE.rotation = f.angle(Laya.Point.TEMP, this.Yv) - 90;
-    this.WE.width = f.distance(this.Yv, Laya.Point.TEMP as any) / 0.96;
+    this.WE.rotation = MathE.angle(Laya.Point.TEMP, this.Yv) - 90;
+    this.WE.width = MathE.distance(this.Yv, Laya.Point.TEMP as any) / 0.96;
     this.jE.x = this.WE.width - 25;
   }
   protected qm(): void {}
@@ -842,9 +835,9 @@ export class LightningChain extends Bullet {
     (this as any).YE = null;
   }
   protected tw(): void {
-    q.instance().removeEvent("imgLoop", this.NE);
-    q.instance().removeEvent("imgLoop", this.qE);
-    q.instance().removeEvent("imgLoop", this.VE);
+    EffectMgr.instance().removeEvent("imgLoop", this.NE);
+    EffectMgr.instance().removeEvent("imgLoop", this.qE);
+    EffectMgr.instance().removeEvent("imgLoop", this.VE);
   }
 }
 reg("LightningChain", LightningChain);
@@ -881,7 +874,7 @@ export class LightningArrow extends Bullet {
         const target = s.XA(this.bm.qd);
         if (!target || target.id === t.id) continue;
         this.config.Om = Qh.create().qL(target.id);
-        const h = fe.instance().Tw(this.config);
+        const h = BulletSpawnMgr.instance().Tw(this.config);
         h.YE = t.enemy;
         h.Xm();
       }
@@ -910,7 +903,7 @@ export class ShenBiArrow extends Bullet {
   }
   protected Hm(): void {
     for (let i = 0; i < this.KE; i++) {
-      fe.instance().Tw(
+      BulletSpawnMgr.instance().Tw(
         {
           type: ri,
           ow: {
@@ -919,11 +912,11 @@ export class ShenBiArrow extends Bullet {
             nw: { x: 1.2, y: 1.2 },
           },
           Om: this.Om instanceof oi ? oi.create().qL((this.Om as any).FL) : Kh.create().QL((this.Om as any).XL),
-          Um: si.copyFrom(this.Um),
+          Um: HitStrategyFactory.copyFrom(this.Um),
           bm: this.bm,
           Sm: this.Sm,
         },
-        { x: this.Pm.x + f.range(-50, 50)!, y: this.Pm.y + f.range(-50, 50)! },
+        { x: this.Pm.x + MathE.range(-50, 50)!, y: this.Pm.y + MathE.range(-50, 50)! },
       ).Xm();
     }
   }
@@ -961,7 +954,7 @@ export class DaoQiBullet extends Bullet {
   protected $m(t: any): void {
     t.hit(this.Sm, this.bm);
     const s = t.enemy;
-    q.instance().playDaoQiHit(s, s.width / 2, s.height / 2);
+    EffectMgr.instance().playDaoQiHit(s, s.width / 2, s.height / 2);
   }
   protected qm(): void {}
   protected Zm(): void {}
@@ -1014,7 +1007,7 @@ export class StarBullet extends Bullet {
     if (t) {
       t.hit(this.Sm, this.bm);
       const s = t.enemy.localToGlobal(this.Yv.setTo(-t.enemy.width / 2, -t.enemy.height / 2));
-      q.instance().playBoomStar(s.x, s.y);
+      EffectMgr.instance().playBoomStar(s.x, s.y);
     }
   }
   protected qm(): void {}
@@ -1047,7 +1040,7 @@ export class FlyPike extends Bullet {
   }
   protected onReset(_t: any): void {
     Laya.Tween.create(this.hB).go("alpha", 0, 1).duration(200);
-    this.animId = q
+    this.animId = EffectMgr
       .instance()
       .registerImgLoop(
         this.hB,
@@ -1056,16 +1049,16 @@ export class FlyPike extends Bullet {
       );
   }
   protected Hm(): void {
-    q.instance().removeEvent("imgLoop", this.animId);
+    EffectMgr.instance().removeEvent("imgLoop", this.animId);
     Laya.Tween.create(this.hB).go("alpha", 1, 0).duration(200);
   }
   protected onUpdate(_t: any): void {
-    this.Pm.rotation = f.angle(this.QA, this.Pm);
+    this.Pm.rotation = MathE.angle(this.QA, this.Pm);
     this.QA.setTo(this.Pm.x, this.Pm.y);
   }
   protected $m(t: any): void {
     t.hit(this.Sm, this.bm);
-    q.instance().playLongDanHitEffect(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
+    EffectMgr.instance().playLongDanHitEffect(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
   }
   protected qm(): void {}
   protected Zm(): void {}
@@ -1098,7 +1091,7 @@ export class GroundSpikeBullet extends Bullet {
     this.pd = new Laya.Sprite();
     this.Pm.size(40, 40);
     this.Pm.anchor(0.5, 0.5);
-    const t = F.instance().map;
+    const t = GameMgr.instance().map;
     this.yd = t.gridWid;
     this.fd = t.gridHei;
     this.ud.size(this.yd, this.fd);
@@ -1125,8 +1118,8 @@ export class GroundSpikeBullet extends Bullet {
       img.anchor(0.5, 0.5);
       img.visible = true;
       img.alpha = 1;
-      img.pos(f.range(10, this.yd - 10) as number, f.range(this.fd - 20, this.fd) as number);
-      img.rotation = f.range(-5, 5) as number;
+      img.pos(MathE.range(10, this.yd - 10) as number, MathE.range(this.fd - 20, this.fd) as number);
+      img.rotation = MathE.range(-5, 5) as number;
       Laya.Tween.create(img)
         .go("scaleY", 0, 1)
         .duration(200)
@@ -1136,11 +1129,11 @@ export class GroundSpikeBullet extends Bullet {
         .go("alpha", 1, 0)
         .duration(500);
     }
-    q.instance().playCrackEffect(this.Pm, 40, 80, 800);
+    EffectMgr.instance().playCrackEffect(this.Pm, 40, 80, 800);
     t.hit(this.Sm, this.bm);
     if (!t.Bw) return;
     t.Bw = false;
-    th.instance().applyBuff(t.id, 8, 0, false, this.eB);
+    BuffMgr.instance().applyBuff(t.id, 8, 0, false, this.eB);
     Laya.Tween.create(t.enemy)
       .duration(this.eB)
       .then(() => {
@@ -1203,7 +1196,7 @@ export class LiHuaBullet extends Bullet {
   protected $m(t: any): void {
     const s = t.enemy;
     t.hit(this.Sm, this.bm);
-    q.instance().playLiHuaEffect(s, s.width / 2, s.height / 2);
+    EffectMgr.instance().playLiHuaEffect(s, s.width / 2, s.height / 2);
   }
   protected qm(): void {}
   protected Zm(): void {}
@@ -1272,7 +1265,7 @@ export class PikeSnakeBullet extends Bullet {
     this.nB.push(t.id);
   }
   protected qm(): void {
-    this.oB = q
+    this.oB = EffectMgr
       .instance()
       .registerImgLoop(
         this.rB,
@@ -1350,7 +1343,7 @@ export class AttachCustomShapeBullet extends AttachBullet {
   protected onUpdate(_t: any): void {}
   protected $m(t: any): void {
     t.hit(this.Sm, this.bm);
-    q.instance().playPikeHit(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
+    EffectMgr.instance().playPikeHit(t.enemy, t.enemy.width / 2, t.enemy.height / 2);
   }
   protected qm(): void {}
   protected Zm(): void {}
@@ -1365,7 +1358,7 @@ export class SwordBullet extends SimpleHitAreaBullet {
     super.$m(t);
     const s = this.Hw(t);
     const i = t.enemy;
-    q.instance().playCavalryHit(i, i.width / 2, i.height / 2, -s);
+    EffectMgr.instance().playCavalryHit(i, i.width / 2, i.height / 2, -s);
   }
 }
 reg("SwordBullet", SwordBullet);

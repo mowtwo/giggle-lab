@@ -24,12 +24,7 @@ import { KnifeBullet } from "./bullets-area";
 import { DaoQiBullet, StarBullet, ExplosionBehavior } from "./bullet-variants";
 import { TargetPositionBezierMovement, TargetDirectionLineMovement } from "./movements";
 
-const de = WeaponFactory;
 const $ = AudioMgr;
-const f = MathE;
-const th = BuffMgr;
-const q = EffectMgr;
-const Ki = EntityRegistry;
 const ai = BulletEvent;
 const yi = KnifeBullet;
 const te = DaoQiBullet;
@@ -164,7 +159,7 @@ export class KnifeWeaponBase extends WeaponComponent {
 
   protected AI(t: any): void {
     const s = this.CI(t.id);
-    const i = f.distance(this.general.general, t);
+    const i = MathE.distance(this.general.general, t);
     switch (this.Ca) {
       case 0:
         $.instance().playSound("knife_attack");
@@ -204,7 +199,7 @@ export class KnifeWeaponBase extends WeaponComponent {
       .onStart(() => {
         a = this.xE.Tw(this.mD);
         if (this.general.tD) this.general.tD.forEach((sc: any) => a.Tm(sc));
-        if (e) q.instance().playShadowTrails(this._D, 4, 40);
+        if (e) EffectMgr.instance().playShadowTrails(this._D, 4, 40);
         if (this.gD) this.gD.visible = true;
         if (this.PD) this.PD(a);
         this.FI(a);
@@ -275,7 +270,7 @@ export class KnifeWeaponBase extends WeaponComponent {
         o.Am();
       })
       .chain()
-      .go("rotation", a, a + f.deltaAngle(a, h))
+      .go("rotation", a, a + MathE.deltaAngle(a, h))
       .duration(250 / s)
       .parallel(this._D)
       .to("y", n)
@@ -304,7 +299,7 @@ class WoodKnife extends KnifeWeaponBase {
     }
   }
 }
-de.register(2, -1, () => Laya.Pool.createByClass(WoodKnife));
+WeaponFactory.register(2, -1, () => Laya.Pool.createByClass(WoodKnife));
 
 /** 短刀 (20). (`Ee`) */
 class ShortKnife extends KnifeWeaponBase {
@@ -323,7 +318,7 @@ class ShortKnife extends KnifeWeaponBase {
     }
   }
 }
-de.register(2, 20, () => Laya.Pool.createByClass(ShortKnife));
+WeaponFactory.register(2, 20, () => Laya.Pool.createByClass(ShortKnife));
 
 /** 长刀 (21) — +0.5 range. (`Be`) */
 class LongKnife extends KnifeWeaponBase {
@@ -337,15 +332,15 @@ class LongKnife extends KnifeWeaponBase {
   protected wI(): void {
     super.wI();
     if (this.Ca === 0) this.gD.pos(27, 76);
-    this.hD = th.instance().applyBuff(this.general.id, 2, 0.5);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 2, 0.5);
   }
   MI(): void {
     super.MI();
-    if (this.hD >= 0) th.instance().kg(this.general.id, 2, this.hD);
+    if (this.hD >= 0) BuffMgr.instance().kg(this.general.id, 2, this.hD);
     this.hD = -1;
   }
 }
-de.register(2, 21, () => Laya.Pool.createByClass(LongKnife));
+WeaponFactory.register(2, 21, () => Laya.Pool.createByClass(LongKnife));
 
 /** 铁刀 (22) — same-target attack speed +5%. (`Ie`) */
 class IronKnife extends KnifeWeaponBase {
@@ -368,26 +363,26 @@ class IronKnife extends KnifeWeaponBase {
       this.gD.pos(25, 79);
       this.gD.scaleY = 0.95;
     }
-    this.hD = th.instance().applyBuff(this.general.id, 1, 0, true);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 1, 0, true);
   }
   MI(): void {
     super.MI();
-    if (this.hD >= 0) th.instance().kg(this.general.id, 1, this.hD);
+    if (this.hD >= 0) BuffMgr.instance().kg(this.general.id, 1, this.hD);
     this.hD = -1;
   }
   protected AI(t: any): void {
     super.AI(t);
     if (this.eD === t.id) {
       this.AD = Math.min(this.AD + 0.05, this.nD);
-      th.instance().modify(this.general.id, 1, this.hD, this.AD, undefined, undefined);
+      BuffMgr.instance().modify(this.general.id, 1, this.hD, this.AD, undefined, undefined);
     } else {
-      th.instance().modify(this.general.id, 1, this.hD, 0, undefined, undefined);
+      BuffMgr.instance().modify(this.general.id, 1, this.hD, 0, undefined, undefined);
       this.AD = 0;
       this.eD = t.id;
     }
   }
 }
-de.register(2, 22, () => Laya.Pool.createByClass(IronKnife));
+WeaponFactory.register(2, 22, () => Laya.Pool.createByClass(IronKnife));
 
 /** 狼牙棒 (23) — 10% wolf-roar: +20% speed to nearby allies. (`De`) */
 class WolfMace extends KnifeWeaponBase {
@@ -405,24 +400,24 @@ class WolfMace extends KnifeWeaponBase {
   protected AI(t: any): void {
     super.AI(t);
     if (Math.random() < 0.1) {
-      q.instance().playWolfRoars(
+      EffectMgr.instance().playWolfRoars(
         this.general.general,
         this.general.general.width / 4,
         this.general.general.height / 4,
       );
-      const reg = Ki.instance();
+      const reg = EntityRegistry.instance();
       const s = reg.GS(this.general.general.x, this.general.general.y, this.general.Da, this.general.qd);
       for (const i of s) {
         const sol = reg.hS.get(i.id);
-        th.instance().applyBuff(i.id, 1, 0.2, true, 10000);
-        q.instance().playWolfRoarBuff(sol.Yn, sol.Yn.width / 2, 0);
+        BuffMgr.instance().applyBuff(i.id, 1, 0.2, true, 10000);
+        EffectMgr.instance().playWolfRoarBuff(sol.Yn, sol.Yn.width / 2, 0);
       }
       const gen = reg.XS(this.general.general.x, this.general.general.y, this.general.Da, this.general.qd);
       for (const s2 of gen) {
         const g = reg.Qk.get(s2.id);
         if (s2.id !== this.general.id) {
-          th.instance().applyBuff(s2.id, 1, 0.2, true, 10000);
-          q.instance().playWolfRoarBuff(g.general, g.general.width / 2, 0);
+          BuffMgr.instance().applyBuff(s2.id, 1, 0.2, true, 10000);
+          EffectMgr.instance().playWolfRoarBuff(g.general, g.general.width / 2, 0);
         }
       }
     }
@@ -448,7 +443,7 @@ class WolfMace extends KnifeWeaponBase {
     Laya.Tween.killAll(this._D);
   }
 }
-de.register(2, 23, () => Laya.Pool.createByClass(WolfMace));
+WeaponFactory.register(2, 23, () => Laya.Pool.createByClass(WolfMace));
 
 /** 三尖刀 (24) — every 10 hits a 2x AoE blade-qi. (`Te`) */
 class TriPointKnife extends KnifeWeaponBase {
@@ -516,7 +511,7 @@ class TriPointKnife extends KnifeWeaponBase {
       .to("y", h - 60)
       .onStart(() => {
         Laya.timer.once(150 / i, this, () => {
-          q.instance().playAlertRingsIn(this._D, 2, 400, 2);
+          EffectMgr.instance().playAlertRingsIn(this._D, 2, 400, 2);
         });
       })
       .chain()
@@ -556,7 +551,7 @@ class TriPointKnife extends KnifeWeaponBase {
     super.iD();
   }
 }
-de.register(2, 24, () => Laya.Pool.createByClass(TriPointKnife));
+WeaponFactory.register(2, 24, () => Laya.Pool.createByClass(TriPointKnife));
 
 /** 铁蒺藜骨朵 (25) — 10% stun. (`Re`) */
 class MorningStar extends KnifeWeaponBase {
@@ -578,7 +573,7 @@ class MorningStar extends KnifeWeaponBase {
     super.AI(t);
     const s = this.xw.kw.get(t.id);
     s.once("onHit", () => {
-      if (Math.random() < 0.1) th.instance().applyBuff(s.id, 8, 0, false, 500);
+      if (Math.random() < 0.1) BuffMgr.instance().applyBuff(s.id, 8, 0, false, 500);
     });
   }
   protected bI(): void {
@@ -602,7 +597,7 @@ class MorningStar extends KnifeWeaponBase {
     Laya.Tween.killAll(this._D);
   }
 }
-de.register(2, 25, () => Laya.Pool.createByClass(MorningStar));
+WeaponFactory.register(2, 25, () => Laya.Pool.createByClass(MorningStar));
 
 /** 古锭刀 (26) — first hit on a unit grants 1 gold. (`Ce`) */
 class AncientKnife extends KnifeWeaponBase {
@@ -635,7 +630,7 @@ class AncientKnife extends KnifeWeaponBase {
         if (!this.TD.has(id)) {
           const s = this.xw.kw.get(id);
           const i = s.enemy.localToGlobal(this.Yv.setTo(0, s.enemy.height / 4));
-          q.instance().playGoldUp(i.x + s.enemy.width / 4, i.y);
+          EffectMgr.instance().playGoldUp(i.x + s.enemy.width / 4, i.y);
           if (this.general.qd) this.dg.battleState.gold += 1;
           else this.dg.battleState.Ki += 1;
           this.TD.add(id);
@@ -646,7 +641,7 @@ class AncientKnife extends KnifeWeaponBase {
     console.log("length:" + this.TD.size);
   }
 }
-de.register(2, 26, () => Laya.Pool.createByClass(AncientKnife));
+WeaponFactory.register(2, 26, () => Laya.Pool.createByClass(AncientKnife));
 
 /** 虎啸战刀 (27) — 10% tiger-roar: +30% speed to nearby allies. (`Ue`) */
 class TigerKnife extends KnifeWeaponBase {
@@ -663,30 +658,30 @@ class TigerKnife extends KnifeWeaponBase {
   protected AI(t: any): void {
     super.AI(t);
     if (Math.random() < 0.1) {
-      q.instance().playTigerRoars(
+      EffectMgr.instance().playTigerRoars(
         this.general.general,
         this.general.general.width / 4,
         this.general.general.height / 4,
       );
-      const reg = Ki.instance();
+      const reg = EntityRegistry.instance();
       const s = reg.GS(this.general.general.x, this.general.general.y, this.general.Da, this.general.qd);
       for (const i of s) {
         const sol = reg.hS.get(i.id);
-        th.instance().applyBuff(i.id, 1, 0.3, true, 10000);
-        q.instance().playTigerRoarBuff(sol.Yn, sol.Yn.width / 2, 0);
+        BuffMgr.instance().applyBuff(i.id, 1, 0.3, true, 10000);
+        EffectMgr.instance().playTigerRoarBuff(sol.Yn, sol.Yn.width / 2, 0);
       }
       const gen = reg.XS(this.general.general.x, this.general.general.y, this.general.Da, this.general.qd);
       for (const s2 of gen) {
         const g = reg.Qk.get(s2.id);
         if (s2.id !== this.general.id) {
-          th.instance().applyBuff(s2.id, 1, 0.3, true, 10000);
-          q.instance().playTigerRoarBuff(g.general, g.general.width / 2, 0);
+          BuffMgr.instance().applyBuff(s2.id, 1, 0.3, true, 10000);
+          EffectMgr.instance().playTigerRoarBuff(g.general, g.general.width / 2, 0);
         }
       }
     }
   }
 }
-de.register(2, 27, () => Laya.Pool.createByClass(TigerKnife));
+WeaponFactory.register(2, 27, () => Laya.Pool.createByClass(TigerKnife));
 
 /** 七星刀 (28) — 10% meteor rain (5 falling 2x AoE strikes). (`Oe`) */
 class SevenStarKnife extends KnifeWeaponBase {
@@ -723,7 +718,7 @@ class SevenStarKnife extends KnifeWeaponBase {
         .onStart(() => {
           i.forEach((tt, si2) => {
             Laya.timer.once(tt, this, () => {
-              q.instance().playStarRotate(this._D, this._D.x - this._D.width / 4, this._D.y + 60, 1000 - i[si2]);
+              EffectMgr.instance().playStarRotate(this._D, this._D.x - this._D.width / 4, this._D.y + 60, 1000 - i[si2]);
             });
           });
         })
@@ -781,4 +776,4 @@ class SevenStarKnife extends KnifeWeaponBase {
     return h.slice(0, i);
   }
 }
-de.register(2, 28, () => Laya.Pool.createByClass(SevenStarKnife));
+WeaponFactory.register(2, 28, () => Laya.Pool.createByClass(SevenStarKnife));

@@ -14,10 +14,6 @@ import { EffectMgr } from "../battle/effect-mgr";
 import { GameMgr } from "../core/game-mgr";
 import { UpdateMgr } from "../core/update-mgr";
 
-const K = SceneMgr;
-const q = EffectMgr;
-const F = GameMgr;
-const j = UpdateMgr;
 
 @regClass("E1wtzHmxTJG-Q8D_3rV0oA")
 export class RankRewardDialog extends Laya.Dialog {
@@ -36,20 +32,20 @@ export class RankRewardDialog extends Laya.Dialog {
 
   onAwake(): void {
     this.getBtn.on(Laya.Event.CLICK, this, this.TW);
-    q.instance().bindButtons([this.getBtn]);
+    EffectMgr.instance().bindButtons([this.getBtn]);
   }
 
   onEnable(): void {
-    const t = K.instance().getDialogData("RankRewardDialog");
+    const t = SceneMgr.instance().getDialogData("RankRewardDialog");
     this.bestRank = t.bestRank;
     this.bestLevel = t.bestLevel;
-    const s = F.instance().rank.table.get(t.bestRank);
+    const s = GameMgr.instance().rank.table.get(t.bestRank);
     this.goldTxt.text = s.reward.toString();
     this.rank.text = s.rank;
     this.RW(s.rank, this.bestLevel);
     this.rank.visible = true;
     this.goldTxt.visible = true;
-    j.instance().register("getRankReward", this, this.UW);
+    UpdateMgr.instance().register("getRankReward", this, this.UW);
   }
 
   RW(t: string, s: number): void {
@@ -73,12 +69,12 @@ export class RankRewardDialog extends Laya.Dialog {
   }
 
   TW(): void {
-    F.instance().player.gold += F.instance().rank.table.get(this.bestRank).reward;
-    K.instance().closeDialog("RankRewardDialog");
+    GameMgr.instance().player.gold += GameMgr.instance().rank.table.get(this.bestRank).reward;
+    SceneMgr.instance().closeDialog("RankRewardDialog");
   }
 
   onClosed(_t?: any): void {
-    j.instance().unregister("getRankReward");
+    UpdateMgr.instance().unregister("getRankReward");
     this.rank.visible = false;
     this.goldTxt.visible = false;
   }

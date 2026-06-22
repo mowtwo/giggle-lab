@@ -24,14 +24,8 @@ import { CellReservationMgr } from "./cell-reservation-mgr";
 import { PropsFactory, ShovelProp } from "./props";
 
 const C = Singleton;
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
-const f = MathE;
-const wi = BoardMgr;
 const Oi = CellReservationMgr;
-const _i = PropsFactory;
 const bi = ShovelProp;
 
 export class BattlePropsMgr extends C {
@@ -54,32 +48,32 @@ export class BattlePropsMgr extends C {
   private Ue: any;
 
   init(): void {
-    this.Ue = F.instance().props;
+    this.Ue = GameMgr.instance().props;
     this.Ox();
-    const t = F.instance().player.getPropsData();
+    const t = GameMgr.instance().player.getPropsData();
     for (const s of t) {
       const type = this.getPropsType(s);
       (this.Yx(type) ? this.xx : this.Sx).push(type);
     }
-    y.instance.on(u.Lt, this, this.Xx);
-    y.instance.on(u.wt, this, this.Gx);
-    y.instance.on(u.vt, this, this.Hx);
-    y.instance.on(u.kt, this, this.Wx);
-    y.instance.on(u._t, this, this.zx);
+    EventMgr.instance.on(u.Lt, this, this.Xx);
+    EventMgr.instance.on(u.wt, this, this.Gx);
+    EventMgr.instance.on(u.vt, this, this.Hx);
+    EventMgr.instance.on(u.kt, this, this.Wx);
+    EventMgr.instance.on(u._t, this, this.zx);
   }
 
   /** 改造:技能背包修改 _props 后,重新从存档同步玩家主动/被动技能列表,使选择在下一场战斗生效。 */
   reloadFromSave(): void {
     this.xx.length = 0;
     this.Sx.length = 0;
-    for (const s of F.instance().player.getPropsData()) {
+    for (const s of GameMgr.instance().player.getPropsData()) {
       const type = this.getPropsType(s);
       (this.Yx(type) ? this.xx : this.Sx).push(type);
     }
   }
 
   Ox(): void {
-    if (F.instance().rank.currentRank.id >= this.Ue.Re) F.instance().player.openProps = true;
+    if (GameMgr.instance().rank.currentRank.id >= this.Ue.Re) GameMgr.instance().player.openProps = true;
   }
 
   getPropsType(t: any): any {
@@ -87,21 +81,21 @@ export class BattlePropsMgr extends C {
   }
 
   jx(): any[] {
-    return F.instance()
+    return GameMgr.instance()
       .player.getPropsData()
       .map((t: any) => this.getPropsType(t));
   }
 
   $x(t: number): boolean {
-    return F.instance().player.hasProps(t);
+    return GameMgr.instance().player.hasProps(t);
   }
 
   Nx(t: number): number {
-    return F.instance().player.getPropsLevel(t);
+    return GameMgr.instance().player.getPropsLevel(t);
   }
 
   qx(): { active: any[]; passive: any[] } {
-    const t = F.instance().player.getPropsData();
+    const t = GameMgr.instance().player.getPropsData();
     const s: any[] = [
       { type: null, level: 1 } as any,
       { type: null, level: 1 } as any,
@@ -142,10 +136,10 @@ export class BattlePropsMgr extends C {
         const lv = s[k].level ?? 1;
         n.push(this.Ue.isUpgradeable(id) ? [id, lv] : id);
       }
-    F.instance().player.setPropsData(n);
+    GameMgr.instance().player.setPropsData(n);
     this.xx.length = 0;
     this.Sx.length = 0;
-    for (const x of F.instance().player.getPropsData()) {
+    for (const x of GameMgr.instance().player.getPropsData()) {
       const type = this.getPropsType(x);
       (this.Yx(type) ? this.xx : this.Sx).push(type);
     }
@@ -161,13 +155,13 @@ export class BattlePropsMgr extends C {
   }
 
   Zx(t: any, s: number, i = 0, h = 0, e = 0, a = 1): any {
-    const n = _i.instance().ng(s);
+    const n = PropsFactory.instance().ng(s);
     n.init(t, s);
     this.kx.set(n.id, n);
     if (this.Ue.isUpgradeable(s)) n.jv(a);
     if (i !== 0) {
       e = this.Yx(s) ? 0 : 1;
-      wi.instance().Mv(i, t)!.setItem(n, h, e);
+      BoardMgr.instance().Mv(i, t)!.setItem(n, h, e);
       n.setParent(i, h, e);
     }
     return n;
@@ -175,7 +169,7 @@ export class BattlePropsMgr extends C {
 
   Xx(t: number): void {
     this.kx.get(t).gameOver();
-    _i.instance().recover(t);
+    PropsFactory.instance().recover(t);
     this.kx.delete(t);
   }
 
@@ -211,7 +205,7 @@ export class BattlePropsMgr extends C {
       else if (this.Ex && this.Ux[i] != null) lv = this.Ue.isUpgradeable(h[i]) ? this.Ux[i] : 1;
       else if (this.Ue.isUpgradeable(h[i])) {
         const max = this.Ue.Ue[h[i]].Xe?.length || 1;
-        lv = f.range(1, max + 1, true);
+        lv = MathE.range(1, max + 1, true);
       } else lv = 1;
       const a = this.Zx(t, h[i], 4, slot, 0, lv);
       if (!t && a.zv) this.Ax.push(a);
@@ -226,7 +220,7 @@ export class BattlePropsMgr extends C {
       else if (this.Ex && this.Fx[s] != null) lv = this.Ue.isUpgradeable(e[s]) ? this.Fx[s] : 1;
       else if (this.Ue.isUpgradeable(e[s])) {
         const max = this.Ue.Ue[e[s]].Xe?.length || 1;
-        lv = f.range(1, max + 1, true);
+        lv = MathE.range(1, max + 1, true);
       } else lv = 1;
       this.Zx(t, e[s], 4, pslot, 1, lv);
       pslot++;
@@ -279,7 +273,7 @@ export class BattlePropsMgr extends C {
   }
 
   tS(): void {
-    if (!F.instance().player.openProps) return;
+    if (!GameMgr.instance().player.openProps) return;
     if (this.Ex) {
       const t = this.Dx.filter((x) => x !== null);
       const s = this.Tx.filter((x) => x !== null);
@@ -290,19 +284,19 @@ export class BattlePropsMgr extends C {
       return;
     }
     const t =
-      F.instance().player.roundDay >= this.Ue.ta.length
+      GameMgr.instance().player.roundDay >= this.Ue.ta.length
         ? this.Ue.ta.length - 1
-        : F.instance().player.roundDay;
-    const s = j.instance().daysSinceRegister() > 1 ? this.Ue.ta[t] : this.Ue.Je[t];
-    const i = f.range(s[0], s[1] + 1, true);
-    const h = f.range(
+        : GameMgr.instance().player.roundDay;
+    const s = UpdateMgr.instance().daysSinceRegister() > 1 ? this.Ue.ta[t] : this.Ue.Je[t];
+    const i = MathE.range(s[0], s[1] + 1, true);
+    const h = MathE.range(
       Math.max(0, i - this.Ue.Ke),
       Math.min(i + 1, this.Ue.Ze + 1),
       true,
     );
     const e = i - h;
-    this.Mx = f.sample(this.Ue.$e, h);
-    this.Px = f.sample(this.Ue.Ne, e);
+    this.Mx = MathE.sample(this.Ue.$e, h);
+    this.Px = MathE.sample(this.Ue.Ne, e);
     this.bx = this.Mx.concat(this.Px);
     console.log("打印ai道具", h, e, this.bx);
   }
@@ -311,7 +305,7 @@ export class BattlePropsMgr extends C {
     const s = this.Ue.isUpgradeable(t);
     if (s && this.$x(t)) {
       const lv = this.Ue.Ue[t].Xe.length;
-      if (F.instance().player.upgradeProps(t, lv))
+      if (GameMgr.instance().player.upgradeProps(t, lv))
         for (const [, i] of this.kx)
           if (i.type === t && i.qd) {
             i.jv(this.Nx(t));
@@ -319,7 +313,7 @@ export class BattlePropsMgr extends C {
           }
       return;
     }
-    F.instance().player.addProps(t, 1, s);
+    GameMgr.instance().player.addProps(t, 1, s);
     this.Yx(t) ? this.xx.push(t) : this.Sx.push(t);
   }
 
@@ -327,38 +321,38 @@ export class BattlePropsMgr extends C {
     this.Yx(t)
       ? this.xx.splice(this.xx.indexOf(t), 1)
       : this.Sx.splice(this.Sx.indexOf(t), 1);
-    F.instance().player.removeProps(t);
+    GameMgr.instance().player.removeProps(t);
     this.Kn(t);
   }
 
   Kn(t: number): void {
-    F.instance().nerfLowPrProp(t);
+    GameMgr.instance().nerfLowPrProp(t);
   }
 
   mx(): void {
-    if (F.instance().map.me) return;
-    const t: any = wi.instance().Mv(1);
-    const s: any = wi.instance().Mv(3);
-    const i = F.instance().map.ue;
+    if (GameMgr.instance().map.me) return;
+    const t: any = BoardMgr.instance().Mv(1);
+    const s: any = BoardMgr.instance().Mv(3);
+    const i = GameMgr.instance().map.ue;
     for (let row = 0; row < t.dv.length; row++)
       for (let col = 5; col < t.dv[row].length; col++)
         if (i[row][col] == "1_0" && !t.mv[row][col])
-          return void y.instance.event(u.Ot, false, 0);
+          return void EventMgr.instance.event(u.Ot, false, 0);
     for (let k = 0; k < s.Lv.length; k++)
-      if (s.mv[k] instanceof bi) return void y.instance.event(u.Ot, false, 0);
+      if (s.mv[k] instanceof bi) return void EventMgr.instance.event(u.Ot, false, 0);
     const h = Oi.instance();
     let e = 0;
     for (let k = 0; k < s.mv.length; k++) if (h.M_(true, k)) e += 1;
     if (e > 2) e = 2;
-    if (e < 1) y.instance.event(u.Ot, false, 0);
+    if (e < 1) EventMgr.instance.event(u.Ot, false, 0);
     else {
-      y.instance.event(u.Ot, true, 0, e);
+      EventMgr.instance.event(u.Ot, true, 0, e);
       console.log("显示铲子广告");
     }
   }
 
   iS(t: any, s: number): boolean {
-    if (t) return F.instance().player.hasProps(s);
+    if (t) return GameMgr.instance().player.hasProps(s);
     for (const i of this.kx) if (i[1].type == s && i[1].qd == t) return true;
     return false;
   }

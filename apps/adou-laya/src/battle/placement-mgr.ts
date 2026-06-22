@@ -6,7 +6,7 @@
 // enqueued (`LF`) and processed one at a time (`mF`), with type-1/2 ops awaiting
 // an animation callback (`wF`) before the next runs. `gF`/`MF`/`EF` resolve a
 // drag into a merge (soldiers / generals / farmers), a swap, or a prop use,
-// validating placement via the shared `sn` rules engine (`pF`). `dF` handles the
+// validating placement via the shared `PlacementValidator` rules engine (`pF`). `dF` handles the
 // buy-a-unit action and (for the AI) refills the spawn box (`YF`). Opaque method
 // names kept verbatim — they encode the drag-resolution decision tree.
 
@@ -32,23 +32,14 @@ import { PropBase } from "./props";
 import { PlacementValidator } from "./placement-validator";
 
 const C = Singleton;
-const wi = BoardMgr;
-const Ki = EntityRegistry;
-const Zi = BattlePropsMgr;
-const F = GameMgr;
-const tt = TipMgr;
 const $ = AudioMgr;
-const y = EventMgr;
 const u = GameEvent;
-const Na = SpawnQueueMgr;
 const Oi = CellReservationMgr;
-const th = BuffMgr;
 const Ws = Soldier;
 const zs = BaseSoldier;
 const ki = Farmer;
 const gi = GeneralPart;
 const Si = PropBase;
-const sn = PlacementValidator;
 
 export class PlacementMgr extends C {
   static _F = "这个家伙好像不对劲";
@@ -64,11 +55,11 @@ export class PlacementMgr extends C {
   private pF!: any;
 
   init(): void {
-    this.CU = wi.instance();
-    this.cF = Ki.instance();
-    this.uF = Zi.instance();
-    this.dg = F.instance();
-    this.pF = new sn(this.CU, this.dg);
+    this.CU = BoardMgr.instance();
+    this.cF = EntityRegistry.instance();
+    this.uF = BattlePropsMgr.instance();
+    this.dg = GameMgr.instance();
+    this.pF = new PlacementValidator(this.CU, this.dg);
   }
 
   yF(t: any): any {
@@ -110,7 +101,7 @@ export class PlacementMgr extends C {
     const i = this.CU.Mv(s.vF, s.qd).getItem(s.targetX, s.targetY);
     return i
       ? i instanceof Ws && this.kF(i.id)
-        ? (tt.instance().showTip(PlacementMgr._F), { success: false, reason: "目标处于魅惑状态" })
+        ? (TipMgr.instance().showTip(PlacementMgr._F), { success: false, reason: "目标处于魅惑状态" })
         : { success: true }
       : { success: false, reason: "目标位置没有物体" };
   }
@@ -140,7 +131,7 @@ export class PlacementMgr extends C {
 
   AF(s: any, _i: any, _h: any, _e: any, a: number, n: number, r: number, o: any, l: any): any {
     if (s.jd) {
-      if (this.kF(s.id)) tt.instance().showTip(PlacementMgr._F);
+      if (this.kF(s.id)) TipMgr.instance().showTip(PlacementMgr._F);
       return { success: false, reason: "该单位不可拖动" };
     }
     if (a !== 1 && a !== 3) return { success: false, reason: "士兵只能放置到地图或刷新栏" };
@@ -165,7 +156,7 @@ export class PlacementMgr extends C {
     }
     return !l || l instanceof Ws
       ? l instanceof Ws && l.jd
-        ? (this.kF(l.id) && tt.instance().showTip(PlacementMgr._F), { success: false, reason: "目标单位不可拖动" })
+        ? (this.kF(l.id) && TipMgr.instance().showTip(PlacementMgr._F), { success: false, reason: "目标单位不可拖动" })
         : { success: true }
       : { success: false, reason: "不能与道具交换位置" };
   }
@@ -226,7 +217,7 @@ export class PlacementMgr extends C {
         this.cF._S(s.id, t.Xd);
         this.cF.Lx(t.id);
         s.cL();
-        Zi.instance().mx();
+        BattlePropsMgr.instance().mx();
         this.wF();
       },
       true,
@@ -262,7 +253,7 @@ export class PlacementMgr extends C {
         t.Cd.setTo(o, l);
         this.cF.uk(t.id);
         s.cL();
-        Zi.instance().mx();
+        BattlePropsMgr.instance().mx();
         this.wF();
       },
       true,
@@ -277,7 +268,7 @@ export class PlacementMgr extends C {
     h.setItem(t, l, c);
     t.lL(o, l, c);
     s.lL(_a, n, r);
-    if (u2) Zi.instance().mx();
+    if (u2) BattlePropsMgr.instance().mx();
     this.wF();
   }
 
@@ -288,7 +279,7 @@ export class PlacementMgr extends C {
     t.lL(n, r, o);
     if (l)
       Laya.timer.once(200, this, () => {
-        Zi.instance().mx();
+        BattlePropsMgr.instance().mx();
       });
     this.wF();
     return { success: true };
@@ -303,7 +294,7 @@ export class PlacementMgr extends C {
       s.tk(i, this.CU);
       if (s.qd) {
         const c = t.vF;
-        if (c === 1 || c === 2) y.instance.event(u.Nt);
+        if (c === 1 || c === 2) EventMgr.instance.event(u.Nt);
       }
       this.wF();
       return { success: true };
@@ -311,7 +302,7 @@ export class PlacementMgr extends C {
     s.ak();
     this.wF();
     const reason = h.reason || "道具不能在该位置使用";
-    if (reason) tt.instance().showTip(reason);
+    if (reason) TipMgr.instance().showTip(reason);
     return { success: false, reason };
   }
 
@@ -335,7 +326,7 @@ export class PlacementMgr extends C {
     const h = s ? this.dg.battleState.yi : this.dg.battleState.fi;
     if (i < h) {
       if (s) {
-        tt.instance().showTip("馒头不足");
+        TipMgr.instance().showTip("馒头不足");
         $.instance().playSound("popup_notification");
       }
       return { success: false, reason: "馒头不足" };
@@ -361,7 +352,7 @@ export class PlacementMgr extends C {
     const i: any[] = [];
     const h: any[] = [];
     for (let k = 0; k < s; k++) {
-      const unit = Na.instance().LU(false);
+      const unit = SpawnQueueMgr.instance().LU(false);
       if (this.dg.battleState.ki < 2 || unit === "铲") i.push(unit);
       else h.push(unit);
     }
@@ -381,7 +372,7 @@ export class PlacementMgr extends C {
   OF(t: any): void {
     let s: any;
     const i = this.CU.Mv(3, t);
-    const h = t && Zi.instance().iS(t, 21);
+    const h = t && BattlePropsMgr.instance().iS(t, 21);
     for (let k = 0; k < i.mv.length; k++) {
       s = i.getItem(k);
       if (s instanceof zs) {
@@ -389,7 +380,7 @@ export class PlacementMgr extends C {
           Laya.Point.TEMP.x = 10;
           Laya.Point.TEMP.y = 0;
           s.Yn.localToGlobal(Laya.Point.TEMP);
-          q.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, s.level);
+          EffectMgr.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, s.level);
         }
         this.cF.Lx(s.id);
       } else if (s instanceof gi) {
@@ -397,7 +388,7 @@ export class PlacementMgr extends C {
           Laya.Point.TEMP.x = 10;
           Laya.Point.TEMP.y = 0;
           s.Yn.localToGlobal(Laya.Point.TEMP);
-          q.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, s.level);
+          EffectMgr.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, s.level);
         }
         this.cF.gx(s.id);
       } else if (s instanceof ki) this.cF.uk(s.id);
@@ -418,7 +409,7 @@ export class PlacementMgr extends C {
   }
 
   kF(t: number): boolean {
-    return th.instance().qS(t, 19);
+    return BuffMgr.instance().qS(t, 19);
   }
 }
 
@@ -429,4 +420,3 @@ export const en = PlacementMgr;
 import { Prop as xi } from "./prop";
 import { EffectMgr } from "./effect-mgr";
 import { GeneralAIController as mn } from "./ai-controller";
-const q = EffectMgr;

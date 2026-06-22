@@ -12,7 +12,6 @@
 import { regClass, property } from "../laya/engine";
 import { MathE } from "../core/math-e";
 
-const f = MathE;
 const Io = Laya.Tween;
 const Do = Laya.Handler;
 const To = Laya.Image;
@@ -64,7 +63,7 @@ export class EffectComponent extends Laya.Script {
         this.rotate();
         break;
       case 3:
-        this.direction = f.angleToDirection(this.c.rotation);
+        this.direction = MathE.angleToDirection(this.c.rotation);
         this.C1();
         break;
       case 4:
@@ -127,12 +126,12 @@ export class EffectComponent extends Laya.Script {
 
   O1(): void {
     const t = () => {
-      const scale = f.range(0.7, 1.1);
+      const scale = MathE.range(0.7, 1.1);
       const dur = 4000 * (scale - this.c.scaleX);
       Io.to(this.c, { scaleX: scale, scaleY: scale }, dur, Laya.Ease.sineIn, Laya.Handler.create(this, s));
     };
     const s = () => {
-      const scale = f.range(0, 0.25);
+      const scale = MathE.range(0, 0.25);
       const dur = (2000 / 0.45) * (this.c.scaleX - scale);
       Io.to(this.c, { scaleX: scale, scaleY: scale }, dur, Laya.Ease.sineIn, Laya.Handler.create(this, t));
     };
@@ -140,14 +139,14 @@ export class EffectComponent extends Laya.Script {
   }
 
   G1(): void {
-    this.c.alpha = f.range(0, 0.45);
+    this.c.alpha = MathE.range(0, 0.45);
     const t = () => {
-      const a = f.range(0.8, 1);
+      const a = MathE.range(0.8, 1);
       const dur = 4000 * (a - this.c.alpha);
       Io.to(this.c, { alpha: a }, dur, Laya.Ease.sineIn, Laya.Handler.create(this, s));
     };
     const s = () => {
-      const a = f.range(0, 0.25);
+      const a = MathE.range(0, 0.25);
       const dur = (2000 / 0.45) * (this.c.alpha - a);
       Io.to(this.c, { alpha: a }, dur, Laya.Ease.sineIn, Laya.Handler.create(this, t));
     };

@@ -29,8 +29,6 @@ const gi = GeneralPart;
 const ki = Farmer;
 const ci = BowSoldier;
 const Le = BowWeaponBase;
-const Ki = EntityRegistry;
-const th = BuffMgr;
 
 type Result = { valid: boolean; reason?: string };
 
@@ -283,7 +281,7 @@ export class PlacementValidator {
     else {
       if (!(i instanceof gi)) return { valid: true };
       if (i.Zw !== -1) {
-        const e = Ki.instance().Qk.get(i.Zw);
+        const e = EntityRegistry.instance().Qk.get(i.Zw);
         h = e ? e.level : 0;
       } else h = i.level;
     }
@@ -301,7 +299,7 @@ export class PlacementValidator {
     let h = false;
     if (i instanceof ci) h = true;
     else if (i instanceof gi && i.Zw !== -1) {
-      const e = Ki.instance().Qk.get(i.Zw);
+      const e = EntityRegistry.instance().Qk.get(i.Zw);
       if (e && e.QE && e.QE instanceof Le) h = true;
     }
     return h ? { valid: true } : { valid: false, reason: "只能对远程单位使用" };
@@ -317,7 +315,7 @@ export class PlacementValidator {
       if (!(i instanceof gi && i.Zw !== -1)) return { valid: true };
       h = i.Zw;
     }
-    return th.instance().qS(h, t.$k)
+    return BuffMgr.instance().qS(h, t.$k)
       ? t.$k === 2
         ? { valid: false, reason: "该单位已经是百步穿杨了！" }
         : { valid: false, reason: "该单位已有此效果" }
@@ -336,7 +334,7 @@ export class PlacementValidator {
     } else {
       if (!(i instanceof gi)) return { valid: true };
       if (i.Zw !== -1) {
-        const a = Ki.instance().Qk.get(i.Zw);
+        const a = EntityRegistry.instance().Qk.get(i.Zw);
         if (!a) return { valid: true };
         h = a.level;
         e = a.maxLevel;

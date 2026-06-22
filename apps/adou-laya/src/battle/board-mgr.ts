@@ -13,7 +13,6 @@
 import { Singleton } from "../core/singleton";
 import { GameMgr } from "../core/game-mgr";
 
-const F = GameMgr;
 
 /** One placement grid (1D list, or 2D when `cols` given). (`mi`) */
 export class BoardGrid {
@@ -120,10 +119,10 @@ export class BoardMgr extends Singleton {
   }
 
   private Sv(t: boolean): void {
-    const s = F.instance().map.ue;
+    const s = GameMgr.instance().map.ue;
     this.bv(1, t, s.length, s[0].length);
     this.bv(2, t, s.length, s[0].length);
-    this.bv(3, t, F.instance().map.ye);
+    this.bv(3, t, GameMgr.instance().map.ye);
     this.bv(4, t, 6, 2);
     this.bv(5, t, 2, 1);
   }

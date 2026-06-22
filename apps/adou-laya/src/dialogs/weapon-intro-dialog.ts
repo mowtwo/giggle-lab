@@ -12,8 +12,6 @@ import { regClass } from "../laya/engine";
 import { SceneMgr } from "../core/scene-mgr";
 import { GameMgr } from "../core/game-mgr";
 
-const K = SceneMgr;
-const F = GameMgr;
 
 @regClass("HbyZPlGGQuCLkT5uT4N45g")
 export class WeaponIntroDialog extends Laya.Dialog {
@@ -32,19 +30,19 @@ export class WeaponIntroDialog extends Laya.Dialog {
   }
 
   onEnable(): void {
-    const t = K.instance().getDialogData("WeaponIntroDialog");
-    const s = F.instance().weaponData.getWeapon(t.weaponId);
+    const t = SceneMgr.instance().getDialogData("WeaponIntroDialog");
+    const s = GameMgr.instance().weaponData.getWeapon(t.weaponId);
     const i = s.intro;
     this.weaponName.text = s.txt;
-    this.weaponName.color = F.instance().weaponData.rarityStrokeColors[s.rarity];
+    this.weaponName.color = GameMgr.instance().weaponData.rarityStrokeColors[s.rarity];
     this.weaponIntroTxt.text = i;
     this.attTxt.text = s.addAttPower.toString();
-    this.attTxt.color = F.instance().weaponData.rarityStrokeColors[s.rarity];
+    this.attTxt.color = GameMgr.instance().weaponData.rarityStrokeColors[s.rarity];
     const h = (this.rarityList.width - 10) / 5;
     this.rarityIndex.x = (s.rarity + 0.5) * h + 5;
   }
 
   Uu(): void {
-    K.instance().closeDialog("WeaponIntroDialog");
+    SceneMgr.instance().closeDialog("WeaponIntroDialog");
   }
 }

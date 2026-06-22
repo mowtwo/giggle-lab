@@ -25,15 +25,7 @@ import { MathE } from "../core/math-e";
 import { pt } from "../battle/analytics-mgr";
 
 const Zt = AnimPlayer;
-const q = EffectMgr;
 const $ = AudioMgr;
-const j = UpdateMgr;
-const F = GameMgr;
-const Mt = PlatformMgr;
-const K = SceneMgr;
-const tt = TipMgr;
-const z = PrefabFactory;
-const f = MathE;
 
 @regClass("36WnNn_bSKilkYpbnYn_9A")
 export class GameOverScene extends Laya.Scene {
@@ -158,7 +150,7 @@ export class GameOverScene extends Laya.Scene {
     this.scroll1.x = 264;
     this.scroll2.x = 324;
     this.scrollMask.width = 72;
-    q.instance().bindButtons([this.getBtn, this.getBtnAd]);
+    EffectMgr.instance().bindButtons([this.getBtn, this.getBtnAd]);
   }
 
   onOpened(t: any): void {
@@ -169,7 +161,7 @@ export class GameOverScene extends Laya.Scene {
     this.winBox.visible = this.winBg.visible = t.isWin;
     this.loseBox.visible = this.loseBg.visible = !t.isWin;
     this.weaponBox.visible = t.isWin;
-    this.allGoldNumTxt.text = F.instance().player.gold.toString();
+    this.allGoldNumTxt.text = GameMgr.instance().player.gold.toString();
     this.goldNum = this.isWin ? 20 : 5;
     if (this.HH || this.WH) {
       $.instance().playSound("game_lose");
@@ -186,7 +178,7 @@ export class GameOverScene extends Laya.Scene {
     if (this.isWin) this.GN();
     else this.HN();
     this.WN();
-    j.instance().register("gameOverScene", this, this.update);
+    UpdateMgr.instance().register("gameOverScene", this, this.update);
     $.instance().stopDrum();
   }
 
@@ -231,7 +223,7 @@ export class GameOverScene extends Laya.Scene {
     this.qN(this.getBtn);
     this.qN(this.getBtnAd);
     this.VN();
-    if (Laya.Browser.onTTMiniGame && Mt.instance().Lu()) K.instance().openDialog("ShareLpDialog");
+    if (Laya.Browser.onTTMiniGame && PlatformMgr.instance().Lu()) SceneMgr.instance().openDialog("ShareLpDialog");
   }
 
   qN(t: any): void {
@@ -264,7 +256,7 @@ export class GameOverScene extends Laya.Scene {
   fX(): void {
     for (let t = 0; t < 5; t++) {
       const s = new Laya.Sprite();
-      s.size(F.instance().map.gridWid, F.instance().map.gridHei);
+      s.size(GameMgr.instance().map.gridWid, GameMgr.instance().map.gridHei);
       s.anchorX = 0.5;
       s.anchorY = 0.5;
       s.name = "thiefRoot";
@@ -273,7 +265,7 @@ export class GameOverScene extends Laya.Scene {
       i.pos(17, 58);
       i.alpha = 0.5;
       const h = Zt.instance().pf("thief");
-      h.size(F.instance().map.gridWid, F.instance().map.gridHei);
+      h.size(GameMgr.instance().map.gridWid, GameMgr.instance().map.gridHei);
       h.pos(51, 52);
       h.anchorX = 0.5;
       h.anchorY = 0.5;
@@ -304,10 +296,10 @@ export class GameOverScene extends Laya.Scene {
   TW(t?: any, s = false): void {
     if (this.WH) this.Bu();
     else if (s)
-      Mt.instance().uu(
+      PlatformMgr.instance().uu(
         () => {
           const reward = 2 * this.goldNum;
-          tt.instance().showTip("恭喜您获得了" + reward + "蜜獾币", 1000);
+          TipMgr.instance().showTip("恭喜您获得了" + reward + "蜜獾币", 1000);
           this.ZN(this.getBtnAd, reward, () => {
             this.Bu(true);
           });
@@ -315,7 +307,7 @@ export class GameOverScene extends Laya.Scene {
           this.getBtnAd.mouseEnabled = false;
         },
         () => {
-          tt.instance().showTip("观看完整广告才可获得奖励呦~");
+          TipMgr.instance().showTip("观看完整广告才可获得奖励呦~");
           this.getBtn.mouseEnabled = true;
           this.getBtnAd.mouseEnabled = true;
         },
@@ -323,7 +315,7 @@ export class GameOverScene extends Laya.Scene {
       );
     else {
       const reward = this.goldNum;
-      tt.instance().showTip("恭喜您获得了" + reward + "蜜獾币", 1000);
+      TipMgr.instance().showTip("恭喜您获得了" + reward + "蜜獾币", 1000);
       this.ZN(this.getBtn, reward, () => {
         this.Bu(false);
       });
@@ -341,7 +333,7 @@ export class GameOverScene extends Laya.Scene {
     this.goldBg.scale(0, 0);
     this.globalToLocal(e);
     this.globalToLocal(a);
-    const r = F.instance().player.gold;
+    const r = GameMgr.instance().player.gold;
     const o = r + s;
     const l = s > 0 ? Math.floor(s / 8) : 0;
     const c = s > 0 ? s % 8 : 0;
@@ -353,7 +345,7 @@ export class GameOverScene extends Laya.Scene {
       if (fDone)
         Laya.timer.once(300, this, () => {
           this.allGoldNumTxt.text = o.toString();
-          F.instance().player.gold = o;
+          GameMgr.instance().player.gold = o;
           if (i) i();
         });
     };
@@ -365,11 +357,11 @@ export class GameOverScene extends Laya.Scene {
         y += cnt;
         p++;
         this.allGoldNumTxt.text = y.toString();
-        F.instance().player.gold = y;
+        GameMgr.instance().player.gold = y;
       }
     };
     if (s > 0)
-      q.instance().explodeAndFlyReward(
+      EffectMgr.instance().explodeAndFlyReward(
         this,
         this.gold.skin,
         this.gold.width,
@@ -395,8 +387,8 @@ export class GameOverScene extends Laya.Scene {
     this.upTxt.visible = this.isWin;
     this.lightning.visible = false;
     this.cloud.visible = !this.isWin;
-    this.rankTxt1.text = F.instance().rank.lastRank.rank;
-    this.KN(F.instance().rank.lastRank.rank, F.instance().rank.lastRank.level);
+    this.rankTxt1.text = GameMgr.instance().rank.lastRank.rank;
+    this.KN(GameMgr.instance().rank.lastRank.rank, GameMgr.instance().rank.lastRank.level);
     if (this.isWin) this.JN();
     else this.tq();
   }
@@ -422,14 +414,14 @@ export class GameOverScene extends Laya.Scene {
         });
         break;
       case GameOverScene.iq.aq: {
-        const t = F.instance().rank.currentRank.level - 1;
-        const s = F.instance().rank.currentRank.rank === "皇帝";
+        const t = GameMgr.instance().rank.currentRank.level - 1;
+        const s = GameMgr.instance().rank.currentRank.rank === "皇帝";
         if (t === 0) {
-          this.rankTxt2.text = F.instance().rank.currentRank.rank;
+          this.rankTxt2.text = GameMgr.instance().rank.currentRank.rank;
           this.rankTxt2.y = -this.rankTxt2.height;
           this.nq(() => {
             this.rq(t, s, () => {
-              if (s) this.KN(F.instance().rank.currentRank.rank, F.instance().rank.currentRank.level);
+              if (s) this.KN(GameMgr.instance().rank.currentRank.rank, GameMgr.instance().rank.currentRank.level);
               this.oq(t, s);
               this.PN = GameOverScene.iq.lq;
               this.hq();
@@ -486,18 +478,18 @@ export class GameOverScene extends Laya.Scene {
         });
         break;
       case GameOverScene.gq.Lq: {
-        if (F.instance().rank.lastRank.id === 0 && F.instance().rank.lastRank.level === 1) {
+        if (GameMgr.instance().rank.lastRank.id === 0 && GameMgr.instance().rank.lastRank.level === 1) {
           this.AN = GameOverScene.gq.mq;
           return void this.dq();
         }
-        const t = F.instance().rank.currentRank.id < F.instance().rank.lastRank.id;
-        const s = F.instance().rank.currentRank.rank;
-        const i = F.instance().rank.currentRank.level;
+        const t = GameMgr.instance().rank.currentRank.id < GameMgr.instance().rank.lastRank.id;
+        const s = GameMgr.instance().rank.currentRank.rank;
+        const i = GameMgr.instance().rank.currentRank.level;
         const h = s === "皇帝";
-        const e = F.instance().rank.lastRank.rank === "皇帝";
+        const e = GameMgr.instance().rank.lastRank.rank === "皇帝";
         if (t)
           if (e && !h) {
-            const lvl = F.instance().rank.lastRank.level;
+            const lvl = GameMgr.instance().rank.lastRank.level;
             this.vq(lvl - 1, true, () => {
               this.kq(() => {
                 this.eq(() => {
@@ -534,13 +526,13 @@ export class GameOverScene extends Laya.Scene {
               });
             });
         else {
-          if (F.instance().rank.currentRank.id === 0 && F.instance().rank.lastRank.level === 1) {
+          if (GameMgr.instance().rank.currentRank.id === 0 && GameMgr.instance().rank.lastRank.level === 1) {
             this.AN = GameOverScene.gq.mq;
             return void this.dq();
           }
           this.wq();
-          const lvl = F.instance().rank.lastRank.level;
-          const e2 = F.instance().rank.lastRank.rank === "皇帝";
+          const lvl = GameMgr.instance().rank.lastRank.level;
+          const e2 = GameMgr.instance().rank.lastRank.rank === "皇帝";
           const a = e2 ? lvl - 1 : Math.min(lvl - 1, 4);
           this.vq(a, e2, () => {
             if (h) this.KN(s, i);
@@ -622,10 +614,10 @@ export class GameOverScene extends Laya.Scene {
       Laya.timer.once(200 * h, this, () => {
         this.FN(s[h]).skin = "resources/img/gameOverUI/star0.png";
         let a = 0;
-        j.instance().register("flyStar" + h, this, (delta: number) => {
+        UpdateMgr.instance().register("flyStar" + h, this, (delta: number) => {
           a += delta / 500;
           if (
-            f.quadraticBezierPoint(
+            MathE.quadraticBezierPoint(
               { x: e.x, y: e.y } as any,
               { x: e.x, y: e.y - 100 } as any,
               { x: i.x, y: i.y } as any,
@@ -633,7 +625,7 @@ export class GameOverScene extends Laya.Scene {
               a,
             )
           ) {
-            j.instance().unregister("flyStar" + h);
+            UpdateMgr.instance().unregister("flyStar" + h);
             Laya.Tween.to(e, { scaleX: 0, scaleY: 0, alpha: 0 }, 100);
             Laya.Tween.to(this.rankTxt1, { y: this.rankTxt1.y + this.rankTxt1.height / 5 }, 100, Laya.Ease.cubicIn);
             Laya.Tween.to(this.rankTxt2, { y: this.rankTxt2.y + this.rankTxt2.height / 5 }, 100, Laya.Ease.cubicIn);
@@ -790,20 +782,20 @@ export class GameOverScene extends Laya.Scene {
   }
 
   xq(): void {
-    const t = z.instance().getItem("flagEff", this);
-    t.pos(640, f.range(-300, 300));
-    t.alpha = f.range(0.5, 1);
-    const s = f.range(0, 5, true);
+    const t = PrefabFactory.instance().getItem("flagEff", this);
+    t.pos(640, MathE.range(-300, 300));
+    t.alpha = MathE.range(0.5, 1);
+    const s = MathE.range(0, 5, true);
     t.skin = "resources/img/rank/flagEff" + s + ".png";
     this.winBox.addChild(t);
     Laya.Tween.to(
       t,
-      { x: -100, y: f.range(t.y + 200, t.y + 400) },
+      { x: -100, y: MathE.range(t.y + 200, t.y + 400) },
       8000,
       null,
       Laya.Handler.create(this, () => {
         t.removeSelf();
-        z.instance().recover("flagEff", t);
+        PrefabFactory.instance().recover("flagEff", t);
       }),
     );
   }
@@ -895,7 +887,7 @@ export class GameOverScene extends Laya.Scene {
 
   VN(): void {
     this.$N();
-    const s = F.instance().battleState.Wi;
+    const s = GameMgr.instance().battleState.Wi;
     if (!s || s.length === 0) return;
     const i: number[] = [];
     for (let t = 0; t < s.length; t++) {
@@ -904,8 +896,8 @@ export class GameOverScene extends Laya.Scene {
       for (let k = 0; k < e; k++) i.push(h.weaponId);
     }
     i.sort((a, b) => {
-      const wa = F.instance().weaponData.weapons.get(a);
-      const wb = F.instance().weaponData.weapons.get(b);
+      const wa = GameMgr.instance().weaponData.weapons.get(a);
+      const wb = GameMgr.instance().weaponData.weapons.get(b);
       const ra = wa ? wa.rarity : -1;
       const rb = wb ? wb.rarity : -1;
       return rb !== ra ? rb - ra : a - b;
@@ -918,15 +910,15 @@ export class GameOverScene extends Laya.Scene {
     let r = 0;
     for (let s2 = 0; s2 < i.length; s2++) {
       const o = i[s2];
-      const l = F.instance().weaponData.weapons.get(o);
+      const l = GameMgr.instance().weaponData.weapons.get(o);
       if (!l) continue;
       const c = l.rarity;
-      const u = z.instance().getItem("weaponFragment", this);
+      const u = PrefabFactory.instance().getItem("weaponFragment", this);
       const p = u.getChildByName("bg");
       const y = u.getChildByName("name");
       p.skin = "resources/img/weaponBag/rarity" + c + ".png";
       y.text = l.txt;
-      y.color = F.instance().weaponData.rarityColors[c] ?? "#ffffff";
+      y.color = GameMgr.instance().weaponData.rarityColors[c] ?? "#ffffff";
       const fw = Math.max(y.textWidth || 0, y.text.length * (y.fontSize || 32));
       const g = Math.max(100, fw + 36);
       const d = p.height;
@@ -964,7 +956,7 @@ export class GameOverScene extends Laya.Scene {
       const s = this.IN[t];
       Laya.Tween.killAll(s);
       if (s.parent) s.removeSelf();
-      z.instance().recover("weaponFragment", s);
+      PrefabFactory.instance().recover("weaponFragment", s);
     }
     this.IN.length = 0;
   }
@@ -972,13 +964,13 @@ export class GameOverScene extends Laya.Scene {
   Bu(t = false): void {
     if (!t || this.HH) {
       const scene = this.HH ? "exit" : "settlement";
-      Mt.instance().$y(scene);
+      PlatformMgr.instance().$y(scene);
     }
-    j.instance().unregister("gameOverScene");
+    UpdateMgr.instance().unregister("gameOverScene");
     this.$N();
     this.getBtn.mouseEnabled = true;
     this.getBtnAd.mouseEnabled = true;
-    q.instance().clearFlyRewards();
+    EffectMgr.instance().clearFlyRewards();
     if (this.box) {
       const t2 = this.box._children ? this.box._children.slice() : [];
       for (let s = t2.length - 1; s >= 0; s--) {
@@ -1011,10 +1003,10 @@ export class GameOverScene extends Laya.Scene {
     Laya.Tween.killAll(this.goldBg);
     this.goldBg.scale(0, 0);
     console.log("关闭结算场景");
-    K.instance().closeScene("GameOverScene");
-    K.instance().openScene("MainScene");
+    SceneMgr.instance().closeScene("GameOverScene");
+    SceneMgr.instance().openScene("MainScene");
     // 去掉"结束后提示选技能":不再自动打开技能选择(ShopScene)。
-    F.instance().battleState.Wi.length = 0;
+    GameMgr.instance().battleState.Wi.length = 0;
     this.BN.length = 0;
     Laya.Tween.killAll(this.arrow);
   }

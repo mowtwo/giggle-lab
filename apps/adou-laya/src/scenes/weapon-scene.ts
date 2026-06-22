@@ -22,14 +22,6 @@ import { PrefabPool } from "../battle/prefab-pool";
 import { TipMgr } from "../core/tip-mgr";
 import { MathE } from "../core/math-e";
 
-const F = GameMgr;
-const q = EffectMgr;
-const eh = WeaponFragmentMgr;
-const K = SceneMgr;
-const z = PrefabFactory;
-const H = PrefabPool;
-const tt = TipMgr;
-const f = MathE;
 
 @regClass("2W4HBomWSJ6oNhdw0SDA8A")
 export class WeaponScene extends Laya.Scene {
@@ -130,26 +122,26 @@ export class WeaponScene extends Laya.Scene {
     this.recycleBtn.on(Laya.Event.CLICK, this, this.XJ);
     this.switchBtn1.on(Laya.Event.CLICK, this, () => this.GJ(-1));
     this.switchBtn2.on(Laya.Event.CLICK, this, () => this.GJ(1));
-    q.instance().bindButtons([this.xBtn, this.recycleBtn, this.switchBtn1, this.switchBtn2]);
+    EffectMgr.instance().bindButtons([this.xBtn, this.recycleBtn, this.switchBtn1, this.switchBtn2]);
   }
 
   onOpened(_t?: any): void {
     this.HJ = this.mihuan.getComponent(Laya.Spine2DRenderNode);
     this.WJ();
-    eh.instance().refresh();
+    WeaponFragmentMgr.instance().refresh();
     this.gJ.clear();
-    const i = F.instance().player.getNewWeaponIds();
+    const i = GameMgr.instance().player.getNewWeaponIds();
     if (i.length > 0) for (const t of i) this.gJ.set(t, (this.gJ.get(t) ?? 0) + 1);
     this.zJ(this.gJ);
     this.jJ();
     if (i.length > 0) {
       const t = this.gJ;
-      const s = F.instance().weaponData;
+      const s = GameMgr.instance().weaponData;
       const list = Array.from(t.entries()).map(([id, count]) => {
         const w = s.getWeapon(id);
         return { weaponId: id, name: w ? w.txt : "", count };
       });
-      K.instance().openDialog("NewWeaponDialog", false, { list, LW: () => this.$J() });
+      SceneMgr.instance().openDialog("NewWeaponDialog", false, { list, LW: () => this.$J() });
     }
     this.on(Laya.Event.MOUSE_DOWN, this, this.NJ);
     this.on(Laya.Event.MOUSE_MOVE, this, this.qJ);
@@ -168,7 +160,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   QJ(): void {
-    const t = f.range(5000, 8000, true);
+    const t = MathE.range(5000, 8000, true);
     Laya.timer.once(t, this, () => {
       this.mihuan.once(Laya.Event.STOPPED, this, this.ZJ);
       this.HJ.play("ci", false);
@@ -188,7 +180,7 @@ export class WeaponScene extends Laya.Scene {
     this.weaponPanel.removeChildren();
     this.iJ.length = 0;
     this.rJ = 0;
-    const e = eh
+    const e = WeaponFragmentMgr
       .instance()
       .Fb()
       .filter((x: any) => !x.Sb)
@@ -307,17 +299,17 @@ export class WeaponScene extends Laya.Scene {
   }
 
   $J(): void {
-    F.instance().player.clearNewWeapons();
+    GameMgr.instance().player.clearNewWeapons();
     this.gJ.clear();
     this.y0();
   }
 
   y0(): void {
-    if (!F.instance().player.weaponSceneDragGuideDone) this.f0();
+    if (!GameMgr.instance().player.weaponSceneDragGuideDone) this.f0();
   }
 
   f0(): void {
-    if (F.instance().player.weaponSceneDragGuideDone || this.bJ) return;
+    if (GameMgr.instance().player.weaponSceneDragGuideDone || this.bJ) return;
     const t = this.g0();
     if (t < 0) return;
     this.IJ = t;
@@ -434,7 +426,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   x0(t: boolean): void {
-    if (t) F.instance().player.weaponSceneDragGuideDone = true;
+    if (t) GameMgr.instance().player.weaponSceneDragGuideDone = true;
     this.bJ = false;
     this.IJ = -1;
     this.BJ = 0;
@@ -455,7 +447,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   b0(t: number): string {
-    return F.instance().weaponData.rarityStrokeColors[t] ?? "#000000";
+    return GameMgr.instance().weaponData.rarityStrokeColors[t] ?? "#000000";
   }
 
   M0(t: number): string {
@@ -532,7 +524,7 @@ export class WeaponScene extends Laya.Scene {
         return void (node.type === "group" ? this.D0(node.Ai[0]) : this.D0(node.Hn));
       }
       if (t === "generalPanel" && i >= 0 && h >= 0) {
-        const node = eh.instance().Yb(h);
+        const node = WeaponFragmentMgr.instance().Yb(h);
         if (!node) return;
         this.D0(node);
       }
@@ -542,7 +534,7 @@ export class WeaponScene extends Laya.Scene {
   D0(t: any): void {
     if (!t) return;
     const s = t.weaponId;
-    K.instance().openDialog("WeaponIntroDialog", false, {
+    SceneMgr.instance().openDialog("WeaponIntroDialog", false, {
       weaponId: s,
       isComplete: t.isComplete,
       fragmentNum: t.fragmentNum,
@@ -552,8 +544,8 @@ export class WeaponScene extends Laya.Scene {
 
   T0(): void {
     if (this.JK < 0) return;
-    const t = eh.instance();
-    const s = F.instance().generals.generalNames.length;
+    const t = WeaponFragmentMgr.instance();
+    const s = GameMgr.instance().generals.generalNames.length;
     for (let i = 0; i < this.dJ.length && i < s; i++) {
       const node = this.dJ[i];
       if (!node) continue;
@@ -678,7 +670,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   jJ(): void {
-    const t = F.instance().generals.generalNames;
+    const t = GameMgr.instance().generals.generalNames;
     const s = (this.generalPanel.width - 24) / 4;
     this.generalPanel.removeChildren();
     this.dJ.length = 0;
@@ -716,8 +708,8 @@ export class WeaponScene extends Laya.Scene {
     const h = this.q0(t, s);
     if (h < 0) return void this.N0(true);
     if (this.KK === "generalPanel" && h === this.tJ) return void this.N0(true);
-    if (!eh.instance().jb(this.JK, h, 0)) return void this.N0(true);
-    const e = F.instance().player.equip[h];
+    if (!WeaponFragmentMgr.instance().jb(this.JK, h, 0)) return void this.N0(true);
+    const e = GameMgr.instance().player.equip[h];
     if (e < 0) return void this.N0(true);
     const a = this.LJ[h];
     if (!a) return void this.N0(true);
@@ -736,7 +728,7 @@ export class WeaponScene extends Laya.Scene {
 
   Q0(t: number): number {
     if (t < 0) return 0;
-    const i = F.instance().weaponData.getWeapon(t);
+    const i = GameMgr.instance().weaponData.getWeapon(t);
     return i?.addAttPower ?? 0;
   }
 
@@ -744,12 +736,12 @@ export class WeaponScene extends Laya.Scene {
     if (s === i) return;
     const h = this.LJ[t];
     if (!h || h.destroyed) return;
-    const e = z.instance().getItem("attChangeTip", this);
+    const e = PrefabFactory.instance().getItem("attChangeTip", this);
     Laya.Tween.killAll(e);
     const a = e.getChildByName("oldNum");
     const n = e.getChildByName("newNum");
     const r = e.getChildByName("arrow");
-    if (!a || !n || !r) return void z.instance().recover("attChangeTip", e);
+    if (!a || !n || !r) return void PrefabFactory.instance().recover("attChangeTip", e);
     a.text = String(s);
     n.text = String(i);
     const o = i > s;
@@ -820,7 +812,7 @@ export class WeaponScene extends Laya.Scene {
   V0(t: any, s: number): void {
     const i = t.getChildByName("name");
     if (!i) return;
-    const h = eh.instance().Yb(this.JK);
+    const h = WeaponFragmentMgr.instance().Yb(this.JK);
     if (!h) return;
     const e = this.Q0(h.weaponId);
     const a = this.Q0(s);
@@ -882,7 +874,7 @@ export class WeaponScene extends Laya.Scene {
     if (h < 0) return;
     const e = this.iJ[h];
     if (!e || e.destroyed || !e.parent) return;
-    const a = F.instance().weaponData.getWeapon(t);
+    const a = GameMgr.instance().weaponData.getWeapon(t);
     if (!a) return;
     const n = this.w1(a.txt, a.rarity, s, i);
     const r = e.parent.localToGlobal(new Laya.Point(e.x, e.y));
@@ -903,7 +895,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   w1(t: string, s: number, i: number, h: number): any {
-    const e = H.instance().so("weaponSceneWeaponItem").create();
+    const e = PrefabPool.instance().so("weaponSceneWeaponItem").create();
     const a = this.fW(t, true);
     e.size(a.width, a.height);
     const n = e.getChildByName("bg");
@@ -928,7 +920,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   a0(t: any, _s: number, _i: number): any {
-    const h = H.instance().so("weaponSceneWeaponItem").create();
+    const h = PrefabPool.instance().so("weaponSceneWeaponItem").create();
     const e = t.type === "group";
     const a = e ? t.Ai[0] : t.Hn;
     const n = this.fW(a.name, e);
@@ -978,7 +970,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   j0(t: string, s: number, i: number, h: number): any {
-    const e = H.instance().so("weaponSceneGeneralItem").create();
+    const e = PrefabPool.instance().so("weaponSceneGeneralItem").create();
     e.size(i, h);
     e.mouseEnabled = true;
     e.getChildByName("bg").size(i, h);
@@ -986,10 +978,10 @@ export class WeaponScene extends Laya.Scene {
     a.visible = false;
     a.alpha = 1;
     e.getChildByName("name").text = t;
-    const n = F.instance().player.equip[s];
+    const n = GameMgr.instance().player.equip[s];
     const r = e.getChildByName("weaponTxt");
     if (n >= 0) {
-      const w = F.instance().weaponData.getWeapon(n);
+      const w = GameMgr.instance().weaponData.getWeapon(n);
       r.text = w.txt;
       r.color = this.b0(w.rarity);
     } else {
@@ -1043,9 +1035,9 @@ export class WeaponScene extends Laya.Scene {
     if (this.generalPanel.hitTestPoint(s, i)) {
       const h = this.q0(s, i);
       if (h < 0) return;
-      const e = F.instance().player.equip[h];
+      const e = GameMgr.instance().player.equip[h];
       if (e < 0) return;
-      const a = eh
+      const a = WeaponFragmentMgr
         .instance()
         .Ub(e)
         .find((x: any) => x.Sb && x._b === h);
@@ -1128,7 +1120,7 @@ export class WeaponScene extends Laya.Scene {
 
   q0(t: number, s: number): number {
     const i = (this.generalPanel.width - 24) / 4;
-    const h = F.instance().generals.generalNames.length;
+    const h = GameMgr.instance().generals.generalNames.length;
     const e = new Laya.Point(t, s);
     this.generalPanel.globalToLocal(e);
     const a = Math.floor(e.x / (i + 8));
@@ -1145,13 +1137,13 @@ export class WeaponScene extends Laya.Scene {
     const i = this.KK;
     const h = this.tJ;
     const e = this.JK;
-    const a = eh.instance();
+    const a = WeaponFragmentMgr.instance();
     const n = this.p0();
     const r = this.f1();
     if (i === "none" || e < 0) return;
     let o = false;
     const l: any[] = [];
-    const c = F.instance().player.equip;
+    const c = GameMgr.instance().player.equip;
     if (i === "weaponPanel" && t === "generalPanel" && s >= 0)
       if (a.jb(e, s, 0)) {
         const tt2 = a.Yb(e);
@@ -1162,7 +1154,7 @@ export class WeaponScene extends Laya.Scene {
         o = true;
         l.push({ g1: s, M1: h2, P1: n2 });
         if (isGuide) this.x0(true);
-      } else tt.instance().showTip("该武将无法装备此武器", 1500);
+      } else TipMgr.instance().showTip("该武将无法装备此武器", 1500);
     else if (i === "generalPanel" && t === "generalPanel" && s >= 0) {
       if (s === h) {
         // same slot — no-op
@@ -1178,7 +1170,7 @@ export class WeaponScene extends Laya.Scene {
           l.push({ g1: h, M1: a2, P1: r2 });
           l.push({ g1: s, M1: n2, P1: u2 });
         }
-      } else tt.instance().showTip("该武将无法装备此武器", 1500);
+      } else TipMgr.instance().showTip("该武将无法装备此武器", 1500);
     } else if (i === "generalPanel" && t === "weaponPanel") {
       const t2 = this.Q0(c[h]);
       a.Qb(h, e);
@@ -1210,8 +1202,8 @@ export class WeaponScene extends Laya.Scene {
   }
 
   A1(t: number, s: number, i: number): boolean {
-    const h = eh.instance();
-    const e = F.instance().player.equip[s];
+    const h = WeaponFragmentMgr.instance();
+    const e = GameMgr.instance().player.equip[s];
     let a = -1;
     if (e >= 0) {
       const x = h.Ub(e).find((y: any) => y.Sb && y._b === s);
@@ -1235,7 +1227,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   Y0(t: string, s: number, i: number, h: number): void {
-    const e = H.instance().so("weaponSceneWeaponItem").create();
+    const e = PrefabPool.instance().so("weaponSceneWeaponItem").create();
     const a = this.fW(t, true);
     const n = a.width;
     const r = a.height;
@@ -1278,7 +1270,7 @@ export class WeaponScene extends Laya.Scene {
   }
 
   XJ(): void {
-    K.instance().openDialog("RecycleWeaponDialog", false, {
+    SceneMgr.instance().openDialog("RecycleWeaponDialog", false, {
       sz: () => {
         const t = this.p0();
         this.zJ(this.gJ, true, t);
@@ -1320,7 +1312,7 @@ export class WeaponScene extends Laya.Scene {
     t.removeSelf();
     t.scale(1, 1);
     t.alpha = 1;
-    z.instance().recover("attChangeTip", t);
+    PrefabFactory.instance().recover("attChangeTip", t);
   }
 
   B1(): void {
@@ -1350,6 +1342,6 @@ export class WeaponScene extends Laya.Scene {
     this.off(Laya.Event.MOUSE_DOWN, this, this.NJ);
     this.off(Laya.Event.MOUSE_MOVE, this, this.qJ);
     this.off(Laya.Event.MOUSE_UP, this, this.VJ);
-    K.instance().closeScene("WeaponScene");
+    SceneMgr.instance().closeScene("WeaponScene");
   }
 }

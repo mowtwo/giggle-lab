@@ -15,8 +15,6 @@ import { Singleton } from "../core/singleton";
 import { GameMgr } from "../core/game-mgr";
 import { MathE } from "../core/math-e";
 
-const F = GameMgr;
-const f = MathE;
 
 /** One weapon's collected fragments. (`ih`) */
 export class WeaponFragment {
@@ -91,7 +89,7 @@ export class WeaponFragmentMgr extends Singleton {
 
   /** Rebuild the fragment list from the player's saved fragments. (`Bb`) */
   private Bb(): void {
-    const t = F.instance().weaponData;
+    const t = GameMgr.instance().weaponData;
     const s = this.Db();
     let i = 0;
     for (const [h, e] of s) {
@@ -106,7 +104,7 @@ export class WeaponFragmentMgr extends Singleton {
     this.Rb();
   }
   private Ib(): void {
-    const t = F.instance().player.equip;
+    const t = GameMgr.instance().player.equip;
     for (let s = 0; s < t.length; s++) {
       const i = t[s];
       if (i >= 0) this.Cb(s, i);
@@ -152,14 +150,14 @@ export class WeaponFragmentMgr extends Singleton {
   }
   Hb(t: number, s: number): WeaponFragment[] {
     if (s !== 0) return [];
-    const i = F.instance().generals;
+    const i = GameMgr.instance().generals;
     const h = i.generalNames[t];
     const e = i.generalTypes.find((x: any) => x.general === h);
     return e ? this.Ob(e.type) : [];
   }
   private Db(): Array<[number, number]> {
     // 默认拥有所有武器各 10 把:用全武器清单(每把 = fragmentNum 碎片)替代真实存档碎片。
-    const weapons = F.instance().weaponData.weapons;
+    const weapons = GameMgr.instance().weaponData.weapons;
     const result: Array<[number, number]> = [];
     for (const [id, w] of weapons) {
       if (w.type === 4) continue;
@@ -173,14 +171,14 @@ export class WeaponFragmentMgr extends Singleton {
   }
   zb(t: number): number {
     const s = this.Wb(t);
-    const i = F.instance().weaponData.getWeapon(t);
+    const i = GameMgr.instance().weaponData.getWeapon(t);
     return !i || i.fragmentNum <= 0 ? 0 : Math.floor(s / i.fragmentNum);
   }
   jb(t: number, s: number, i = 0): boolean {
     if (i !== 0) return false;
     const h = this.Yb(t);
     if (!h) return false;
-    const e = F.instance().generals;
+    const e = GameMgr.instance().generals;
     const a = e.generalNames[s];
     if (a == null) return false;
     const n = e.generalTypes.find((x: any) => x.general === a);
@@ -203,7 +201,7 @@ export class WeaponFragmentMgr extends Singleton {
     const h = this.Yb(t);
     if (!h || !h.isComplete) return;
     if (h.Sb && h._b !== s) this.Qb(h._b, t);
-    const e = F.instance().player.equip[s];
+    const e = GameMgr.instance().player.equip[s];
     if (e >= 0) {
       const list = this.Ub(e);
       for (const item of list)
@@ -213,13 +211,13 @@ export class WeaponFragmentMgr extends Singleton {
         }
     }
     h.xb(s);
-    F.instance().player.setEquip(s, h.weaponId);
+    GameMgr.instance().player.setEquip(s, h.weaponId);
   }
   Qb(t: number, s: number): void {
     const i = this.Yb(s);
     if (i && i._b === t) {
       i.xb(-1);
-      F.instance().player.setEquip(t, -1);
+      GameMgr.instance().player.setEquip(t, -1);
     }
   }
   /** Whether the player has been registered for at least `Kb` days. (`Zb`) */
@@ -231,8 +229,8 @@ export class WeaponFragmentMgr extends Singleton {
     return WeaponFragmentMgr.Kb;
   }
   setWeaponFragments(t: number, s: number): void {
-    const i = F.instance().player;
-    const h = F.instance().weaponData.getWeapon(t);
+    const i = GameMgr.instance().player;
+    const h = GameMgr.instance().weaponData.getWeapon(t);
     const e = (h && h.fragmentNum) || 1;
     const a = i.getWeaponFragmentCount(t);
     const n = Math.floor(a / e);
@@ -243,7 +241,7 @@ export class WeaponFragmentMgr extends Singleton {
   }
   /** Give one starter fragment of each base-rarity weapon type. (`tM`) */
   tM(): void {
-    const t = F.instance().weaponData;
+    const t = GameMgr.instance().weaponData;
     const s = [2, 1, 0, 3];
     for (const i of s)
       for (const [id, w] of t.weapons)
@@ -255,8 +253,8 @@ export class WeaponFragmentMgr extends Singleton {
   /** Roll a random fragment drop based on the round's rarity weights. (`sM`) */
   sM(): { weaponId: number; fragmentNum: number } {
     if (!this.Zb()) return { weaponId: -1, fragmentNum: 0 };
-    const t = F.instance().weaponData;
-    const s = F.instance().player.round;
+    const t = GameMgr.instance().weaponData;
+    const s = GameMgr.instance().player.round;
     const i = t.levelThresholds;
     let h = 0;
     for (let k = i.length - 1; k >= 0; k--)
@@ -266,7 +264,7 @@ export class WeaponFragmentMgr extends Singleton {
       }
     const e = t.rarityDropWeights[h].slice();
     e[0] = 0;
-    const a = f.weightedRandom(e);
+    const a = MathE.weightedRandom(e);
     if (a < 0) return { weaponId: -1, fragmentNum: 0 };
     const n: number[] = [];
     for (const [id, w] of t.weapons) if (w.rarity === a) n.push(id);
@@ -278,7 +276,7 @@ export class WeaponFragmentMgr extends Singleton {
     return !!this.Zb() && Math.random() < this.Eb;
   }
   hM(): void {
-    const t = F.instance().battleState.Wi;
+    const t = GameMgr.instance().battleState.Wi;
     for (let s = 0; s < t.length; s++) {
       const i = t[s];
       this.setWeaponFragments(i.weaponId, i.fragmentNum);

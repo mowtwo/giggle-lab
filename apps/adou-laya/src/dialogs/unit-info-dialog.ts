@@ -23,14 +23,10 @@ import { GameMgr } from "../core/game-mgr";
 import { EntityRegistry } from "../battle/entity-registry";
 
 const X = LayerZ;
-const j = UpdateMgr;
-const th = BuffMgr;
 const va = General;
 const zs = BaseSoldier;
 const ki = Farmer;
 const ls = AttrBuff;
-const F = GameMgr;
-const Ki = EntityRegistry;
 const vr = Laya.Ease;
 
 @regClass("FO3V8791TVqW8hJVO95S4g")
@@ -143,11 +139,11 @@ export class UnitInfoDialog extends Laya.Dialog {
         this.buffTipBk.visible = true;
         this.buffTip.text = t.substring(1);
         this.buffTip.color = t[0] === "-" ? "#FF0000" : "#FFFFFF";
-        this.Lz = j.instance().elapsed;
+        this.Lz = UpdateMgr.instance().elapsed;
       });
     });
     this.on(Laya.Event.CLICK, this, () => {
-      if (j.instance().elapsed - this.Lz >= 50) this.buffTipBk.visible = false;
+      if (UpdateMgr.instance().elapsed - this.Lz >= 50) this.buffTipBk.visible = false;
     });
   }
 
@@ -229,7 +225,7 @@ export class UnitInfoDialog extends Laya.Dialog {
       let s = false;
       this.dz = false;
       this.wz.forEach((_v, node) => node.removeSelf());
-      const i = th.instance().ob(t.id);
+      const i = BuffMgr.instance().ob(t.id);
       if (i) {
         i.forEach((b: any) => {
           if (!(b instanceof ls)) {
@@ -261,7 +257,7 @@ export class UnitInfoDialog extends Laya.Dialog {
         if (s) this.buffArea.visible = true;
       }
       if (t instanceof va) {
-        const inst = F.instance();
+        const inst = GameMgr.instance();
         const h = t.Ya ? inst.generals.Wa : inst.generals.Ha;
         let e = 0;
         if (t.level < h.length) {
@@ -306,7 +302,7 @@ export class UnitInfoDialog extends Laya.Dialog {
       this.Mz();
       this.bz.on("onLevelChange", this.Mz, this);
       this.bz.on("onStateChange", this.Mz, this);
-      j.instance().register("farmerDataUpdate", this, () => {
+      UpdateMgr.instance().register("farmerDataUpdate", this, () => {
         const t = this.bz;
         const s = Math.min(1, t.Bv / (t.currentState === "FarmerCrazy" ? t.Ev : t.Av));
         this.expBar.width = Math.max(s * this.expBar.parent.width - 8, 0);
@@ -325,7 +321,7 @@ export class UnitInfoDialog extends Laya.Dialog {
         } else if (this.type === 4) {
           this.bz.off("onLevelChange", this.Mz);
           this.bz.off("onStateChange", this.Mz);
-          j.instance().unregister("farmerDataUpdate");
+          UpdateMgr.instance().unregister("farmerDataUpdate");
         }
       } else this.bz = null;
     }
@@ -334,7 +330,7 @@ export class UnitInfoDialog extends Laya.Dialog {
   MH(t: any): void {
     if (!this.fz) this.Ez();
     this.buffTipBk.visible = false;
-    const s = Ki.instance();
+    const s = EntityRegistry.instance();
     this.type = t.objectType;
     this.height = 230;
     this.weaponBox.visible = false;
@@ -346,7 +342,7 @@ export class UnitInfoDialog extends Laya.Dialog {
         this.expArea.visible = true;
         const h = (this.bz = s.Qk.get(i));
         h.va.forEach((part: any, idx: number) => {
-          this.yz.push(Ki.instance().C_(0, part.Qd, true, 0));
+          this.yz.push(EntityRegistry.instance().C_(0, part.Qd, true, 0));
           const icon = this.yz[idx].pg();
           this.iconArea.addChild(icon);
           icon.pos(
@@ -356,7 +352,7 @@ export class UnitInfoDialog extends Laya.Dialog {
           this.yz[idx].Vd.visible = false;
         });
         this.title.text =
-          h.SD + "Lv." + h.level + "(" + (h.xR ? "单体" : F.instance().generals.generalAttackConfigs[h.type].Ca) + ")";
+          h.SD + "Lv." + h.level + "(" + (h.xR ? "单体" : GameMgr.instance().generals.generalAttackConfigs[h.type].Ca) + ")";
         this.expName.text = "经验值:";
         this.lvlTip.text = h.Ya ? "满级5级" : "满级3级";
         if (h.QE.weaponId !== -1) {
@@ -368,7 +364,7 @@ export class UnitInfoDialog extends Laya.Dialog {
           else if (h.QE.type === 2) this.weaponImg.size(42, 118);
           else if (h.QE.type === 3) this.weaponImg.size(40, 110);
           this.weaponName.text = h.QE.name;
-          this.weaponName.color = F.instance().weaponData.rarityColors[h.QE.rarity];
+          this.weaponName.color = GameMgr.instance().weaponData.rarityColors[h.QE.rarity];
           this.weaponAttTxt.text = "攻击力：" + h.QE.aI;
           this.weaponIntroTxt.text = h.QE.intro;
         }
@@ -377,19 +373,19 @@ export class UnitInfoDialog extends Laya.Dialog {
       case 1: {
         this.expArea.visible = false;
         const e = (this.bz = s.hS.get(t.vH));
-        this.yz.push(Ki.instance().C_(0, e.Qd, true, 0));
+        this.yz.push(EntityRegistry.instance().C_(0, e.Qd, true, 0));
         const a = this.yz[0].pg();
         this.yz[0].Vd.visible = false;
         this.iconArea.addChild(a);
         a.pos((this.iconArea.width - a.width) / 2, (this.iconArea.height - a.height) / 2);
-        this.title.text = e.Qd + "Lv." + e.level + "(" + F.instance().generals.soldierAttackConfigs[e.type].Ca + ")";
+        this.title.text = e.Qd + "Lv." + e.level + "(" + GameMgr.instance().generals.soldierAttackConfigs[e.type].Ca + ")";
         this.lvlTip.text = "满级5级";
         break;
       }
       case 4: {
         this.expArea.visible = true;
         const n = (this.bz = s.aS.get(t.vH));
-        this.yz.push(Ki.instance().C_(0, n.Qd, true, 0));
+        this.yz.push(EntityRegistry.instance().C_(0, n.Qd, true, 0));
         const r = this.yz[0].pg();
         this.yz[0].Vd.visible = false;
         this.iconArea.addChild(r);
@@ -426,7 +422,7 @@ export class UnitInfoDialog extends Laya.Dialog {
   Ez(): void {
     this.Az();
     for (let t = 1; t < this.buffArea.numChildren; t++) this.buffArea.getChildAt(t).removeSelf();
-    const t = Ki.instance();
+    const t = EntityRegistry.instance();
     this.yz.forEach((s) => {
       switch (this.type) {
         case 2:

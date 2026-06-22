@@ -20,11 +20,7 @@ import { EffectMgr } from "./effect-mgr";
 import { HitEnemyStrategy } from "./hit-strategy";
 import { SwordBullet, AttachCustomShapeBullet, TrailBehavior } from "./bullet-variants";
 
-const de = WeaponFactory;
 const $ = AudioMgr;
-const f = MathE;
-const th = BuffMgr;
-const q = EffectMgr;
 const Vs = HitEnemyStrategy;
 const le = SwordBullet;
 const he = AttachCustomShapeBullet;
@@ -93,16 +89,16 @@ export class SwordWeaponBase extends WeaponComponent {
               .go("alpha", 0, 1)
               .onStart(() => {
                 this.uR.visible = true;
-                const t = q.instance().registerImgLoop(this.uR, this.iR, 100, 0, 1);
+                const t = EffectMgr.instance().registerImgLoop(this.uR, this.iR, 100, 0, 1);
                 this.HI(() => {
-                  q.instance().removeEvent("imgLoop", t);
+                  EffectMgr.instance().removeEvent("imgLoop", t);
                 });
               })
               .chain()
               .delay(1000)
               .duration(500)
               .go("alpha", 1, 0);
-            q.instance().playAlertRings(this.cR);
+            EffectMgr.instance().playAlertRings(this.cR);
           })
           .chain()
           .go("y", -10, 0)
@@ -110,13 +106,13 @@ export class SwordWeaponBase extends WeaponComponent {
           .delay(750)
           .then(() => {
             this.general.mL = true;
-            th.instance().applyBuff(this.general.id, 0, 2, true, 5000);
+            BuffMgr.instance().applyBuff(this.general.id, 0, 2, true, 5000);
           });
       },
       onEnd: () => {
         Laya.Tween.create(this.Hn).duration(250).go("scaleX", 3, 1).go("scaleY", 3, 1).to("rotation", 0);
         this.rR = false;
-        th.instance().nb(this.general.id, 5000, this.pR);
+        BuffMgr.instance().nb(this.general.id, 5000, this.pR);
       },
     };
     this.pR = {
@@ -238,7 +234,7 @@ export class SwordWeaponBase extends WeaponComponent {
         if (this.rR)
           Laya.timer.once(75 / h, this, () => {
             if (this.Hn.parent)
-              q.instance().playColdDaoQiEffect(
+              EffectMgr.instance().playColdDaoQiEffect(
                 this.Hn.parent,
                 this.Hn.x,
                 this.Hn.y,
@@ -281,7 +277,7 @@ export class SwordWeaponBase extends WeaponComponent {
     Laya.Point.TEMP.setTo(this.Hn.pivotX, this.Hn.pivotY);
     this.dg.toLocal(this.Hn, Laya.Point.TEMP);
     this.sR.setTo(t.x + this.dg.map.gridWid / 2, t.y + this.dg.map.gridHei / 2);
-    const h = f.distance(this.sR, Laya.Point.TEMP) - this.cR.pivotY;
+    const h = MathE.distance(this.sR, Laya.Point.TEMP) - this.cR.pivotY;
     const e = this.CI(t.id);
     if (this.rR) {
       s = 120;
@@ -388,11 +384,11 @@ export class SwordWeaponBase extends WeaponComponent {
       .go("scaleX", 1.5, 1)
       .go("scaleY", 1.5, 1)
       .then(() => {
-        q.instance().playAlertRings(this.yR);
+        EffectMgr.instance().playAlertRings(this.yR);
         const t: any[] = [];
         this.xw.CA(this.general.general.x, this.general.general.y, this.general.Da, this.general.qd, t);
         t.forEach((e: any) => {
-          th.instance().applyBuff(e.id, 8, 0, false, 3000);
+          BuffMgr.instance().applyBuff(e.id, 8, 0, false, 3000);
         });
         this.xw.sd(this.Sm / 2, t, this.general);
       })
@@ -435,7 +431,7 @@ export class SwordWeaponBase extends WeaponComponent {
   protected dR(): void {
     if (!this.rR) {
       this.rR = true;
-      th.instance().nb(this.general.id, 6500, this.lR);
+      BuffMgr.instance().nb(this.general.id, 6500, this.lR);
     }
   }
 
@@ -474,7 +470,7 @@ export class SwordWeaponBase extends WeaponComponent {
       .onStart(() => {
         if (this.rR)
           Laya.timer.once(100 / s, this, () => {
-            q.instance().playColdDaoQiEffect(
+            EffectMgr.instance().playColdDaoQiEffect(
               this.Hn.parent,
               this.Hn.x,
               this.Hn.y,
@@ -506,7 +502,7 @@ class DefaultSword extends SwordWeaponBase {
   }
   iD(): void {}
 }
-de.register(3, -1, () => Laya.Pool.createByClass(DefaultSword));
+WeaponFactory.register(3, -1, () => Laya.Pool.createByClass(DefaultSword));
 
 /** 短剑 (31). (`aa`) */
 class ShortSword extends SwordWeaponBase {
@@ -521,7 +517,7 @@ class ShortSword extends SwordWeaponBase {
   }
   iD(): void {}
 }
-de.register(3, 31, () => Laya.Pool.createByClass(ShortSword));
+WeaponFactory.register(3, 31, () => Laya.Pool.createByClass(ShortSword));
 
 /** 长剑 (32) — +0.5 range. (`na`) */
 class LongSword extends SwordWeaponBase {
@@ -534,18 +530,18 @@ class LongSword extends SwordWeaponBase {
   }
   protected wI(): void {
     super.wI();
-    this.hD = th.instance().applyBuff(this.general.id, 2, 0.5);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 2, 0.5);
   }
   MI(): void {
     super.MI();
-    th.instance().kg(this.general.id, 2, this.hD);
+    BuffMgr.instance().kg(this.general.id, 2, this.hD);
   }
   protected AI(t: any): void {
     this.gR(t, 60, this.general.fL);
   }
   iD(): void {}
 }
-de.register(3, 32, () => Laya.Pool.createByClass(LongSword));
+WeaponFactory.register(3, 32, () => Laya.Pool.createByClass(LongSword));
 
 /** 铁剑 (33) — +3 attack. (`ra`) */
 class IronSword extends SwordWeaponBase {
@@ -558,18 +554,18 @@ class IronSword extends SwordWeaponBase {
   }
   protected wI(): void {
     super.wI();
-    this.hD = th.instance().applyBuff(this.general.id, 0, 3);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 0, 3);
   }
   MI(): void {
     super.MI();
-    th.instance().kg(this.general.id, 0, this.hD);
+    BuffMgr.instance().kg(this.general.id, 0, this.hD);
   }
   protected AI(t: any): void {
     this.gR(t, 60, this.general.fL);
   }
   iD(): void {}
 }
-de.register(3, 33, () => Laya.Pool.createByClass(IronSword));
+WeaponFactory.register(3, 33, () => Laya.Pool.createByClass(IronSword));
 
 /** Junzi/xiaoRen-capable sword (every 10 hits triggers an ultimate). */
 function makeUltimateSword(id: number, skin: string, color: string, name: string, forceProb?: number): void {
@@ -587,7 +583,7 @@ function makeUltimateSword(id: number, skin: string, color: string, name: string
     }
     iD(): void {}
   };
-  de.register(3, id, () => Laya.Pool.createByClass(cls));
+  WeaponFactory.register(3, id, () => Laya.Pool.createByClass(cls));
 }
 
 makeUltimateSword(34, "resources/img/weapon/weapon_34.png", "#0061F0", "巨阙剑");

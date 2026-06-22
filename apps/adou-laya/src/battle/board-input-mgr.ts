@@ -24,14 +24,7 @@ import { Soldier } from "./soldier";
 import { PropBase } from "./props";
 import { Prop } from "./prop";
 
-const en = PlacementMgr;
-const wi = BoardMgr;
-const q = EffectMgr;
-const y = EventMgr;
 const u = GameEvent;
-const F = GameMgr;
-const Ki = EntityRegistry;
-const Zi = BattlePropsMgr;
 const Ws = Soldier;
 const Si = PropBase;
 const xi = Prop;
@@ -45,8 +38,8 @@ export class BoardInputMgr extends AIControllerBase {
   private CU!: any;
 
   init(): void {
-    this.PX = en.instance();
-    this.CU = wi.instance();
+    this.PX = PlacementMgr.instance();
+    this.CU = BoardMgr.instance();
   }
 
   onMouseDown(t: any): any {
@@ -54,18 +47,18 @@ export class BoardInputMgr extends AIControllerBase {
     this.Hv.containerType = t.containerType;
     this.Hv.x = t.x;
     this.Hv.y = t.y;
-    q.instance().toggleTargetCircle(false);
-    q.instance().showUnitInfo(false);
+    EffectMgr.instance().toggleTargetCircle(false);
+    EffectMgr.instance().showUnitInfo(false);
     if (this.Hv.LX === 0) {
       this.bX = null;
-      y.instance.event(u.us, null);
+      EventMgr.instance.event(u.us, null);
       return null;
     }
     const s = this.AX(this.Hv.LX, this.Hv.y);
     const i = this.CU.Mv(this.Hv.containerType, s);
     this.bX = i.getItem(this.Hv.x, this.Hv.y);
     if (!this.bX) {
-      y.instance.event(u.us, null);
+      EventMgr.instance.event(u.us, null);
       return null;
     }
     if (this.bX instanceof Ws) {
@@ -132,7 +125,7 @@ export class BoardInputMgr extends AIControllerBase {
 
   EX(): void {
     if (!this.bX) return;
-    q.instance().toggleTargetCircle(false);
+    EffectMgr.instance().toggleTargetCircle(false);
     if (this.bX instanceof Ws && !this.DX(this.Hl.LX)) return void this.bX.onMouseUp();
     if (this.Hl.LX === 0)
       return void ((this.bX instanceof Ws || this.bX instanceof Si) && this.bX.onMouseUp());
@@ -170,8 +163,8 @@ export class BoardInputMgr extends AIControllerBase {
   }
 
   refresh(t: any, s: any): void {
-    if (t !== "铲") Ki.instance().C_(3, t, true, s);
-    else Zi.instance().Zx(true, 0, 3, s);
+    if (t !== "铲") EntityRegistry.instance().C_(3, t, true, s);
+    else BattlePropsMgr.instance().Zx(true, 0, 3, s);
   }
 
   DX(t: number): boolean {
@@ -179,7 +172,7 @@ export class BoardInputMgr extends AIControllerBase {
   }
 
   AX(t: number, s: number): boolean {
-    return !(t === 1 && s < F.instance().map.ue[0].length / 2) && t !== 4;
+    return !(t === 1 && s < GameMgr.instance().map.ue[0].length / 2) && t !== 4;
   }
 
   gameOver(): void {

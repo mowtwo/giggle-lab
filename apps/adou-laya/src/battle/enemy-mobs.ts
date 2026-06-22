@@ -22,14 +22,7 @@ import { EffectMgr } from "./effect-mgr";
 import { EnemyFactory } from "./enemy-factory";
 
 const sh = BossAnimSprite;
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
-const f = MathE;
-const z = PrefabFactory;
-const q = EffectMgr;
-const ss = EnemyFactory;
 
 export class MobBase extends Enemy {
   protected ZP: any = { Gl: null, p1: null, p2: null, time: 0 };
@@ -51,7 +44,7 @@ export class MobBase extends Enemy {
     this.yP();
     this.enemy.visible = false;
     this.IP(() => {
-      j.instance().register("Enemy" + this.id, this, this.update);
+      UpdateMgr.instance().register("Enemy" + this.id, this, this.update);
       this.changeState(1);
       this.tP.width = 0;
       this.KM.visible = true;
@@ -59,7 +52,7 @@ export class MobBase extends Enemy {
     });
   }
   protected JP(): void {
-    const t = F.instance().enemyHp(this.type, this.qd);
+    const t = GameMgr.instance().enemyHp(this.type, this.qd);
     if (this.type === 4) {
       this.Qi = t.uh / 2;
       this.tP.skin = "resources/img/gameObject/enemy/hp3.png";
@@ -105,7 +98,7 @@ export class MobBase extends Enemy {
     super.cP();
     let t = "#000000";
     if (this.type === 4) t = "#c1f6cb";
-    q.instance().playMobDead(this.enemy.parent, this.enemy.x + this.enemy.width / 2, this.enemy.y + this.enemy.height / 2, t, 1);
+    EffectMgr.instance().playMobDead(this.enemy.parent, this.enemy.x + this.enemy.width / 2, this.enemy.y + this.enemy.height / 2, t, 1);
     Laya.Tween.to(
       this.enemy,
       { alpha: 0 },
@@ -115,11 +108,11 @@ export class MobBase extends Enemy {
         this.enemy.alpha = 1;
         this.enemy.visible = false;
         if (this.type !== 1) {
-          const slot = this.qd ? F.instance().battleState.Ii : F.instance().battleState.Ti;
+          const slot = this.qd ? GameMgr.instance().battleState.Ii : GameMgr.instance().battleState.Ti;
           if (
             slot.Di &&
             slot.num < 3 &&
-            f.distance(slot.pos, { x: this.enemy.x + this.enemy.width / 2, y: this.enemy.y + this.enemy.height / 2 }) < slot.range
+            MathE.distance(slot.pos, { x: this.enemy.x + this.enemy.width / 2, y: this.enemy.y + this.enemy.height / 2 }) < slot.range
           )
             this.iA();
         }
@@ -128,7 +121,7 @@ export class MobBase extends Enemy {
     );
   }
   protected iA(): void {
-    const slot = this.qd ? F.instance().battleState.Ii : F.instance().battleState.Ti;
+    const slot = this.qd ? GameMgr.instance().battleState.Ii : GameMgr.instance().battleState.Ti;
     this.Mo.x = slot.pos.x;
     this.Mo.y = slot.pos.y;
     this.enemy.parent.localToGlobal(this.Mo);
@@ -138,14 +131,14 @@ export class MobBase extends Enemy {
     const s = this.pk;
     const i = this.enemy.x;
     const h = this.enemy.y;
-    q.instance().spawnTrail(
+    EffectMgr.instance().spawnTrail(
       this.Mo.x,
       this.Mo.y,
       this.Po.x,
       this.Po.y,
       300,
       () => {
-        y.instance.event(u.ut, this.qd, i, h, s);
+        EventMgr.instance.event(u.ut, this.qd, i, h, s);
       },
       "#05fe77",
       "resources/img/gameObject/enemy/soulHead.png",
@@ -160,20 +153,20 @@ export class MobBase extends Enemy {
     this.ZP.time = 0;
     this.KP = 1;
     this.hit(this.Qi - 0.1, null);
-    this.ZM.rotation = f.angle({ x: s, y: i }, { x: h, y: e });
-    j.instance().register("blownUp" + this.id, this, this.BP);
+    this.ZM.rotation = MathE.angle({ x: s, y: i }, { x: h, y: e });
+    UpdateMgr.instance().register("blownUp" + this.id, this, this.BP);
   }
   BP(t: number): void {
     if (this.KP === 1) {
       this.ZP.time += t / 200;
-      if (f.quadraticBezierPoint(this.ZP.Gl, this.ZP.p1, this.ZP.p2, this.enemy, this.ZP.time)) {
+      if (MathE.quadraticBezierPoint(this.ZP.Gl, this.ZP.p1, this.ZP.p2, this.enemy, this.ZP.time)) {
         this.hit(1, null);
         this.KP = 0;
       }
     }
   }
   gameOver(): void {
-    j.instance().unregister("blownUp");
+    UpdateMgr.instance().unregister("blownUp");
     Laya.Tween.killAll(this.ZM);
     super.gameOver();
     this.enemy.filters = null;
@@ -187,13 +180,13 @@ export class MobBase extends Enemy {
     this.ZM = null;
   }
 }
-ss.instance().register("Mob", () => Laya.Pool.createByClass(MobBase));
+EnemyFactory.instance().register("Mob", () => Laya.Pool.createByClass(MobBase));
 
 /** A standard image-sprite mob (Mob0-3 + Cavalry share this shape). */
 abstract class ImageMob extends MobBase {
   init(t: any): void {
     this.cb = false;
-    this.enemy = z.instance().getItem("mob", this);
+    this.enemy = PrefabFactory.instance().getItem("mob", this);
     super.init(t);
     this.ZM.pos(this.enemy.width / 2, this.enemy.height);
   }
@@ -206,7 +199,7 @@ abstract class ImageMob extends MobBase {
   }
   gameOver(): void {
     super.gameOver();
-    z.instance().recover("mob", this.enemy);
+    PrefabFactory.instance().recover("mob", this.enemy);
   }
 }
 
@@ -249,7 +242,7 @@ class Cavalry extends ImageMob {
     this.hA.removeSelf();
   }
 }
-ss.instance().register("Cavalry", () => Laya.Pool.createByClass(Cavalry));
+EnemyFactory.instance().register("Cavalry", () => Laya.Pool.createByClass(Cavalry));
 
 function makeImageMob(name: string, asset: string): void {
   const cls = class extends ImageMob {
@@ -258,7 +251,7 @@ function makeImageMob(name: string, asset: string): void {
       this.tA = asset;
     }
   };
-  ss.instance().register(name, () => Laya.Pool.createByClass(cls));
+  EnemyFactory.instance().register(name, () => Laya.Pool.createByClass(cls));
 }
 makeImageMob("Mob0", "resources/img/gameObject/enemy/mob_0.png");
 makeImageMob("Mob1", "resources/img/gameObject/enemy/mob_1.png");
@@ -282,15 +275,15 @@ class Puppet extends MobBase {
   init(t: any): void {
     this.cb = false;
     this.tA = "resources/img/gameObject/soldier/soldier_" + this.Aa + ".png";
-    this.enemy = z.instance().getItem("mob", this);
+    this.enemy = PrefabFactory.instance().getItem("mob", this);
     super.init(t);
     this.ZM.scale(1, 1);
     this.ZM.pos(this.enemy.width / 2, this.enemy.height);
     this.enemy.pos(this.Hv.x, this.Hv.y);
-    y.instance.on(u.yt, this, this.rA);
+    EventMgr.instance.on(u.yt, this, this.rA);
   }
   protected JP(): void {
-    const t = F.instance().enemyHp(this.type, this.qd);
+    const t = GameMgr.instance().enemyHp(this.type, this.qd);
     this.Qi = t.uh * this.dg.enemy.kh[this.eA - 1];
     this.tP.skin = "resources/img/gameObject/enemy/hp2.png";
     this.QM = t.uh * this.dg.enemy.kh[this.eA - 1];
@@ -324,10 +317,10 @@ class Puppet extends MobBase {
     this.nA += t;
     if (this.nA >= 300) {
       this.nA = 0;
-      this.lA = z.instance().getItem("loveHeart", this);
-      this.aA.push({ img: this.lA, scale: f.range(0.1, 0.5) });
+      this.lA = PrefabFactory.instance().getItem("loveHeart", this);
+      this.aA.push({ img: this.lA, scale: MathE.range(0.1, 0.5) });
       this.lA.scale(0, 0);
-      this.lA.pos(f.range(20, this.enemy.width - 20) as number, f.range(0, this.enemy.height / 2) as number);
+      this.lA.pos(MathE.range(20, this.enemy.width - 20) as number, MathE.range(0, this.enemy.height / 2) as number);
       this.enemy.addChild(this.lA);
     }
     for (let s = this.aA.length - 1; s >= 0; s--) {
@@ -339,26 +332,26 @@ class Puppet extends MobBase {
         if (this.lA.alpha <= 0) {
           this.lA.removeSelf();
           this.lA.alpha = 1;
-          z.instance().recover("loveHeart", this.lA);
+          PrefabFactory.instance().recover("loveHeart", this.lA);
           this.aA.splice(s, 1);
         }
       }
     }
   }
   gameOver(): void {
-    j.instance().unregister("puppetSkip" + this.id);
+    UpdateMgr.instance().unregister("puppetSkip" + this.id);
     super.gameOver();
     for (let t = this.aA.length - 1; t >= 0; t--) {
       this.lA = this.aA[t].img;
       this.lA.removeSelf();
       this.lA.alpha = 1;
-      z.instance().recover("loveHeart", this.lA);
+      PrefabFactory.instance().recover("loveHeart", this.lA);
     }
     this.aA.length = 0;
-    z.instance().recover("mob", this.enemy);
+    PrefabFactory.instance().recover("mob", this.enemy);
   }
 }
-ss.instance().register("Puppet", () => Laya.Pool.createByClass(Puppet));
+EnemyFactory.instance().register("Puppet", () => Laya.Pool.createByClass(Puppet));
 
 /** 僵尸 — emerges from a swamp tile. (`Ah`) */
 class Zombie extends MobBase {
@@ -377,7 +370,7 @@ class Zombie extends MobBase {
   init(t: any): void {
     this.cb = false;
     this.tA = "resources/img/gameObject/enemy/zombie.png";
-    this.enemy = z.instance().getItem("mob", this);
+    this.enemy = PrefabFactory.instance().getItem("mob", this);
     super.init(t);
     this.ZM.pos(this.enemy.width / 2, this.enemy.height);
     this.enemy.pos(this.uA.x, this.uA.y);
@@ -403,7 +396,7 @@ class Zombie extends MobBase {
     this.pk = this.uA.index;
     this.gA = t;
     this.cA = 1;
-    j.instance().register(`mob1_${this.id}`, this, this.dA);
+    UpdateMgr.instance().register(`mob1_${this.id}`, this, this.dA);
   }
   private dA(t: number): void {
     if (this.cA === 1) {
@@ -436,9 +429,9 @@ class Zombie extends MobBase {
   }
   private bubble(t: number): void {
     if (Math.random() < 0.05 && this.bubbles.length < 3) {
-      const b = z.instance().getItem("bubble", this);
+      const b = PrefabFactory.instance().getItem("bubble", this);
       this.enemy.addChild(b);
-      b.pos(f.range(10, 70) as number, 40);
+      b.pos(MathE.range(10, 70) as number, 40);
       this.bubbles.push(b);
     }
     for (let s = this.bubbles.length - 1; s >= 0; s--) {
@@ -455,7 +448,7 @@ class Zombie extends MobBase {
             b.scale(1, 1);
             b.alpha = 1;
             b.removeSelf();
-            z.instance().recover("bubble", b);
+            PrefabFactory.instance().recover("bubble", b);
           }),
         );
         this.bubbles.splice(s, 1);
@@ -489,7 +482,7 @@ class Zombie extends MobBase {
       .then(this.sA, this);
   }
   private LA(): void {
-    j.instance().unregister(`mob1_${this.id}`);
+    UpdateMgr.instance().unregister(`mob1_${this.id}`);
     this.ZM.mask = null;
     this.fA.graphics.clear();
     this.yA.removeSelf();
@@ -506,7 +499,7 @@ class Zombie extends MobBase {
           b.scale(1, 1);
           b.alpha = 1;
           b.removeSelf();
-          z.instance().recover("bubble", b);
+          PrefabFactory.instance().recover("bubble", b);
         }),
       );
       this.bubbles.splice(t, 1);
@@ -515,7 +508,7 @@ class Zombie extends MobBase {
   gameOver(): void {
     this.LA();
     super.gameOver();
-    z.instance().recover("mob", this.enemy);
+    PrefabFactory.instance().recover("mob", this.enemy);
   }
 }
-ss.instance().register("Zombie", () => Laya.Pool.createByClass(Zombie));
+EnemyFactory.instance().register("Zombie", () => Laya.Pool.createByClass(Zombie));

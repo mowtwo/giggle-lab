@@ -27,19 +27,9 @@ import { EnemyFactory } from "./enemy-factory";
 import { WeaponFragmentMgr } from "./weapon-fragment-mgr";
 import { General } from "./general";
 
-const F = GameMgr;
 const X = LayerZ;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
 const $ = AudioMgr;
-const f = MathE;
-const K = SceneMgr;
-const z = PrefabFactory;
-const q = EffectMgr;
-const ah = DamageStatsMgr;
-const ss = EnemyFactory;
-const eh = WeaponFragmentMgr;
 const va = General;
 
 export class Enemy extends GameObject {
@@ -145,7 +135,7 @@ export class Enemy extends GameObject {
   }
 
   init(t: any): void {
-    this.dg = F.instance();
+    this.dg = GameMgr.instance();
     this.qd = t;
     this.gM = false;
     this.id = this.dg.incCounter();
@@ -162,10 +152,10 @@ export class Enemy extends GameObject {
     this.Hg = this.enemy.getChildByName("stun");
     this.Hg.visible = false;
     this.curState = 0;
-    y.instance.event(u.bt, this.enemy);
+    EventMgr.instance.event(u.bt, this.enemy);
     this.hP();
     this.enemy.pos(this.Hv.x, this.Hv.y);
-    y.instance.event(u.nt, this.id, this);
+    EventMgr.instance.event(u.nt, this.id, this);
   }
   protected hP(_t?: any, _s?: any, _i?: any, _h?: any): void {
     if (this.Hv && this.Hv.x !== -1) return;
@@ -251,7 +241,7 @@ export class Enemy extends GameObject {
         const s = this.gP();
         if (Math.abs(this.xM.x) < 0.1 && Math.abs(this.xM.y) < 0.1) {
           this.kM = false;
-          y.instance.event(u.hs, this, 12);
+          EventMgr.instance.event(u.hs, this, 12);
           this.pk = this.dP(s);
         }
       } else if (!this.zM) this.$f(t);
@@ -260,8 +250,8 @@ export class Enemy extends GameObject {
     this.aL();
   }
   protected LP(): void {
-    if (this.pk === this.path.length - 3) y.instance.event(u._t, this.qd);
-    else if (this.pk === this.path.length - 2) y.instance.event(u.wt, this.qd);
+    if (this.pk === this.path.length - 3) EventMgr.instance.event(u._t, this.qd);
+    else if (this.pk === this.path.length - 2) EventMgr.instance.event(u.wt, this.qd);
     else if (this.pk === this.path.length - 1) this.attack();
     else if (this.pk >= this.path.length) {
       $.instance().playSound("enemy_knife_attack");
@@ -269,21 +259,21 @@ export class Enemy extends GameObject {
     }
   }
   protected aL(): void {
-    const t = Math.floor((this.enemy.x + this.enemy.width / 2) / F.instance().map.gridWid);
-    const s = Math.floor((this.enemy.y + this.enemy.height / 2) / F.instance().map.gridHei);
+    const t = Math.floor((this.enemy.x + this.enemy.width / 2) / GameMgr.instance().map.gridWid);
+    const s = Math.floor((this.enemy.y + this.enemy.height / 2) / GameMgr.instance().map.gridHei);
     if (t === this.mP && s === this.wP) return;
-    if (this.Bw) y.instance.event(u.ft, this.id, this);
+    if (this.Bw) EventMgr.instance.event(u.ft, this.id, this);
     this.Mo.x = this.enemy.x;
     this.Mo.y = this.enemy.y;
-    this.Po.x = t * F.instance().map.gridWid;
-    this.Po.y = s * F.instance().map.gridHei;
-    if (f.distance(this.Mo, this.Po) > 5) return;
+    this.Po.x = t * GameMgr.instance().map.gridWid;
+    this.Po.y = s * GameMgr.instance().map.gridHei;
+    if (MathE.distance(this.Mo, this.Po) > 5) return;
     this.AM = this.mP;
     this.EM = this.wP;
     this.mP = t;
     this.wP = s;
-    y.instance.event(u.vt, this.qd, this.mP, this.wP);
-    y.instance.event(u.kt, this.qd, this.mP, this.wP, this.id);
+    EventMgr.instance.event(u.vt, this.qd, this.mP, this.wP);
+    EventMgr.instance.event(u.kt, this.qd, this.mP, this.wP, this.id);
   }
   protected $f(t: number): void {
     if (this.pk < 0) return;
@@ -300,7 +290,7 @@ export class Enemy extends GameObject {
       this.enemy.x += (sx * this.Xu * t) / 1000;
       this.enemy.y += (a * this.Xu * t) / 1000;
     }
-    this.enemy.zIndex = X.entityZIndexFromPixelY(this.enemy.y, F.instance().map.gridHei);
+    this.enemy.zIndex = X.entityZIndexFromPixelY(this.enemy.y, GameMgr.instance().map.gridHei);
     this.Aw = e + (this.path.length - 1 - this.pk) * this.dg.map.gridWid;
     this.vP();
   }
@@ -361,14 +351,14 @@ export class Enemy extends GameObject {
   protected $m(): void {}
   hit(t: number, s: any): void {
     if (this.Qi <= 0) return;
-    const i = j.instance().elapsed;
+    const i = UpdateMgr.instance().elapsed;
     if (!this.fM || i - this.fM > 50) {
       $.instance().playSound("enemy_hit");
       this.fM = i;
     }
     this.Qi -= t;
     if (this.Qi < 0) this.Qi = 0;
-    ah.instance().uM(t, this.qd);
+    DamageStatsMgr.instance().uM(t, this.qd);
     this.$m();
     this.enemy.event("onHit");
     this.tP.width = this.sP * (this.Qi / this.VM);
@@ -380,13 +370,13 @@ export class Enemy extends GameObject {
         if (this.FM.indexOf(s.id) === -1) this.FM.push(s.id);
         if (this.Qi <= 0) {
           this.FM.splice(this.FM.indexOf(s.id), 1);
-          y.instance.event(u.ht, s.id, this.FM);
+          EventMgr.instance.event(u.ht, s.id, this.FM);
         }
-      } else if (this.Qi <= 0) y.instance.event(u.ht, s.id, this.FM, true);
+      } else if (this.Qi <= 0) EventMgr.instance.event(u.ht, s.id, this.FM, true);
     }
   }
   protected xP(t: number): void {
-    if (!F.instance().settingData().showDamageNum) return;
+    if (!GameMgr.instance().settingData().showDamageNum) return;
     let s = 1;
     if (Laya.timer.currTimer - this.TM < 300) {
       this.SP = Math.floor(this.SP + t);
@@ -396,11 +386,11 @@ export class Enemy extends GameObject {
       return;
     }
     this.TM = Laya.timer.currTimer;
-    const i = z.instance().getItem("damageNum", this);
+    const i = PrefabFactory.instance().getItem("damageNum", this);
     s = Math.min(Math.floor(t / 10), 15);
     i.value = t.toFixed(0);
     i.scale(1 + 0.05 * s, 1 + 0.05 * s);
-    y.instance.event(u.Ut, i, X.Ur);
+    EventMgr.instance.event(u.Ut, i, X.Ur);
     if (this.IM) return;
     Laya.Point.TEMP.x = this.enemy.width / 2;
     Laya.Point.TEMP.y = this.enemy.height / 2;
@@ -408,12 +398,12 @@ export class Enemy extends GameObject {
     i.parent.globalToLocal(Laya.Point.TEMP);
     i.pos(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
     const h = new Laya.Point(i.x, i.y);
-    const e = new Laya.Point(i.x + (f.range(-50, 50) as number), i.y + (f.range(-150, -100) as number));
+    const e = new Laya.Point(i.x + (MathE.range(-50, 50) as number), i.y + (MathE.range(-150, -100) as number));
     const a = new Laya.Point(e.x, i.y);
-    q.instance().registerBezier(h, e, a, i, 500, () => {
+    EffectMgr.instance().registerBezier(h, e, a, i, 500, () => {
       i.alpha = 1;
       i.removeSelf();
-      z.instance().recover("damageNum", i);
+      PrefabFactory.instance().recover("damageNum", i);
     });
     this.bP = i;
     this.SP = t;
@@ -430,7 +420,7 @@ export class Enemy extends GameObject {
       this.Mo.x = this.enemy.x + this.enemy.width / 2;
       this.Mo.y = this.enemy.y;
       this.enemy.parent.localToGlobal(this.Mo);
-      q.instance().playGoldUp(this.Mo.x, this.Mo.y, t);
+      EffectMgr.instance().playGoldUp(this.Mo.x, this.Mo.y, t);
       this.dg.battleState.gold += t;
     } else this.dg.battleState.Ki += t;
     this.MP();
@@ -449,7 +439,7 @@ export class Enemy extends GameObject {
         i = this.enemy.height - 20;
         t = 70;
       }
-      q.instance().playEnemyKnifeAttack(this.enemy, s, i, t);
+      EffectMgr.instance().playEnemyKnifeAttack(this.enemy, s, i, t);
       Laya.timer.once(50, this, () => {
         if (this.Bw) {
           this.dg.battleState.Xi = true;
@@ -515,7 +505,7 @@ export class Enemy extends GameObject {
       .to("y", t)
       .duration(1000)
       .onStart(() => {
-        this.WM = q.instance().registerShake(this.ZM, 30, 1000, () => {
+        this.WM = EffectMgr.instance().registerShake(this.ZM, 30, 1000, () => {
           this.ZM.rotation = 0;
           this.changeState(1);
         });
@@ -547,8 +537,8 @@ export class Enemy extends GameObject {
       .then(() => {
         const s1 =
           this.Hv.y > this.eP.y
-            ? this.enemy.y - F.instance().map.gridHei / 4
-            : this.enemy.y + F.instance().map.gridHei * (3 / 4);
+            ? this.enemy.y - GameMgr.instance().map.gridHei / 4
+            : this.enemy.y + GameMgr.instance().map.gridHei * (3 / 4);
         Laya.Tween.create(this.enemy)
           .to("y", s1)
           .to("scaleX", 1.2)
@@ -557,8 +547,8 @@ export class Enemy extends GameObject {
           .then(() => {
             const s2 =
               this.Hv.y > this.eP.y
-                ? this.enemy.y - F.instance().map.gridHei / 4
-                : this.enemy.y + F.instance().map.gridHei * (3 / 4);
+                ? this.enemy.y - GameMgr.instance().map.gridHei / 4
+                : this.enemy.y + GameMgr.instance().map.gridHei * (3 / 4);
             Laya.Tween.create(this.enemy)
               .to("y", s2)
               .to("scaleX", 1)
@@ -581,7 +571,7 @@ export class Enemy extends GameObject {
                         this.enemy.pos(this.enemy.x - this.enemy.width / 2, this.enemy.y - this.enemy.height);
                         if (t) t();
                       });
-                    y.instance.event(u.rs);
+                    EventMgr.instance.event(u.rs);
                     this.Rv();
                   });
               });
@@ -620,12 +610,12 @@ export class Enemy extends GameObject {
     if (!(this.qd ? this.dg.battleState.Ri : this.dg.battleState.Ci)) return;
     this.Mo.x = this.enemy.x;
     this.Mo.y = this.enemy.y;
-    if (f.distance(this.NM, this.Mo) < 30) return;
-    const t = z.instance().getItem("footprint", this);
+    if (MathE.distance(this.NM, this.Mo) < 30) return;
+    const t = PrefabFactory.instance().getItem("footprint", this);
     t.zIndex = X.cr;
-    y.instance.event(u.St, t);
+    EventMgr.instance.event(u.St, t);
     t.pos(this.enemy.x + this.enemy.width / 2, this.enemy.y + (3 / 4) * this.enemy.height);
-    t.rotation = f.angle(this.NM, this.Mo);
+    t.rotation = MathE.angle(this.NM, this.Mo);
     this.NM.x = this.enemy.x;
     this.NM.y = this.enemy.y;
     this.$M.push(t);
@@ -637,7 +627,7 @@ export class Enemy extends GameObject {
       if (s.alpha <= 0) {
         s.removeSelf();
         s.alpha = 1;
-        z.instance().recover("footprint", s);
+        PrefabFactory.instance().recover("footprint", s);
         this.$M.splice(t, 1);
       }
     }
@@ -648,25 +638,25 @@ export class Enemy extends GameObject {
       Laya.Point.TEMP.x = t;
       Laya.Point.TEMP.y = 0;
       this.enemy.localToGlobal(Laya.Point.TEMP);
-      q.instance().showTalkBox(
+      EffectMgr.instance().showTalkBox(
         Laya.Point.TEMP.x,
         Laya.Point.TEMP.y,
-        this.OM[f.range(0, this.OM.length, true) as number],
+        this.OM[MathE.range(0, this.OM.length, true) as number],
         this.enemy,
       );
     }
   }
   protected MP(): void {
     if (!this.YM) return;
-    if (!eh.instance().Zb()) return;
-    const t = eh.instance().sM();
+    if (!WeaponFragmentMgr.instance().Zb()) return;
+    const t = WeaponFragmentMgr.instance().sM();
     if (t.weaponId < 0 || t.fragmentNum <= 0) return;
-    eh.instance().setWeaponFragments(t.weaponId, t.fragmentNum);
+    WeaponFragmentMgr.instance().setWeaponFragments(t.weaponId, t.fragmentNum);
     Laya.Point.TEMP.x = this.enemy.width / 2;
     Laya.Point.TEMP.y = this.enemy.height;
     this.enemy.localToGlobal(Laya.Point.TEMP);
-    const s = K.instance().getScene("BattleScene").getChildByName("box").getChildByName("effectBox");
-    const i = K.instance().getScene("BattleScene").getChildByName("box").getChildByName("xBtn");
+    const s = SceneMgr.instance().getScene("BattleScene").getChildByName("box").getChildByName("effectBox");
+    const i = SceneMgr.instance().getScene("BattleScene").getChildByName("box").getChildByName("xBtn");
     const h = Laya.Point.TEMP.x;
     const e = Laya.Point.TEMP.y;
     Laya.Point.TEMP.x = i.width / 2;
@@ -674,20 +664,20 @@ export class Enemy extends GameObject {
     i.localToGlobal(Laya.Point.TEMP);
     const a = Laya.Point.TEMP.x;
     const n = Laya.Point.TEMP.y;
-    q.instance().flyWeaponFragment(t.weaponId, s, h, e, a, n, null, null, this.qd);
+    EffectMgr.instance().flyWeaponFragment(t.weaponId, s, h, e, a, n, null, null, this.qd);
     if (this.qd) this.dg.battleState.zi.push(t);
     else this.dg.battleState.ji.push(t);
     this.dg.battleState.Wi.push(t);
   }
   gameOver(): void {
     super.gameOver();
-    j.instance().unregister("Enemy" + this.id);
-    y.instance.event(u.es, this.id);
-    y.instance.event(u.ot, this.id);
+    UpdateMgr.instance().unregister("Enemy" + this.id);
+    EventMgr.instance.event(u.es, this.id);
+    EventMgr.instance.event(u.ot, this.id);
     this.offAll();
     Laya.timer.clearAll(this);
     Laya.Tween.killAll(this.enemy);
-    q.instance().removeEvent("shake", this.WM);
+    EffectMgr.instance().removeEvent("shake", this.WM);
     Laya.Tween.killAll(this.JM);
     this.Aw = Infinity;
     this.Bw = false;
@@ -713,13 +703,13 @@ export class Enemy extends GameObject {
     this.eP.y = -1;
     this.FM.length = 0;
     this.Hg.visible = false;
-    ss.instance().recover(this);
+    EnemyFactory.instance().recover(this);
     this.gM = true;
     for (let t = this.$M.length - 1; t >= 0; t--) {
       const s = this.$M[t];
       s.removeSelf();
       s.alpha = 1;
-      z.instance().recover("footprint", s);
+      PrefabFactory.instance().recover("footprint", s);
     }
     this.$M.length = 0;
     this.YM = false;

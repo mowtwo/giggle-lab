@@ -16,8 +16,6 @@ import { GameEvent } from "../core/game-event";
 import { LayerZ } from "../core/layer-z";
 import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
 const X = LayerZ;
 
@@ -33,7 +31,7 @@ export class BulletFactory {
       const sprite = new Laya.Sprite();
       const b = new ctor(spec.xm);
       b.xw = EnemySpatialMgr.instance();
-      b.dg = F.instance();
+      b.dg = GameMgr.instance();
       b.Pm = sprite;
       b.init();
       created = true;
@@ -83,7 +81,7 @@ export class BulletFactory {
     const poolKey = this.qA + "_" + h + "_" + i;
     const a = this.jA(poolKey, spec.type, spec);
     if (spec.VA) spec.VA.forEach((t: any) => a.Tm(t));
-    if (!a.vm) y.instance.event(u.bt, a.Pm);
+    if (!a.vm) EventMgr.instance.event(u.bt, a.Pm);
     a.Pm.zIndex = X.mr;
     return a;
   }

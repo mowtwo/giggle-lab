@@ -15,10 +15,7 @@ import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 import { SpawnQueueMgr } from "./spawn-queue-mgr";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const Na = SpawnQueueMgr;
 
 export class TutorialMgr extends Singleton {
   private RY = 0.7;
@@ -39,7 +36,7 @@ export class TutorialMgr extends Singleton {
     this.OY = false;
     this.YY = false;
     this.XY = false;
-    const t = F.instance().battleState;
+    const t = GameMgr.instance().battleState;
     this.GY = t.li;
     t.li = true;
     t.ki = 0;
@@ -49,25 +46,25 @@ export class TutorialMgr extends Singleton {
   }
   $Y(): void {
     if (!this.CY) return;
-    const t = F.instance().battleState;
+    const t = GameMgr.instance().battleState;
     t.delayTime = 999999999;
     t.Yi = true;
     console.log("[TutorialMgr] 游戏已加载，等待玩家完成第一次随机刷新");
     Laya.timer.once(600, this, () => {
-      y.instance.event(u.ds, "点击下方红色按钮  征召士兵");
+      EventMgr.instance.event(u.ds, "点击下方红色按钮  征召士兵");
     });
   }
   NY(t: number): string {
-    if (!this.CY || this.YY) return Na.instance().LU(true);
-    if (this.OY) return t >= 0 && t < this.UY.length ? this.UY[t] : Na.instance().LU(true);
+    if (!this.CY || this.YY) return SpawnQueueMgr.instance().LU(true);
+    if (this.OY) return t >= 0 && t < this.UY.length ? this.UY[t] : SpawnQueueMgr.instance().LU(true);
     return this.qY();
   }
   private qY(): string {
     const t = this.FY;
-    let s = Na.instance().LU(true);
+    let s = SpawnQueueMgr.instance().LU(true);
     let i = 0;
     while (t.has(s) && i < 30) {
-      s = Na.instance().LU(true);
+      s = SpawnQueueMgr.instance().LU(true);
       i += 1;
     }
     if (t.has(s)) {
@@ -91,8 +88,8 @@ export class TutorialMgr extends Singleton {
   gameOver(): void {
     if (this.CY) {
       this.ZY();
-      y.instance.event(u.ds, null);
-      F.instance().battleState.li = this.GY;
+      EventMgr.instance.event(u.ds, null);
+      GameMgr.instance().battleState.li = this.GY;
       this.CY = false;
       this.OY = false;
       this.YY = false;
@@ -102,19 +99,19 @@ export class TutorialMgr extends Singleton {
   }
   KY(): void {
     this.XY = true;
-    F.instance().battleState.Oi = true;
+    GameMgr.instance().battleState.Oi = true;
     console.log("[TutorialMgr] 放置指引结束，开始出怪！");
   }
   private QY(): void {
     this.ZY();
-    y.instance.event(u.ds, this.HY);
+    EventMgr.instance.event(u.ds, this.HY);
     this.zY = true;
     Laya.timer.once(this.WY, this, this.JY);
   }
   private JY(): void {
     if (this.zY) {
       this.zY = false;
-      y.instance.event(u.ds, null);
+      EventMgr.instance.event(u.ds, null);
       if (!this.XY) this.KY();
     }
   }

@@ -16,8 +16,6 @@ import { GameMgr } from "../core/game-mgr";
 import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
 
 export class GeneralPart extends Soldier {
@@ -30,18 +28,18 @@ export class GeneralPart extends Soldier {
   private nv: any[] | undefined;
 
   protected Zd(_t?: any): void {
-    this.id = F.instance().incCounter();
+    this.id = GameMgr.instance().incCounter();
     this.Yn.name = "generalPart_" + this.id;
     if (!this.hL) {
       this.hL = new Laya.Image();
       this.hL.name = "img";
-      this.hL.size(F.instance().map.gridWid, F.instance().map.gridHei);
+      this.hL.size(GameMgr.instance().map.gridWid, GameMgr.instance().map.gridHei);
       this.hL.anchorX = 0.5;
       this.hL.anchorY = 0.5;
-      this.hL.pos(F.instance().map.gridWid / 2, F.instance().map.gridHei / 2);
+      this.hL.pos(GameMgr.instance().map.gridWid / 2, GameMgr.instance().map.gridHei / 2);
     }
     this.Yn.addChild(this.hL);
-    this.hL.skin = `resources/img/gameObject/soldier/generalParts_${F.instance().generals.nameChars.indexOf(this.Qd)}.png`;
+    this.hL.skin = `resources/img/gameObject/soldier/generalParts_${GameMgr.instance().generals.nameChars.indexOf(this.Qd)}.png`;
     this.hL.color = "#cd8831";
   }
 
@@ -145,7 +143,7 @@ export class GeneralPart extends Soldier {
   private iv(): void {
     let t: any;
     this.hL.anchorY = 1;
-    this.hL.y = F.instance().map.gridHei;
+    this.hL.y = GameMgr.instance().map.gridHei;
     if (!this.sv) {
       this.sv = new Laya.Image("resources/img/gameObject/soldier/sleepEff1.png");
       this.sv.size(31, 27);
@@ -180,7 +178,7 @@ export class GeneralPart extends Soldier {
     this.hL.rotation = 0;
     this.hL.scale(1, 1);
     this.hL.anchorY = 0.5;
-    this.hL.y = F.instance().map.gridHei / 2;
+    this.hL.y = GameMgr.instance().map.gridHei / 2;
     if (this.sv) {
       this.sv.removeSelf();
       this.sv.visible = false;
@@ -198,14 +196,14 @@ export class GeneralPart extends Soldier {
   onMoved(): void {
     if (this.Td === 1 && this.currentState !== "GeneralPartMerge") {
       this.changeState("GeneralPartWait");
-      y.instance.event(u.ts, this);
+      EventMgr.instance.event(u.ts, this);
     } else if (this.Td === 3) {
       this.changeState("GeneralPartNone");
     }
   }
 
   gameOver(): void {
-    y.instance.event(u.j, this.id);
+    EventMgr.instance.event(u.j, this.id);
     super.gameOver();
     this.Zw = -1;
     if (this.Jw) {

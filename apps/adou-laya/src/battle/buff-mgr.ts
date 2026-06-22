@@ -21,15 +21,11 @@ import { makeBuffData } from "./buff";
 import { EffectMgr } from "./effect-mgr";
 import { BuffFactory, EffectRelationHelper, resolveBuffTarget } from "./buff-factory";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
 const L = SpecialIndex;
 const as = makeBuffData;
 const Us = BuffFactory;
 const Ji = resolveBuffTarget;
-const q = EffectMgr;
 
 export class BuffMgr extends Singleton {
   private KS!: any;
@@ -37,16 +33,16 @@ export class BuffMgr extends Singleton {
   private tb!: Map<number, Map<any, any>>;
 
   init(): void {
-    this.KS = F.instance().effectRelation;
+    this.KS = GameMgr.instance().effectRelation;
     this.JS = new EffectRelationHelper(this.KS);
     this.tb = new Map();
     Us.instance().init();
-    y.instance.on(u.hs, this, this.sb);
-    y.instance.on(u.es, this, this.hb);
+    EventMgr.instance.on(u.hs, this, this.sb);
+    EventMgr.instance.on(u.es, this, this.hb);
   }
 
   startGame(): void {
-    j.instance().register("BuffMgr", this, this.update);
+    UpdateMgr.instance().register("BuffMgr", this, this.update);
   }
 
   /** Get-or-create the group→buff map for a target id. (`eb`) */
@@ -87,8 +83,8 @@ export class BuffMgr extends Singleton {
       if (desc) {
         const reduce = buff.isReduction(s, data.num, data.yg);
         const node = target.pg();
-        q.instance().showFloatingText(node, desc, reduce);
-        reduce ? q.instance().playArrowRainDown(node) : q.instance().playArrowRainUp(node);
+        EffectMgr.instance().showFloatingText(node, desc, reduce);
+        reduce ? EffectMgr.instance().playArrowRainDown(node) : EffectMgr.instance().playArrowRainUp(node);
       }
     }
     return c;
@@ -169,7 +165,7 @@ export class BuffMgr extends Singleton {
   }
 
   gameOver(): void {
-    j.instance().unregister("BuffMgr");
+    UpdateMgr.instance().unregister("BuffMgr");
     const keys = Array.from(this.tb.keys());
     for (let i = 0; i < keys.length; i++) this.hb(keys[i]);
     this.tb.clear();

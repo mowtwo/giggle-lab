@@ -30,15 +30,7 @@ import { PlacementTables, CellPicker } from "./ai-placement";
 import { PropUseBase, PropUseStrongest, PropUseRanged, PropUseWeakest, PropUsePath } from "./ai-prop-strategy";
 
 const C = Singleton;
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const f = MathE;
-const wi = BoardMgr;
-const Ki = EntityRegistry;
-const Zi = BattlePropsMgr;
-const K = SceneMgr;
-const j = UpdateMgr;
 const zs = BaseSoldier;
 const gi = GeneralPart;
 const ki = Farmer;
@@ -74,7 +66,7 @@ class AIPlaceStrategy {
       s = t.VF.getItem(i);
       if (s == null) {
         const cells = fn.vO(1, t.RO);
-        if (cells.length > 0) return void y.instance.event(u.At, false, cells[0].x, cells[0].y);
+        if (cells.length > 0) return void EventMgr.instance.event(u.At, false, cells[0].x, cells[0].y);
       } else {
         if (s instanceof zs) {
           if (this.CO(s)) return;
@@ -84,7 +76,7 @@ class AIPlaceStrategy {
           if (this.YO(s)) return void this.CO(s);
           const i2 = this.XO(s);
           if (t.UO("1_1", s.Qd)) {
-            if (F.instance().battleState.ki < 2 && i2 < 2) return;
+            if (GameMgr.instance().battleState.ki < 2 && i2 < 2) return;
             return void t.FO(s, t.OO[0].x, t.OO[0].y);
           }
           return void this.GO(s, i2);
@@ -106,12 +98,12 @@ class AIPlaceStrategy {
     const e: any = { Yn: null, value: 100 };
     for (let a = 0; a < h.length; a++)
       for (let n = 0; n < h.length; n++) {
-        if (F.instance().map.ue[a][n] !== "1_1" || !h[a][n]) continue;
+        if (GameMgr.instance().map.ue[a][n] !== "1_1" || !h[a][n]) continue;
         let v: number;
         if (h[a][n] instanceof gi) {
           const extra = this.HO(h[a][n].Qd);
-          v = extra > 0 ? F.instance().generals.charWeaponIds.get(h[a][n].Qd)![h[a][n].level - 1] + extra : 0;
-        } else v = F.instance().generals.charWeaponIds.get(h[a][n].Qd)![h[a][n].level - 1];
+          v = extra > 0 ? GameMgr.instance().generals.charWeaponIds.get(h[a][n].Qd)![h[a][n].level - 1] + extra : 0;
+        } else v = GameMgr.instance().generals.charWeaponIds.get(h[a][n].Qd)![h[a][n].level - 1];
         if (v < e.value) {
           e.Yn = h[a][n];
           e.value = v;
@@ -129,7 +121,7 @@ class AIPlaceStrategy {
       for (let e = 0; e < i[h].length; e++)
         if (i[h][e] && t.id !== i[h][e].id)
           if (t instanceof gi) {
-            if (F.instance().battleState.ki < 2) return false;
+            if (GameMgr.instance().battleState.ki < 2) return false;
             if (t.Qd === i[h][e].Qd && i[h][e].Zw !== -1)
               return (
                 i[h][e].level !== 5
@@ -148,16 +140,16 @@ class AIPlaceStrategy {
   XO(t: any): number {
     const s = this.HO(t.Qd);
     let i = s > 0 ? t.qa + s : 0;
-    const h = F.instance().battleState.ki;
+    const h = GameMgr.instance().battleState.ki;
     if (h < 2) i *= [0.2, 0.3][h];
     return i;
   }
 
   YO(t: any): boolean {
-    if (F.instance().battleState.ki < 2) return false;
+    if (GameMgr.instance().battleState.ki < 2) return false;
     let s: any[] = [];
-    if (F.instance().generals.familyGivenNames.has(t.Qd)) s.push(t.Qd);
-    else if (((s = F.instance().generals.mergeCandidates(t.Qd)), s.length === 0)) return false;
+    if (GameMgr.instance().generals.familyGivenNames.has(t.Qd)) s.push(t.Qd);
+    else if (((s = GameMgr.instance().generals.mergeCandidates(t.Qd)), s.length === 0)) return false;
     const i = this.IO.hS.mv;
     for (let t2 = 0; t2 < i.length; t2++)
       for (let h = 0; h < i[t2].length; h++) if (i[t2][h] && s.includes(i[t2][h].Qd)) return true;
@@ -185,7 +177,7 @@ class AIPlaceStrategy {
   }
 
   HO(t: any): number {
-    const s = Ki.instance().OS(t);
+    const s = EntityRegistry.instance().OS(t);
     let i = 0;
     for (const c of s) {
       i += this.$O(c);
@@ -195,7 +187,7 @@ class AIPlaceStrategy {
   }
 
   $O(t: any): number {
-    const s = F.instance().soldierPool.ah;
+    const s = GameMgr.instance().soldierPool.ah;
     let i = 0;
     for (let h = 0; h < s.length; h++) for (let e = 0; e < s[h].length; e++) if (s[h][e] === t) i += 1;
     return i;
@@ -217,7 +209,7 @@ class AIMergeStrategy {
     const t = this.IO;
     t.ma = t.ma.sort((a: any, b: any) => b.qa - a.qa);
     for (let s = 0; s < t.ma.length; s++) {
-      const i = F.instance().generals.familyGivenNames.get(t.ma[s].Qd);
+      const i = GameMgr.instance().generals.familyGivenNames.get(t.ma[s].Qd);
       if (!i) continue;
       let h = false;
       for (const e of i)
@@ -241,7 +233,7 @@ class AIMergeStrategy {
   }
 
   QO(): void {
-    const t: any = F.instance().generals;
+    const t: any = GameMgr.instance().generals;
     if (!t.Xa) return;
     const s = this.IO;
     const i: any[] = [];
@@ -268,7 +260,7 @@ class AIMergeStrategy {
     for (const t of i.VO) {
       const h = t;
       const e = h.map((x: any) => x.Qd).join("");
-      const a = F.instance().generals.generalValues.get(e) ?? 10;
+      const a = GameMgr.instance().generals.generalValues.get(e) ?? 10;
       i.ma.push({ general: h, value: a });
     }
     i.ma.sort((a: any, b: any) => b.value - a.value);
@@ -281,9 +273,9 @@ class AIMergeStrategy {
 
   JO(): void {
     const i = this.IO;
-    const h = F.instance().map.ue;
+    const h = GameMgr.instance().map.ue;
     const e = h[0].length / 2;
-    const a = F.instance().battleState.ki;
+    const a = GameMgr.instance().battleState.ki;
     const n = Array.from({ length: h.length }, () => new Array(e).fill(1));
     const r = { x: 0, y: 0, value: -1 };
     for (let o = 0; o < i.VO.length; o++) {
@@ -392,28 +384,28 @@ export class GeneralAIController extends AIControllerBase {
     this.wY = new AIPlaceStrategy(this);
     this.vY = new Ln(this);
     if (!this.tY) {
-      const t = F.instance().map.ue;
+      const t = GameMgr.instance().map.ue;
       this.tY = Array.from(new Array(t.length), () => new Array(t[0].length / 2).fill(null));
     }
-    y.instance.on(u.Jt, this, this.kY);
+    EventMgr.instance.on(u.Jt, this, this.kY);
   }
 
   startGame(): void {
-    if (!F.instance().battleState.wi) return;
-    const t = F.instance().map.mapIndex;
-    const s = F.instance().battleState.ki < 2;
+    if (!GameMgr.instance().battleState.wi) return;
+    const t = GameMgr.instance().map.mapIndex;
+    const s = GameMgr.instance().battleState.ki < 2;
     this.RO = this._Y(t, s);
     this.cY = this.xY(t);
     this.SY();
-    this.bY = K.instance().getScene("BattleScene").getChildByName("box");
+    this.bY = SceneMgr.instance().getScene("BattleScene").getChildByName("box");
     this.map = this.bY.getChildByName("map");
-    this.hS = wi.instance().Mv(1, false);
-    this.VF = wi.instance().Mv(3, false);
-    F.instance().battleState.Ki += F.instance().config.ii;
+    this.hS = BoardMgr.instance().Mv(1, false);
+    this.VF = BoardMgr.instance().Mv(3, false);
+    GameMgr.instance().battleState.Ki += GameMgr.instance().config.ii;
     this.MY();
-    this.oY = [2000, 1500, 1000, 500][Math.min(3, Math.max(0, F.instance().battleState.ki))];
-    j.instance().register("AICtr", this, this.update);
-    Zi.instance().Kx(false);
+    this.oY = [2000, 1500, 1000, 500][Math.min(3, Math.max(0, GameMgr.instance().battleState.ki))];
+    UpdateMgr.instance().register("AICtr", this, this.update);
+    BattlePropsMgr.instance().Kx(false);
   }
 
   refresh(): void {
@@ -433,8 +425,8 @@ export class GeneralAIController extends AIControllerBase {
   }
 
   gameOver(): void {
-    if (F.instance().battleState.wi) {
-      j.instance().unregister("AICtr");
+    if (GameMgr.instance().battleState.wi) {
+      UpdateMgr.instance().unregister("AICtr");
       this.OO.length = 0;
       this.rY = 0;
       this.TO = 0;
@@ -459,16 +451,16 @@ export class GeneralAIController extends AIControllerBase {
 
   AY(_t: number): void {
     if (this.step === 1) {
-      if (F.instance().battleState.Ki >= F.instance().battleState.fi) {
+      if (GameMgr.instance().battleState.Ki >= GameMgr.instance().battleState.fi) {
         this.refresh();
         this.TO = 0;
         this.step = 2;
       } else {
-        if (Math.random() <= F.instance().config.ai[F.instance().battleState.ki]) return void this.EY();
+        if (Math.random() <= GameMgr.instance().config.ai[GameMgr.instance().battleState.ki]) return void this.EY();
         this.IU();
       }
     } else if (this.step === 2) {
-      if (!F.instance().battleState.Yi) F.instance().battleState.Yi = true;
+      if (!GameMgr.instance().battleState.Yi) GameMgr.instance().battleState.Yi = true;
       this.wY.DO();
       if (this.TO >= 5) {
         this.ma.length = 0;
@@ -520,7 +512,7 @@ export class GeneralAIController extends AIControllerBase {
   }
 
   SY(): void {
-    const t = F.instance().map.Le;
+    const t = GameMgr.instance().map.Le;
     this.yY = t ? t.length : 0;
     this.fY = Math.floor(0.15 * this.yY);
     this.gY = Math.ceil(0.85 * this.yY);
@@ -531,12 +523,12 @@ export class GeneralAIController extends AIControllerBase {
     this.OO.length = 0;
     for (let s = 0; s < i.length; s++)
       for (let h = 0; h < i[s].length; h++)
-        if (i[s][h] == null && F.instance().map.ue[s][h] === t) this.OO.push({ x: s, y: h });
+        if (i[s][h] == null && GameMgr.instance().map.ue[s][h] === t) this.OO.push({ x: s, y: h });
     if (this.OO.length === 0) return false;
-    const h = F.instance().battleState.ki;
-    if (h < 2) return (f.shuffle(this.OO), true);
-    const e = F.instance().map.ue;
-    const a = F.instance().map.Le!;
+    const h = GameMgr.instance().battleState.ki;
+    if (h < 2) return (MathE.shuffle(this.OO), true);
+    const e = GameMgr.instance().map.ue;
+    const a = GameMgr.instance().map.Le!;
     const n = this.yY;
     const r = this.fY;
     const o = this.gY;
@@ -579,7 +571,7 @@ export class GeneralAIController extends AIControllerBase {
     );
     if (h === 2 && ranked.length > 3) {
       const top = ranked.splice(0, Math.min(5, ranked.length));
-      f.shuffle(top);
+      MathE.shuffle(top);
       ranked.unshift(...top);
     }
     this.OO = ranked.map((t2) => t2.c);
@@ -587,12 +579,12 @@ export class GeneralAIController extends AIControllerBase {
   }
 
   aY(t: number): any {
-    const s = Ki.instance().Dk(t);
+    const s = EntityRegistry.instance().Dk(t);
     return s && s.Td !== 0 ? s : null;
   }
 
   DY(t: any): any {
-    const s = wi.instance().Mv(t.Td, t.qd)!.vv(t);
+    const s = BoardMgr.instance().Mv(t.Td, t.qd)!.vv(t);
     return s ? { containerType: t.Td, x: s.x, y: s.y } : null;
   }
 
@@ -620,16 +612,16 @@ export class GeneralAIController extends AIControllerBase {
   }
 
   WO(t: any): void {
-    if (Zi.instance().Px.indexOf(21) >= 0) F.instance().battleState.Ki += t.level;
-    if (t.Nd) Ki.instance().gx(t.id);
-    else Ki.instance().Lx(t.id);
+    if (BattlePropsMgr.instance().Px.indexOf(21) >= 0) GameMgr.instance().battleState.Ki += t.level;
+    if (t.Nd) EntityRegistry.instance().gx(t.id);
+    else EntityRegistry.instance().Lx(t.id);
   }
 
   kY(): void {
-    for (let t = 0; t < F.instance().config.hi.length; t++)
-      if (F.instance().battleState.oi === F.instance().config.hi[t]) {
-        F.instance().battleState.Ki += F.instance().config.si[F.instance().battleState.ki][t];
-        console.log("ai加钱", F.instance().config.si[F.instance().battleState.ki][t]);
+    for (let t = 0; t < GameMgr.instance().config.hi.length; t++)
+      if (GameMgr.instance().battleState.oi === GameMgr.instance().config.hi[t]) {
+        GameMgr.instance().battleState.Ki += GameMgr.instance().config.si[GameMgr.instance().battleState.ki][t];
+        console.log("ai加钱", GameMgr.instance().config.si[GameMgr.instance().battleState.ki][t]);
         break;
       }
   }
@@ -640,13 +632,13 @@ export class GeneralAIController extends AIControllerBase {
   }
 
   IU(): void {
-    const t = j.instance().elapsed;
+    const t = UpdateMgr.instance().elapsed;
     if (t - this.mY < 5000) return;
-    const s = Zi.instance().Ax;
+    const s = BattlePropsMgr.instance().Ax;
     if (s.length === 0) return;
     const i = s.filter((x) => !x.ek());
     if (i.length !== 0) {
-      this.tk(i[f.range(0, i.length, true)]);
+      this.tk(i[MathE.range(0, i.length, true)]);
       this.mY = t;
     }
   }
@@ -671,8 +663,8 @@ export class GeneralAIController extends AIControllerBase {
         s = cn.use(t);
         break;
       case 7: {
-        const g = F.instance().map.ue;
-        s = rn.zF(f.range(0, g.length, true), f.range(g[0].length / 2, g[0].length, true));
+        const g = GameMgr.instance().map.ue;
+        s = rn.zF(MathE.range(0, g.length, true), MathE.range(g[0].length / 2, g[0].length, true));
         break;
       }
       case 8:
@@ -680,22 +672,22 @@ export class GeneralAIController extends AIControllerBase {
         s = un.use(t);
     }
     if (s !== rn.HF) {
-      console.log("✅AI成功使用道具 -", F.instance().props.Ue[t.type].txt);
-      t.tk(s, wi.instance());
-    } else console.log("❌AI使用道具失败 -", F.instance().props.Ue[t.type].txt);
+      console.log("✅AI成功使用道具 -", GameMgr.instance().props.Ue[t.type].txt);
+      t.tk(s, BoardMgr.instance());
+    } else console.log("❌AI使用道具失败 -", GameMgr.instance().props.Ue[t.type].txt);
   }
 
   EY(): void {
     if (this.dY) return;
     this.dY = true;
     const t = fn.vO(2, this.RO);
-    for (const s of t) y.instance.event(u.At, false, s.x, s.y);
+    for (const s of t) EventMgr.instance.event(u.At, false, s.x, s.y);
   }
 
   TY(): void {
     if (this.LY) return;
     this.LY = true;
-    Zi.instance().Zx(false, 1).tk(rn.HF);
+    BattlePropsMgr.instance().Zx(false, 1).tk(rn.HF);
   }
 }
 

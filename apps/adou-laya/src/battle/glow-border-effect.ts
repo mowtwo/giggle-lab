@@ -11,7 +11,6 @@
 
 import { UpdateMgr } from "../core/update-mgr";
 
-const j = UpdateMgr;
 
 export class GlowBorderEffect {
   static yZ = "shader/buttonShapeGlow.shader";
@@ -71,7 +70,7 @@ export class GlowBorderEffect {
     s.repaint();
     h.isActive = true;
     this.uZ.set(s, h);
-    if (this.uZ.size === 1) j.instance().register("GlowBorderEffect", GlowBorderEffect, GlowBorderEffect.dZ);
+    if (this.uZ.size === 1) UpdateMgr.instance().register("GlowBorderEffect", GlowBorderEffect, GlowBorderEffect.dZ);
     return h;
   }
 
@@ -82,7 +81,7 @@ export class GlowBorderEffect {
       s.material = null;
       if (t && !t.destroyed && t.graphics) t.graphics.material = null;
       this.uZ.delete(t);
-      if (this.uZ.size === 0) j.instance().unregister("GlowBorderEffect");
+      if (this.uZ.size === 0) UpdateMgr.instance().unregister("GlowBorderEffect");
     }
   }
 

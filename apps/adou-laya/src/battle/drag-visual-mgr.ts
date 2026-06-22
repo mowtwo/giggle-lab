@@ -5,7 +5,7 @@
 // ~27443-28216. The region mappers translate a stage point into a (containerType,
 // x, y) cell for the map / refresh box / props bars. `DragVisualMgr` owns the
 // drag-ghost, the highlight overlays (placeable cells, merge targets), the drag
-// guide line, and forwards raw pointer events into the `Pn` input handler. It is
+// guide line, and forwards raw pointer events into the `BoardInputMgr` input handler. It is
 // pure presentation on top of the placement controller. Opaque method / field
 // names kept verbatim.
 
@@ -32,18 +32,8 @@ import { PropBase } from "./props";
 import { Prop } from "./prop";
 
 const C = Singleton;
-const F = GameMgr;
-const K = SceneMgr;
-const wi = BoardMgr;
-const Ki = EntityRegistry;
-const q = EffectMgr;
-const y = EventMgr;
 const u = GameEvent;
 const X = LayerZ;
-const f = MathE;
-const z = PrefabFactory;
-const en = PlacementMgr;
-const Pn = BoardInputMgr;
 const Ws = Soldier;
 const zs = BaseSoldier;
 const ki = Farmer;
@@ -201,16 +191,16 @@ export class DragVisualMgr extends C {
   private tG: any;
 
   init(): void {
-    this.ue = F.instance().map;
+    this.ue = GameMgr.instance().map;
     this.XX = this.ue.gridWid;
     this.GX = this.ue.gridHei;
   }
 
   startGame(): void {
     this.$X = true;
-    this.qX = Pn.instance();
+    this.qX = BoardInputMgr.instance();
     if (this.qX) this.qX.init();
-    this.bY = K.instance().getScene("BattleScene").getChildByName("box");
+    this.bY = SceneMgr.instance().getScene("BattleScene").getChildByName("box");
     this.map = this.bY.getChildByName("map");
     this.refreshBox = this.bY.getChildByName("refreshBox");
     this.propsBox = this.bY.getChildByName("propsBox");
@@ -287,9 +277,9 @@ export class DragVisualMgr extends C {
       this.Hl.LX === 1 &&
       this.Hv.x === this.Hl.x &&
       this.Hv.y === this.Hl.y &&
-      F.instance().map.De(this.Hv.x, this.Hv.y)
+      GameMgr.instance().map.De(this.Hv.x, this.Hv.y)
     )
-      q.instance().showCheatWarning();
+      EffectMgr.instance().showCheatWarning();
     this.hG();
     this.bX = null;
   }
@@ -314,7 +304,7 @@ export class DragVisualMgr extends C {
   }
 
   eG(t: number, s: number, i: number): any {
-    const h = z.instance().getItem("dragTip", this);
+    const h = PrefabFactory.instance().getItem("dragTip", this);
     h.size(70, 70);
     h.pos(
       t * this.XX + (this.ue.gridWid - h.width) / 2,
@@ -333,7 +323,7 @@ export class DragVisualMgr extends C {
       this.aG.size(this.map.width, this.map.height / 2);
       this.aG.pos(this.map.x, this.map.y + this.map.height / 2);
       this.aG.visible = false;
-      y.instance.event(u.Ut, this.aG, X.Nr);
+      EventMgr.instance.event(u.Ut, this.aG, X.Nr);
       const t = this.ue.ue;
       for (let s = 0; s < t.length; s++) {
         this.zX.push([]);
@@ -349,9 +339,9 @@ export class DragVisualMgr extends C {
       this.nG.size(this.refreshBox.width, this.refreshBox.height);
       this.nG.pos(this.refreshBox.x, this.refreshBox.y);
       this.nG.visible = false;
-      y.instance.event(u.Ut, this.nG, X.Nr);
+      EventMgr.instance.event(u.Ut, this.nG, X.Nr);
       for (let t = 0; t < this.ue.ye; t++) {
-        const s = z.instance().getItem("dragTip", this);
+        const s = PrefabFactory.instance().getItem("dragTip", this);
         s.size(80, 80);
         s.pos(t * this.HX + (this.HX - s.width) / 2, (this.WX - s.height) / 2);
         s.alpha = 0.8;
@@ -365,7 +355,7 @@ export class DragVisualMgr extends C {
       this.rG.name = "dragMapTipSp";
       this.rG.pos(this.map.x, this.map.y);
       this.rG.alpha = 0.4;
-      y.instance.event(u.Ut, this.rG, X.Nr);
+      EventMgr.instance.event(u.Ut, this.rG, X.Nr);
     }
     this.rG.visible = false;
     if (!this.oG) {
@@ -374,7 +364,7 @@ export class DragVisualMgr extends C {
       this.oG.anchorX = 0.5;
       this.oG.anchorY = 0.5;
       this.oG.visible = false;
-      y.instance.event(u.Ut, this.oG, X.Nr);
+      EventMgr.instance.event(u.Ut, this.oG, X.Nr);
     }
     if (!this.lG) {
       this.lG = new Laya.Image("resources/img/battleUI/dragImg2.png");
@@ -383,12 +373,12 @@ export class DragVisualMgr extends C {
       this.lG.anchorX = 0.5;
       this.lG.anchorY = 0.5;
       this.lG.visible = false;
-      y.instance.event(u.Ut, this.lG, X.Nr);
+      EventMgr.instance.event(u.Ut, this.lG, X.Nr);
     }
     if (!this.cG) {
       this.cG = new Laya.Sprite();
       this.cG.visible = false;
-      y.instance.event(u.Ut, this.cG, X.Nr);
+      EventMgr.instance.event(u.Ut, this.cG, X.Nr);
     }
   }
 
@@ -414,7 +404,7 @@ export class DragVisualMgr extends C {
       else if (this.JX === "farmer") this.pG(true, x, yy);
       else if (this.tG) {
         const i = this.tG.rk === 3 || this.tG.rk === 4 ? 1 : 2;
-        if (en.instance().CF(this.tG, { containerType: i, x: this.OX, y: this.YX }))
+        if (PlacementMgr.instance().CF(this.tG, { containerType: i, x: this.OX, y: this.YX }))
           this.yG(true, 1, x, yy);
         else this.yG(false);
       }
@@ -426,7 +416,7 @@ export class DragVisualMgr extends C {
       if (this.RX === this.CX && this.UX === this.OX && this.FX === this.YX) return;
       if (this.JX === "soldier" || this.JX === "farmer") this.fG(x);
       else if (this.tG) {
-        if (en.instance().CF(this.tG, { containerType: 3, x, y: 0 })) this.yG(true, 2, x);
+        if (PlacementMgr.instance().CF(this.tG, { containerType: 3, x, y: 0 })) this.yG(true, 2, x);
         else this.yG(false);
       }
     } else {
@@ -443,9 +433,9 @@ export class DragVisualMgr extends C {
     let s: any;
     const i = this.oG;
     const h = this.lG;
-    const e = f.distance(i, h);
+    const e = MathE.distance(i, h);
     const a = Math.floor(e / 25);
-    const n = f.angle(i, h);
+    const n = MathE.angle(i, h);
     this.cG.rotation = n - 90;
     this.cG.pos(this.oG.x, this.oG.y);
     this.cG.visible = true;
@@ -455,7 +445,7 @@ export class DragVisualMgr extends C {
       for (let t = 0; t < a; t++)
         if (t < r) this.cG.getChildAt(t).visible = true;
         else {
-          s = z.instance().getItem("dragLine", this);
+          s = PrefabFactory.instance().getItem("dragLine", this);
           s.pos(t * (s.width + 5), 0);
           this.cG.addChild(s);
         }
@@ -510,7 +500,7 @@ export class DragVisualMgr extends C {
     this.lG.width = this.XX + 7;
     if (t)
       if (s === 1) {
-        const cell = Ki.instance().zS(i!, h!);
+        const cell = EntityRegistry.instance().zS(i!, h!);
         let w = this.XX + 7;
         if (cell.x !== -1 && cell.y !== -1) {
           i = cell.x;
@@ -525,11 +515,11 @@ export class DragVisualMgr extends C {
         this.lG.pos(this.Yv.x, this.Yv.y);
         if (this.JX === "soldier" && this.bX) {
           const sp = this.bX.pg();
-          const sol = Ki.instance().hS.get(Number(sp.name.split("_")[1]));
+          const sol = EntityRegistry.instance().hS.get(Number(sp.name.split("_")[1]));
           if (sol) {
             Laya.Point.TEMP.setTo(i! * this.XX + this.XX / 2, h! * this.GX + this.GX / 2);
             this.map.localToGlobal(Laya.Point.TEMP);
-            q.instance().toggleTargetCircle(true, sol.Da, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+            EffectMgr.instance().toggleTargetCircle(true, sol.Da, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
           }
         }
       } else if (s === 2) {
@@ -539,7 +529,7 @@ export class DragVisualMgr extends C {
         this.lG.parent.globalToLocal(this.Yv);
         this.lG.pos(this.Yv.x, this.Yv.y);
       } else;
-    else q.instance().toggleTargetCircle(false);
+    else EffectMgr.instance().toggleTargetCircle(false);
   }
 
   wG(_t: any, _s: any): void {}
@@ -560,7 +550,7 @@ export class DragVisualMgr extends C {
   }
 
   fG(t: number): void {
-    if (wi.instance().Mv(3)!.mv[t] instanceof xi) this.yG(false);
+    if (BoardMgr.instance().Mv(3)!.mv[t] instanceof xi) this.yG(false);
     else this.yG(true, 2, t);
   }
 
@@ -587,19 +577,19 @@ export class DragVisualMgr extends C {
           s.y = a;
           if (t.rk === 4) {
             s.containerType = 1;
-            const c1 = en.instance().CF(t, s);
+            const c1 = PlacementMgr.instance().CF(t, s);
             s.containerType = 2;
-            const c2 = en.instance().CF(t, s);
+            const c2 = PlacementMgr.instance().CF(t, s);
             i.visible = c1 || c2;
-          } else i.visible = en.instance().CF(t, s);
+          } else i.visible = PlacementMgr.instance().CF(t, s);
         }
     s.containerType = 3;
-    const a = wi.instance().Mv(3)!.mv;
+    const a = BoardMgr.instance().Mv(3)!.mv;
     for (let h2 = 0; h2 < a.length; h2++)
       if ((i = this.jX[h2])) {
         s.x = h2;
         s.y = 0;
-        i.visible = en.instance().CF(t, s);
+        i.visible = PlacementMgr.instance().CF(t, s);
       }
   }
 
@@ -607,7 +597,7 @@ export class DragVisualMgr extends C {
     let i: any;
     const h = this.ue.ue;
     const e = this.bX;
-    const a = wi.instance().Mv(1, e?.qd ?? true);
+    const a = BoardMgr.instance().Mv(1, e?.qd ?? true);
     const n = a?.mv;
     for (let s = 0; s < h.length; s++)
       for (let aa = 0; aa < h[s].length; aa++) {
@@ -629,7 +619,7 @@ export class DragVisualMgr extends C {
             merge =
               e.Qd === item.Qd && e.level === item.level && e.id !== item.id && item.level < 5 && !e.$d && !item.$d;
           else if (e instanceof gi && item instanceof gi) {
-            const m = Ki.instance().YS(e, item);
+            const m = EntityRegistry.instance().YS(e, item);
             merge = m !== null && m.level < m.maxLevel;
           } else if (e instanceof ki && item instanceof ki)
             merge =
@@ -650,7 +640,7 @@ export class DragVisualMgr extends C {
 
   kG(): void {
     let t: any;
-    const s = wi.instance().Mv(3)!.mv;
+    const s = BoardMgr.instance().Mv(3)!.mv;
     const i = this.bX;
     for (let h = 0; h < s.length; h++) {
       if (!(t = this.jX[h])) continue;
@@ -662,7 +652,7 @@ export class DragVisualMgr extends C {
         if (i instanceof zs && item instanceof zs)
           a = i.Qd === item.Qd && i.level === item.level && i.id !== item.id && item.level < 5 && !i.$d && !item.$d;
         else if (i instanceof gi && item instanceof gi) {
-          const m = Ki.instance().YS(i, item);
+          const m = EntityRegistry.instance().YS(i, item);
           a = m !== null && m.level < m.maxLevel;
         } else if (i instanceof ki && item instanceof ki)
           a = i.Qd === item.Qd && i.level === item.level && i.id !== item.id && item.level < 5 && !i.$d && !item.$d;
@@ -710,7 +700,7 @@ export class DragVisualMgr extends C {
       for (let s = 0; s < this.zX[t].length; s++)
         if (this.zX[t][s]) {
           this.zX[t][s].removeSelf();
-          z.instance().recover("dragTip", this.zX[t][s]);
+          PrefabFactory.instance().recover("dragTip", this.zX[t][s]);
           this.zX[t][s] = null;
         }
   }
@@ -734,7 +724,7 @@ export class DragVisualMgr extends C {
     this.CX = 0;
     this.OX = -1;
     this.YX = -1;
-    F.instance().map.Te();
+    GameMgr.instance().map.Te();
   }
 }
 

@@ -18,12 +18,6 @@ import { PrefabFactory } from "../battle/prefab-factory";
 import { SceneMgr } from "../core/scene-mgr";
 import { MathE } from "../core/math-e";
 
-const q = EffectMgr;
-const H = PrefabPool;
-const F = GameMgr;
-const z = PrefabFactory;
-const K = SceneMgr;
-const f = MathE;
 
 @regClass("J_UH_VTZTxqrZGBtVTiZww")
 export class NewWeaponDialog extends Laya.Dialog {
@@ -42,7 +36,7 @@ export class NewWeaponDialog extends Laya.Dialog {
 
   onAwake(): void {
     this.getBtn.on(Laya.Event.CLICK, this, this.oW);
-    q.instance().bindButtons([this.getBtn]);
+    EffectMgr.instance().bindButtons([this.getBtn]);
   }
 
   onOpened(t: any): void {
@@ -104,7 +98,7 @@ export class NewWeaponDialog extends Laya.Dialog {
   }
 
   pW(t: any): any {
-    const h = H.instance().so("weaponSceneWeaponItem").create();
+    const h = PrefabPool.instance().so("weaponSceneWeaponItem").create();
     const e = this.fW(t.name, true);
     const a = e.width;
     const n = e.height;
@@ -117,9 +111,9 @@ export class NewWeaponDialog extends Laya.Dialog {
     const o = h.getChildByName("name");
     const l = h.getChildByName("countBg");
     const c = l?.getChildByName("countTxt");
-    const wd = F.instance().weaponData.getWeapon(t.weaponId);
+    const wd = GameMgr.instance().weaponData.getWeapon(t.weaponId);
     const p = wd?.rarity ?? 0;
-    const yColor = F.instance().weaponData.rarityStrokeColors[p] ?? "#000000";
+    const yColor = GameMgr.instance().weaponData.rarityStrokeColors[p] ?? "#000000";
     if (o) {
       o.anchorX = o.anchorY = 0.5;
       o.x = a / 2;
@@ -158,32 +152,32 @@ export class NewWeaponDialog extends Laya.Dialog {
   uW(): void {}
 
   starEff(): void {
-    Laya.timer.loop(f.range(200, 500), this, () => {
-      const t = z.instance().getItem("starFly", this);
+    Laya.timer.loop(MathE.range(200, 500), this, () => {
+      const t = PrefabFactory.instance().getItem("starFly", this);
       const s = this.starBox.width;
       const i = this.starBox.height;
       const h = s / 2;
       const e = i / 2;
-      const a = f.range(0, 4, true);
+      const a = MathE.range(0, 4, true);
       let n: number;
       let r: number;
       if (a === 0) {
-        n = f.range(0, s);
+        n = MathE.range(0, s);
         r = 0;
       } else if (a === 1) {
         n = s;
-        r = f.range(0, i);
+        r = MathE.range(0, i);
       } else if (a === 2) {
-        n = f.range(0, s);
+        n = MathE.range(0, s);
         r = i;
       } else {
         n = 0;
-        r = f.range(0, i);
+        r = MathE.range(0, i);
       }
       const o = n - h;
       const l = r - e;
       const c = Math.sqrt(o * o + l * l) || 1;
-      const uu = f.range(350, 400);
+      const uu = MathE.range(350, 400);
       const p = n + (o / c) * uu;
       const yv = r + (l / c) * uu;
       const g = n + (o / c) * uu * 0.6;
@@ -192,13 +186,13 @@ export class NewWeaponDialog extends Laya.Dialog {
         Math.random() < 0.5 ? "resources/img/shop/lottery/yellowStar.png" : "resources/img/weaponBag/cLight3.png";
       t.alpha = 1;
       t.anchorX = t.anchorY = 0.5;
-      const L = f.range(30, 60);
+      const L = MathE.range(30, 60);
       t.size(L, L);
       t.pos(n, r);
-      t.rotation = f.range(0, 360);
+      t.rotation = MathE.range(0, 360);
       this.starBox.addChild(t);
-      const m = t.rotation + f.range(60, 110);
-      const w = m + f.range(30, 60);
+      const m = t.rotation + MathE.range(60, 110);
+      const w = m + MathE.range(30, 60);
       Laya.Tween.create(t)
         .to("x", g)
         .to("y", d)
@@ -212,13 +206,13 @@ export class NewWeaponDialog extends Laya.Dialog {
         .duration(800)
         .then(() => {
           t.removeSelf();
-          z.instance().recover("starFly", t);
+          PrefabFactory.instance().recover("starFly", t);
         });
     });
   }
 
   oW(): void {
-    const t = (K.instance().getDialogData("NewWeaponDialog") || {}).LW;
+    const t = (SceneMgr.instance().getDialogData("NewWeaponDialog") || {}).LW;
     if (t) {
       t(
         this.nW.map((item, s) => {
@@ -235,6 +229,6 @@ export class NewWeaponDialog extends Laya.Dialog {
 
   Uu(): void {
     Laya.Tween.killAll(this.titleLight);
-    K.instance().closeDialog("NewWeaponDialog");
+    SceneMgr.instance().closeDialog("NewWeaponDialog");
   }
 }

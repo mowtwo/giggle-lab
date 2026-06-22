@@ -14,8 +14,6 @@ import { regClass } from "../laya/engine";
 import { UpdateMgr } from "../core/update-mgr";
 import { MathE } from "../core/math-e";
 
-const j = UpdateMgr;
-const f = MathE;
 
 @regClass("I1X2DTP7QtuEKv4qk8ADig")
 export class MapBg1 extends Laya.Box {
@@ -24,7 +22,7 @@ export class MapBg1 extends Laya.Box {
   onAwake(): void {}
 
   onEnable(): void {
-    j.instance().register("mapBg1", this, this.update);
+    UpdateMgr.instance().register("mapBg1", this, this.update);
   }
 
   update(t: number): void {
@@ -38,12 +36,12 @@ export class MapBg1 extends Laya.Box {
     if (Math.random() > 0.3) return;
     const s = new Laya.Image("resources/img/map/mapBg/mapBg1/girl.png");
     s.size(98, 87);
-    s.pos(f.range(50, 600), f.range(30, 100));
+    s.pos(MathE.range(50, 600), MathE.range(30, 100));
     const i = s.y / 200;
     s.scale(i, i);
     this.addChild(s);
     const h = Math.random() < 0.5 ? 1 : -1;
-    const e = f.range(100, 300);
+    const e = MathE.range(100, 300);
     s.scaleX = h * s.scaleX;
     Laya.Tween.to(
       s,
@@ -57,7 +55,7 @@ export class MapBg1 extends Laya.Box {
   }
 
   onDisable(): void {
-    j.instance().unregister("mapBg1");
+    UpdateMgr.instance().unregister("mapBg1");
   }
 }
 
@@ -88,7 +86,7 @@ export class MapBg3 extends Laya.Box {
   }
 
   onEnable(): void {
-    j.instance().register("mapBg3", this, this.update);
+    UpdateMgr.instance().register("mapBg3", this, this.update);
   }
 
   update(t: number): void {
@@ -97,18 +95,18 @@ export class MapBg3 extends Laya.Box {
   }
 
   Cz(): void {
-    const t = f.range(8, 12, true);
+    const t = MathE.range(8, 12, true);
     for (let k = 0; k < t; k++) {
-      const idx = f.range(0, 3, true);
+      const idx = MathE.range(0, 3, true);
       const s = new Laya.Image("resources/img/map/mapBg/mapBg3/ship" + idx + ".png");
       s.size(this.Tz[idx].bB, this.Tz[idx].MB);
       s.anchor(0.5, 1);
-      s.pos(f.range(0, 640), f.range(0, 130));
+      s.pos(MathE.range(0, 640), MathE.range(0, 130));
       s.zIndex = s.y;
       const i = 0.2 + (s.y / 130) * 0.4;
       s.scale(i, i);
       s.alpha = 0.5 + (s.y / 130) * 0.5;
-      s.rotation = f.range(-5, 5);
+      s.rotation = MathE.range(-5, 5);
       this.addChild(s);
       this.Rz.push({ Oz: s, Yz: 1 });
     }
@@ -121,7 +119,7 @@ export class MapBg3 extends Laya.Box {
       i.x -= t / 200;
       if (i.x < -i.width) {
         i.x = 640;
-        i.y = f.range(0, 130);
+        i.y = MathE.range(0, 130);
       }
       i.rotation += 0.1 * s.Yz;
       if (i.rotation < -5) s.Yz = 1;
@@ -138,6 +136,6 @@ export class MapBg3 extends Laya.Box {
   }
 
   onDisable(): void {
-    j.instance().unregister("mapBg3");
+    UpdateMgr.instance().unregister("mapBg3");
   }
 }

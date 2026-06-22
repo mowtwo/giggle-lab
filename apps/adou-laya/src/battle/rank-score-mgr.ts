@@ -11,13 +11,12 @@
 import { Singleton } from "../core/singleton";
 import { GameMgr } from "../core/game-mgr";
 
-const F = GameMgr;
 
 export class RankScoreMgr extends Singleton {
   private da: any;
 
   init(): void {
-    this.da = F.instance().rank.table;
+    this.da = GameMgr.instance().rank.table;
   }
 
   /** Score -> {rank, level}. (`SG`) */

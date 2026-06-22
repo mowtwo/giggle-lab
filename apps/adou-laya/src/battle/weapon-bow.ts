@@ -29,11 +29,7 @@ import {
 } from "./bullet-variants";
 import { TargetEnemyBezierMovement, TargetDirectionLineMovement, TargetDirectionWaveMovement } from "./movements";
 
-const de = WeaponFactory;
 const $ = AudioMgr;
-const f = MathE;
-const j = UpdateMgr;
-const th = BuffMgr;
 const ri = SimpleDynamicArrow;
 const Ch = EagleArrow;
 const zh = FireDragonArrow;
@@ -230,7 +226,7 @@ class DefaultBowWeapon extends BowWeaponBase {
     this.sD(this.config, s, 1);
   }
 }
-de.register(0, -1, DefaultBowWeapon);
+WeaponFactory.register(0, -1, DefaultBowWeapon);
 
 /** Default bow (0). */
 class BowWeapon0 extends BowWeaponBase {
@@ -257,7 +253,7 @@ class BowWeapon0 extends BowWeaponBase {
     this.sD(this.config, s, 1);
   }
 }
-de.register(0, 0, BowWeapon0);
+WeaponFactory.register(0, 0, BowWeapon0);
 
 /** 长弓 — attack distance +0.5. (`me`) */
 class LongBow extends BowWeaponBase {
@@ -278,11 +274,11 @@ class LongBow extends BowWeaponBase {
     this.hD = -1;
   }
   protected wI(): void {
-    this.hD = th.instance().applyBuff(this.general.id, 2, 0.5);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 2, 0.5);
   }
   MI(): void {
     super.MI();
-    if (this.hD >= 0) th.instance().kg(this.general.id, 2, this.hD);
+    if (this.hD >= 0) BuffMgr.instance().kg(this.general.id, 2, this.hD);
     this.hD = -1;
   }
   protected AI(t: any): void {
@@ -296,7 +292,7 @@ class LongBow extends BowWeaponBase {
   }
   iD(): void {}
 }
-de.register(0, 1, LongBow);
+WeaponFactory.register(0, 1, LongBow);
 
 /** 铁弓 — 10% knockback. (`we`) */
 class IronBow extends BowWeaponBase {
@@ -326,7 +322,7 @@ class IronBow extends BowWeaponBase {
     this.sD(this.config, s, 1);
   }
 }
-de.register(0, 2, IronBow);
+WeaponFactory.register(0, 2, IronBow);
 
 /** 角弓 — repeated hits on one target raise attack speed +5%. (`ve`) */
 class HornBow extends BowWeaponBase {
@@ -352,12 +348,12 @@ class HornBow extends BowWeaponBase {
     this.hD = -1;
   }
   protected wI(): void {
-    this.hD = th.instance().applyBuff(this.general.id, 1, 0, true);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 1, 0, true);
   }
   MI(): void {
     super.MI();
     this.aD = 0;
-    if (this.hD >= 0) th.instance().kg(this.general.id, 1, this.hD);
+    if (this.hD >= 0) BuffMgr.instance().kg(this.general.id, 1, this.hD);
     this.hD = -1;
   }
   protected AI(t: any): void {
@@ -369,9 +365,9 @@ class HornBow extends BowWeaponBase {
     this.config.Sm = this.Sm;
     if (this.eD === t.id) {
       this.aD = Math.min(this.aD + 0.05, this.nD);
-      th.instance().modify(this.general.id, 1, this.hD, this.aD, true, undefined);
+      BuffMgr.instance().modify(this.general.id, 1, this.hD, this.aD, true, undefined);
     } else {
-      th.instance().modify(this.general.id, 1, this.hD, 0, true, undefined);
+      BuffMgr.instance().modify(this.general.id, 1, this.hD, 0, true, undefined);
       this.aD = 0;
       this.eD = t.id;
     }
@@ -380,7 +376,7 @@ class HornBow extends BowWeaponBase {
   }
   iD(): void {}
 }
-de.register(0, 3, HornBow);
+WeaponFactory.register(0, 3, HornBow);
 
 /** 射雕弓 — 10% chance to loose a slow eagle (3x). (`ke`) */
 class EagleBow extends BowWeaponBase {
@@ -394,7 +390,7 @@ class EagleBow extends BowWeaponBase {
   protected AI(t: any): void {
     const s = this.CI(t.id);
     let i: any;
-    if ((f.range(0, 100, true) as number) < 10) {
+    if ((MathE.range(0, 100, true) as number) < 10) {
       i = { type: Ch, bm: this.general, Om: Kh.create().QL(s), Sm: 3 * this.Sm, Fm: 0.35 };
     } else {
       i = {
@@ -411,7 +407,7 @@ class EagleBow extends BowWeaponBase {
     this.sD(i, s, 1);
   }
 }
-de.register(0, 4, EagleBow);
+WeaponFactory.register(0, 4, EagleBow);
 
 /** 铁胎弓 — 10% chance to loose a fire dragon. (`_e`) */
 class FireDragonBow extends BowWeaponBase {
@@ -426,8 +422,8 @@ class FireDragonBow extends BowWeaponBase {
     const s = this.CI(t.id);
     let i: any;
     this.II(s, undefined);
-    if ((f.range(0, 100, true) as number) < 10) {
-      i = { type: zh, bm: this.general, Om: this.RI(TargetDirectionWaveMovement.create(0.5, 15, f.range(0, 100) as number)), Fm: 5 };
+    if ((MathE.range(0, 100, true) as number) < 10) {
+      i = { type: zh, bm: this.general, Om: this.RI(TargetDirectionWaveMovement.create(0.5, 15, MathE.range(0, 100) as number)), Fm: 5 };
       i.Um = undefined;
     } else {
       i = {
@@ -443,7 +439,7 @@ class FireDragonBow extends BowWeaponBase {
     this.sD(i, s, 1);
   }
 }
-de.register(0, 5, FireDragonBow);
+WeaponFactory.register(0, 5, FireDragonBow);
 
 /** 神臂弓 — repeated hits on one target raise attack speed +15%. (`xe`) */
 class ShenBiBow extends BowWeaponBase {
@@ -462,11 +458,11 @@ class ShenBiBow extends BowWeaponBase {
     this.eD = -1;
   }
   protected wI(): void {
-    this.hD = th.instance().applyBuff(this.general.id, 1, 0, true);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 1, 0, true);
   }
   MI(): void {
     super.MI();
-    th.instance().kg(this.general.id, 1, this.hD);
+    BuffMgr.instance().kg(this.general.id, 1, this.hD);
   }
   protected AI(t: any): void {
     this.config.bm = this.general;
@@ -477,9 +473,9 @@ class ShenBiBow extends BowWeaponBase {
     this.config.Sm = this.Sm;
     if (this.eD === t.id) {
       this.aD = Math.min(this.aD + 0.15, this.nD);
-      th.instance().modify(this.general.id, 1, this.hD, this.aD, true, undefined);
+      BuffMgr.instance().modify(this.general.id, 1, this.hD, this.aD, true, undefined);
     } else {
-      th.instance().modify(this.general.id, 1, this.hD, 0, true, undefined);
+      BuffMgr.instance().modify(this.general.id, 1, this.hD, 0, true, undefined);
       this.aD = 0;
       this.eD = t.id;
     }
@@ -488,7 +484,7 @@ class ShenBiBow extends BowWeaponBase {
   }
   iD(): void {}
 }
-de.register(0, 6, ShenBiBow);
+WeaponFactory.register(0, 6, ShenBiBow);
 
 /** 霸王弓 — 50% bounce per hit. (`Se`) */
 class OverlordBow extends BowWeaponBase {
@@ -511,7 +507,7 @@ class OverlordBow extends BowWeaponBase {
   }
   iD(): void {}
 }
-de.register(0, 7, OverlordBow);
+WeaponFactory.register(0, 7, OverlordBow);
 
 /** 落日弓 — fire phoenix (bigger + harder the farther it flies). (`be`) */
 class SunsetBow extends BowWeaponBase {
@@ -528,11 +524,11 @@ class SunsetBow extends BowWeaponBase {
   }
   protected wI(): void {
     super.wI();
-    this.hD = th.instance().applyBuff(this.general.id, 2, 1, true);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 2, 1, true);
   }
   MI(): void {
     super.MI();
-    th.instance().kg(this.general.id, 2, this.hD);
+    BuffMgr.instance().kg(this.general.id, 2, this.hD);
   }
   protected AI(t: any): void {
     const s = this.CI(t.id);
@@ -543,7 +539,7 @@ class SunsetBow extends BowWeaponBase {
   }
   iD(): void {}
 }
-de.register(0, 8, SunsetBow);
+WeaponFactory.register(0, 8, SunsetBow);
 
 /** 诸葛连弩 — every 10 shots looses 10 fire bolts. (`Me`) */
 class RepeatingCrossbow extends BowWeaponBase {
@@ -580,7 +576,7 @@ class RepeatingCrossbow extends BowWeaponBase {
       this.config.type = Yh;
       this.config.Um = this.gI;
       this.general.mL = false;
-      j.instance().register(this.id + "_A", this, (dt: number) => {
+      UpdateMgr.instance().register(this.id + "_A", this, (dt: number) => {
         this.pD += dt / 2000;
         if (this.pD <= 1) {
           if (this.pD >= this.yD / this.lD) {
@@ -599,7 +595,7 @@ class RepeatingCrossbow extends BowWeaponBase {
           this.general.mL = true;
           this.pD = 0;
           this.yD = 0;
-          j.instance().unregister(this.id + "_A");
+          UpdateMgr.instance().unregister(this.id + "_A");
         }
       });
       this.uD = 0;
@@ -616,4 +612,4 @@ class RepeatingCrossbow extends BowWeaponBase {
   }
   iD(): void {}
 }
-de.register(0, 9, RepeatingCrossbow);
+WeaponFactory.register(0, 9, RepeatingCrossbow);

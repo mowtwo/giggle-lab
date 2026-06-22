@@ -34,17 +34,9 @@ const jh = ExplosionBehavior;
 const ai = BulletEvent;
 const fi = TargetObjectInstantaneous;
 const Zt = AnimPlayer;
-const ma = WeaponMgr;
 const Ga = Laya.Pool;
 
-const F = GameMgr;
 const $ = AudioMgr;
-const j = UpdateMgr;
-const f = MathE;
-const q = EffectMgr;
-const fe = BulletSpawnMgr;
-const th = BuffMgr;
-const si = HitStrategyFactory;
 const Js = HitStrategy103;
 const ri = SimpleDynamicArrow;
 const Nh = FireExplosiveArrow;
@@ -70,9 +62,9 @@ export class StunOnHitBehavior extends BulletBehavior {
   }
   $m(t: any, s: any): void {
     if (Math.random() <= (t.yM ? this.tC : this.JR)) {
-      th.instance().applyBuff(t.id, 8, 0, false, t.yM ? this.KR : this.ZR);
+      BuffMgr.instance().applyBuff(t.id, 8, 0, false, t.yM ? this.KR : this.ZR);
       if (this.QR) {
-        q.instance().playElectricEffect(t.enemy.parent, t.enemy.x + t.enemy.width / 2, t.enemy.y + t.enemy.height / 2);
+        EffectMgr.instance().playElectricEffect(t.enemy.parent, t.enemy.x + t.enemy.width / 2, t.enemy.y + t.enemy.height / 2);
         $.instance().playSound("maChao_attack_lightning");
         t.hit(t.VM * (t.yM ? 0.02 : 0.1), s.bm);
       }
@@ -94,7 +86,7 @@ export class TripOnHitBehavior extends BulletBehavior {
     this.tC = h;
   }
   $m(t: any, _s: any): void {
-    if (Math.random() <= (t.yM ? this.tC : this.JR)) th.instance().applyBuff(t.id, 17, 0, false, t.yM ? this.oC : this.rC);
+    if (Math.random() <= (t.yM ? this.tC : this.JR)) BuffMgr.instance().applyBuff(t.id, 17, 0, false, t.yM ? this.oC : this.rC);
   }
 }
 
@@ -108,7 +100,7 @@ export class SlowOnHitBehavior extends BulletBehavior {
     this.wC = -s;
   }
   $m(t: any, _s: any): void {
-    th.instance().applyBuff(t.id, 3, this.wC, true, this.mC);
+    BuffMgr.instance().applyBuff(t.id, 3, this.wC, true, this.mC);
   }
 }
 
@@ -140,7 +132,7 @@ export class BattleShout extends Skill {
   }
   qD(): any {
     this.HD.mL = false;
-    const t = this.HD.Da / F.instance().map.gridWid;
+    const t = this.HD.Da / GameMgr.instance().map.gridWid;
     return new Promise<void>((resolve) => {
       const i = this.gT();
       i.parallel()
@@ -175,13 +167,13 @@ export class BattleShout extends Skill {
             this.HD.mL = true;
             this.$D();
             resolve();
-            j.instance().unregister("battleShoutSkill" + this.HD.id);
+            UpdateMgr.instance().unregister("battleShoutSkill" + this.HD.id);
             this.NR.clear();
             this.$R.radius = 0;
           });
           this.$R.x = this.HD.general.x + this.HD.general.width / 4;
           this.$R.y = this.HD.general.y + this.HD.general.height / 2;
-          j.instance().register("battleShoutSkill" + this.HD.id, this, this.VR);
+          UpdateMgr.instance().register("battleShoutSkill" + this.HD.id, this, this.VR);
         });
     });
   }
@@ -191,7 +183,7 @@ export class BattleShout extends Skill {
     for (let s = 0; s < t.length; s++) {
       const i = t[s];
       if (!this.NR.has(i.id)) {
-        th.instance().applyBuff(i.id, 8, 1, false, this.WR);
+        BuffMgr.instance().applyBuff(i.id, 8, 1, false, this.WR);
         this.NR.add(i.id);
       }
     }
@@ -242,7 +234,7 @@ export class BattleShout extends Skill {
     this.XI();
   }
   dT(): void {
-    j.instance().unregister("battleShoutSkill" + this.HD.id);
+    UpdateMgr.instance().unregister("battleShoutSkill" + this.HD.id);
     this.jR = [];
     this.qR.destroy(true);
   }
@@ -324,8 +316,8 @@ export class HolyBlade extends Skill {
     this.lC.bm = this.HD;
     this.lC.Sm = 5 * this.HD.QE.Sm;
     this.lC.VA = [new TripOnHitBehavior(2000, 1), new Oh("arrowTrail", { uE: 40 })];
-    this.lC.Om = Xh.create(0.5, 50, 0).QL(f.angle(this.HD.general, t));
-    const s = fe.instance().Tw(this.lC, this.HD.general);
+    this.lC.Om = Xh.create(0.5, 50, 0).QL(MathE.angle(this.HD.general, t));
+    const s = BulletSpawnMgr.instance().Tw(this.lC, this.HD.general);
     s.Pm.alpha = 0.5;
     s.Xm();
     this.$D();
@@ -376,25 +368,25 @@ export class FireArrowRain extends Skill {
     const s: any = {
       type: Nh,
       xm: "fireArrowRain",
-      Om: Fe.create(500 + (f.range(0, 250) as number)).KL(t),
+      Om: Fe.create(500 + (MathE.range(0, 250) as number)).KL(t),
       Sm: 2 * this.HD.Ta,
-      Um: si.produce(100, { FL: -1, IL: "requestRemove" }),
+      Um: HitStrategyFactory.produce(100, { FL: -1, IL: "requestRemove" }),
       bm: this.HD,
       rm: { um: 0.5 },
     };
-    const i = fe.instance().Tw(s);
+    const i = BulletSpawnMgr.instance().Tw(s);
     i.Jm = true;
     i.UE = this.UE;
     const h = this.HD.QE;
     return new Promise<void>((resolve) => {
-      h.KI(i, s.Om.bw(F.instance().toLocal(this.HD.QE.Hn, true)), (this.cC / 5) * this.YL, () => {
+      h.KI(i, s.Om.bw(GameMgr.instance().toLocal(this.HD.QE.Hn, true)), (this.cC / 5) * this.YL, () => {
         this.HD.event("onSkillInterruptAttack", this.name);
         resolve();
       });
     });
   }
   private pC(): any[] {
-    const t = F.instance();
+    const t = GameMgr.instance();
     const s = t.map.gridWid;
     const i = t.map.gridHei;
     const h = this.HD.qd ? t.map.de : t.map.Le;
@@ -405,17 +397,17 @@ export class FireArrowRain extends Skill {
     for (let k = 0; k < e.length; k++) {
       const cell = e[k];
       const n = Math.floor(Math.max(1, (this.HD.level - 1) / 2));
-      const r = (f.range(1, 3, true) as number) * n;
+      const r = (MathE.range(1, 3, true) as number) * n;
       this.cC += r;
       for (let m = 0; m < r; m++) {
-        const dx = f.range(0.3 * -s, 0.3 * s, true) as number;
-        const dy = f.range(0.3 * -i, 0.3 * i, true) as number;
+        const dx = MathE.range(0.3 * -s, 0.3 * s, true) as number;
+        const dy = MathE.range(0.3 * -i, 0.3 * i, true) as number;
         const px = cell.x * s + s / 2 + dx;
         const py = cell.y * i + i / 2 + dy;
         a.push(new Laya.Vector2(px, py));
       }
     }
-    f.shuffle(a);
+    MathE.shuffle(a);
     return a;
   }
   dT(): void {}
@@ -464,15 +456,15 @@ export class ArrowRain extends Skill {
     const i = EnemySpatialMgr.instance();
     const h: any[] = [];
     for (let k = 1; k <= this.fC; k++) {
-      let e = this.fC > s.length ? s[k % s.length].id : s[f.range(0, s.length - 1, true) as number].id;
+      let e = this.fC > s.length ? s[k % s.length].id : s[MathE.range(0, s.length - 1, true) as number].id;
       if (!e) e = i.XA(this.HD.qd).id;
       if (e === -1 || e == null) continue;
-      const a = fe.instance().Tw({
+      const a = BulletSpawnMgr.instance().Tw({
         type: ri,
         ow: { xm: "arrowRain", ew: "resources/img/weapon/arrow_2.png" },
-        Om: oi.create(1000 + (f.range(0, 200) as number)).qL(e),
+        Om: oi.create(1000 + (MathE.range(0, 200) as number)).qL(e),
         Sm: this.HD.Ta,
-        Um: si.produce(100, { FL: e, IL: "requestRemove" }),
+        Um: HitStrategyFactory.produce(100, { FL: e, IL: "requestRemove" }),
         bm: this.HD,
       });
       a.rm.um = 0.5;
@@ -561,7 +553,7 @@ export class JumpSlash extends Skill {
     e.y = 40;
     this.nT.setValue(h.x, h.y);
     this.hT.setTo(0, 0);
-    F.instance().toLocal(h, this.hT);
+    GameMgr.instance().toLocal(h, this.hT);
     this.eT.setValue(this.hT.x, this.hT.y);
     this.pT(i);
   }
@@ -582,20 +574,20 @@ export class JumpSlash extends Skill {
       case 2:
         s = this.HD.box;
     }
-    const i = F.instance();
+    const i = GameMgr.instance();
     const h = i.toLocal(s, true);
     const e = this.HD.QE.Hn;
     const a = e.y;
     const n = e.anchorY;
     const r = h.x < t.centerX;
     this.aT.setValue(t.centerX + (r ? -i.map.gridWid : i.map.gridWid), t.enemy.y + i.map.gridHei);
-    const o = fe.instance().Tw(
+    const o = BulletSpawnMgr.instance().Tw(
       {
         type: Gh,
         bm: this.HD,
         xm: "jumpSlashVirtual",
         Om: Fe.create(500).KL(this.aT),
-        Um: si.produce(100, { FL: t.id, IL: "requestRemove" }),
+        Um: HitStrategyFactory.produce(100, { FL: t.id, IL: "requestRemove" }),
         Sm: this.HD.Ta,
         Fm: this.YL,
         VA: [new jh({ radius: 200, Sm: this.HD.Ta / 2, force: 1, RE: false, BE: false })],
@@ -642,7 +634,7 @@ export class JumpSlash extends Skill {
       const map = i.map;
       if (t.Bw) {
         t.hit(this.HD.Ta, this.HD);
-        q.instance().playCrackEffect(i.Qn, t.centerX, t.y + map.gridHei, 300);
+        EffectMgr.instance().playCrackEffect(i.Qn, t.centerX, t.y + map.gridHei, 300);
         $.instance().playSound("jumpSlash_stomp");
       }
     });
@@ -679,8 +671,8 @@ export class JumpSlash extends Skill {
         t = this.HD.box;
     }
     this.eT.setValue(this.eT.x + t.width / 2, this.eT.y + t.height / 2);
-    const s = F.instance().toLocal(t, true);
-    const i = fe.instance().Tw(
+    const s = GameMgr.instance().toLocal(t, true);
+    const i = BulletSpawnMgr.instance().Tw(
       { type: Gh, bm: this.HD, Om: Fe.create(500).KL(this.eT), Fm: 0.8 * this.YL, xm: "jumpBackVirtual" },
       s,
     );
@@ -779,13 +771,13 @@ export class PhantomSkill extends Skill {
     this.bC = false;
     this.BC();
     if (this.kC && this.IC) {
-      j.instance().unregister(this.IC);
+      UpdateMgr.instance().unregister(this.IC);
       this.kC = false;
     }
     for (const t of [...this.xC, ...this._C]) this.DC(t);
     this.TC = `Phantom${this.HD.id}${this.HD.weaponId}_${this.HD.qd}`;
     this.IC = this.HD.id + "_PhantomAttackSkill";
-    this.dg = F.instance();
+    this.dg = GameMgr.instance();
     this.xw = EnemySpatialMgr.instance();
     this.RC = this.HD.qd ? this.dg.map.de : this.dg.map.Le;
     this.vC.clear();
@@ -801,7 +793,7 @@ export class PhantomSkill extends Skill {
     this.bC = true;
     for (const t of [...this.xC, ...this._C]) this.DC(t);
     if (this.kC) {
-      j.instance().unregister(this.IC);
+      UpdateMgr.instance().unregister(this.IC);
       this.kC = false;
     }
     this.BC();
@@ -848,7 +840,7 @@ export class PhantomSkill extends Skill {
       s.addChild(img);
       img.pos(t.Yn.x, t.Yn.y);
     }
-    const e = ma.instance().vR(this.HD.cT, this.HD.weaponId);
+    const e = WeaponMgr.instance().vR(this.HD.cT, this.HD.weaponId);
     s.addChild(e.Hn);
     e.pos(0, 0);
     PhantomSkill.OC.set(s, {
@@ -884,7 +876,7 @@ export class PhantomSkill extends Skill {
     s.scale(this.AC, this.AC);
     Ga.recover(this.TC, s);
     if (this.kC && this._C.size === 0) {
-      j.instance().unregister(this.IC);
+      UpdateMgr.instance().unregister(this.IC);
       this.kC = false;
     }
   }
@@ -904,7 +896,7 @@ export class PhantomSkill extends Skill {
   }
   private VC(t: any, s: any): void {
     const i = this.dg.toLocal(this.HD.general, true);
-    const h = fe.instance().Tw(
+    const h = BulletSpawnMgr.instance().Tw(
       {
         type: Gh,
         bm: this.HD,
@@ -970,11 +962,11 @@ export class PhantomSkill extends Skill {
     }
     const s = this.FC(t);
     this.xC.delete(t);
-    s.Pm = fe.instance().Tw({
+    s.Pm = BulletSpawnMgr.instance().Tw({
       type: ri,
       ow: { xm: "phantomBullet", ew: "", aw: { x: this.dg.map.gridWid, y: this.dg.map.gridHei }, iw: true },
       Om: fi.create(t, 0, 40, false, false, false),
-      Um: si.produce(103),
+      Um: HitStrategyFactory.produce(103),
       bm: this.HD,
       Sm: this.HD.Ta,
     });
@@ -982,7 +974,7 @@ export class PhantomSkill extends Skill {
     if (this.KC(t)) {
       this._C.add(t);
       if (!this.kC) {
-        j.instance().register(this.IC, this, this.JC);
+        UpdateMgr.instance().register(this.IC, this, this.JC);
         this.kC = true;
       }
       this.tU(t);

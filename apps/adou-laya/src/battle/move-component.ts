@@ -14,8 +14,6 @@ import { GameMgr } from "../core/game-mgr";
 import { UpdateMgr } from "../core/update-mgr";
 import { Grid, AStar } from "./pathfinding";
 
-const F = GameMgr;
-const j = UpdateMgr;
 const M = Grid;
 const S = AStar;
 const Yr = Laya.Vector2;
@@ -32,7 +30,7 @@ export class MoveComponent extends Laya.Script {
   private dg: any;
 
   onAwake(): void {
-    this.dg = F.instance();
+    this.dg = GameMgr.instance();
   }
 
   onStart(): void {}
@@ -84,7 +82,7 @@ export class MoveComponent extends Laya.Script {
       const sx = n / o;
       const sy = r / o;
       this.vM.setValue(sx, sy);
-      const delta = j.instance().delta;
+      const delta = UpdateMgr.instance().delta;
       const e2 = (this.Xu * delta) / 1000;
       t.x += sx * e2;
       t.y += sy * e2;

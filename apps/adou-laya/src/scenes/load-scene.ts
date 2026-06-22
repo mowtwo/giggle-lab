@@ -3,7 +3,7 @@
 // Faithful reconstruction of reconstruction/reference/bundle.pretty.js lines
 // ~34711-34832. `onAwake` boots the leaf managers, starts the Zhao loading
 // animation, then runs the load flow (`nV`): platform preload tasks → the
-// PreloadMgr resource list → the privacy gate (`Kr`) → GameMgr.init → platform
+// PreloadMgr resource list → the privacy gate (`PrivacyAgreementMgr`) → GameMgr.init → platform
 // startup tasks → `onComplete`, which inits the GameController and opens
 // MainScene. The progress bar blends sub-package (15%) and asset (85%) progress.
 // Opaque field / method names kept verbatim.
@@ -24,14 +24,6 @@ import { PrivacyAgreementMgr } from "../core/privacy-agreement-mgr";
 import { GameMgr } from "../core/game-mgr";
 import { GameController } from "../battle/game-controller";
 
-const Mt = PlatformMgr;
-const j = UpdateMgr;
-const q = EffectMgr;
-const K = SceneMgr;
-const _n = PreloadMgr;
-const Kr = PrivacyAgreementMgr;
-const F = GameMgr;
-const Cn = GameController;
 
 @regClass("nFCDlT3GRD-9N62vwVVE4Q")
 export class LoadScene extends Laya.Scene {
@@ -48,14 +40,14 @@ export class LoadScene extends Laya.Scene {
   private hV: any;
 
   onAwake(): void {
-    Mt.instance().init();
-    j.instance().init();
-    q.instance().init();
-    K.instance().init();
+    PlatformMgr.instance().init();
+    UpdateMgr.instance().init();
+    EffectMgr.instance().init();
+    SceneMgr.instance().init();
     this.hV = new Laya.Sprite();
     this.progressBar.mask = this.hV;
     this.hV.graphics.drawRect(0, 0, 0, this.progressBar.height, "#fff");
-    q.instance().registerImgLoop(
+    EffectMgr.instance().registerImgLoop(
       this.zhao,
       ["resources/loading/zhao0.png", "resources/loading/zhao1.png", "resources/loading/zhao2.png"],
       100,
@@ -74,7 +66,7 @@ export class LoadScene extends Laya.Scene {
     this.rV();
     try {
       console.log("[LoadScene] startLoadFlow1");
-      await Mt.instance().ou((t: number, s: number) => {
+      await PlatformMgr.instance().ou((t: number, s: number) => {
         this.oV(t, s);
       });
       console.log("[LoadScene] startLoadFlow2");
@@ -90,7 +82,7 @@ export class LoadScene extends Laya.Scene {
     this.tV = 0;
     this.rV();
     Laya.loader.load(
-      _n.instance().dX,
+      PreloadMgr.instance().dX,
       Laya.Handler.create(this, this.lV),
       Laya.Handler.create(this, this.cV, null, false),
     );
@@ -135,16 +127,16 @@ export class LoadScene extends Laya.Scene {
     this.Jq = 1;
     this.tV = 0;
     this.rV();
-    await Kr.instance().ensureTextsLoaded();
-    if (await Kr.instance().ensureAgreement()) {
+    await PrivacyAgreementMgr.instance().ensureTextsLoaded();
+    if (await PrivacyAgreementMgr.instance().ensureAgreement()) {
       this.sV = "平台初始化中";
       this.iV = 0;
       this.eV();
       this.rV();
-      F.instance().init();
+      GameMgr.instance().init();
       Laya.timer.loop(80, this, this.pV);
       try {
-        await Mt.instance().lu();
+        await PlatformMgr.instance().lu();
       } catch (t) {
         console.warn("[LoadScene] startup platform tasks failed", t);
       } finally {
@@ -157,9 +149,9 @@ export class LoadScene extends Laya.Scene {
   }
 
   onComplete(): void {
-    Cn.instance().init();
-    K.instance().openScene("MainScene", true, null, () => {
-      K.instance().destroyScene("LoadScene");
+    GameController.instance().init();
+    SceneMgr.instance().openScene("MainScene", true, null, () => {
+      SceneMgr.instance().destroyScene("LoadScene");
     });
   }
 }

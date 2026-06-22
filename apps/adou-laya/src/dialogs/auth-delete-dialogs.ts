@@ -17,12 +17,6 @@ import { BattlePropsMgr } from "../battle/battle-props-mgr";
 import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 
-const q = EffectMgr;
-const Mt = PlatformMgr;
-const K = SceneMgr;
-const F = GameMgr;
-const Zi = BattlePropsMgr;
-const y = EventMgr;
 const u = GameEvent;
 
 @regClass("3eZSn-DMTuy8MOPQB13plA")
@@ -34,20 +28,20 @@ export class AuthorizeDialog extends Laya.Dialog {
   onAwake(): void {
     this.okBtn.on(Laya.Event.CLICK, this, this.Qy);
     this.xBtn.on(Laya.Event.CLICK, this, this.Uu);
-    q.instance().bindButtons([this.okBtn, this.xBtn]);
+    EffectMgr.instance().bindButtons([this.okBtn, this.xBtn]);
   }
 
   onOpened(_t?: any): void {
-    Mt.instance().mu();
+    PlatformMgr.instance().mu();
   }
 
   Qy(): void {
-    Mt.instance().Vy();
+    PlatformMgr.instance().Vy();
   }
 
   Uu(): void {
-    Mt.instance().wu();
-    K.instance().closeDialog("AuthorizeDialog");
+    PlatformMgr.instance().wu();
+    SceneMgr.instance().closeDialog("AuthorizeDialog");
   }
 }
 
@@ -66,20 +60,20 @@ export class DeletePropsTipDialog extends Laya.Dialog {
   }
 
   onEnable(): void {
-    const t = K.instance().getDialogData("DeletePropsTipDialog");
+    const t = SceneMgr.instance().getDialogData("DeletePropsTipDialog");
     this.sS = t;
-    this.tipTxt.text = "您确定要删除" + F.instance().props.Ue[t].txt + "道具吗";
+    this.tipTxt.text = "您确定要删除" + GameMgr.instance().props.Ue[t].txt + "道具吗";
   }
 
   onOpened(_t?: any): void {}
 
   BU(): void {
     this.Uu();
-    Zi.instance().sS(this.sS);
-    y.instance.event(u.Kt, this.sS);
+    BattlePropsMgr.instance().sS(this.sS);
+    EventMgr.instance.event(u.Kt, this.sS);
   }
 
   Uu(): void {
-    K.instance().closeDialog("DeletePropsTipDialog");
+    SceneMgr.instance().closeDialog("DeletePropsTipDialog");
   }
 }

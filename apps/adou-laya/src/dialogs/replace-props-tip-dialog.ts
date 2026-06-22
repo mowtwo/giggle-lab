@@ -16,11 +16,6 @@ import { BattlePropsMgr } from "../battle/battle-props-mgr";
 import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 
-const q = EffectMgr;
-const K = SceneMgr;
-const F = GameMgr;
-const Zi = BattlePropsMgr;
-const y = EventMgr;
 const u = GameEvent;
 
 @regClass("z_0pDWBpS5eRL3Ag4IUahQ")
@@ -42,11 +37,11 @@ export class ReplacePropsTipDialog extends Laya.Dialog {
     this.giveUpBtn.on(Laya.Event.CLICK, this, this.Uu);
     const t = [this.replaceBtn, this.giveUpBtn];
     for (let s = 0; s < this.oldPropsBox.numChildren; s++) t.push(this.oldPropsBox.getChildAt(s));
-    q.instance().bindButtons(t);
+    EffectMgr.instance().bindButtons(t);
   }
 
   onEnable(): void {
-    const t = K.instance().getDialogData("ReplacePropsTipDialog");
+    const t = SceneMgr.instance().getDialogData("ReplacePropsTipDialog");
     this.ez = t;
     this.az();
     this.nz();
@@ -57,17 +52,17 @@ export class ReplacePropsTipDialog extends Laya.Dialog {
   az(): void {
     this.newPropsItem.skin =
       "resources/img/shop/itemBg" +
-      (Zi.instance().Yx(this.ez) ? "0" : "1") +
+      (BattlePropsMgr.instance().Yx(this.ez) ? "0" : "1") +
       "_" +
-      F.instance().props.Ue[this.ez].rarity +
+      GameMgr.instance().props.Ue[this.ez].rarity +
       ".png";
-    this.newPropsImg.skin = "resources/img/props/" + F.instance().props.Ue[this.ez].name + "_1.png";
-    this.newIntro.text = F.instance().props.Ue[this.ez].intro;
+    this.newPropsImg.skin = "resources/img/props/" + GameMgr.instance().props.Ue[this.ez].name + "_1.png";
+    this.newIntro.text = GameMgr.instance().props.Ue[this.ez].intro;
   }
 
   nz(): void {
-    const t = Zi.instance().Yx(this.ez);
-    const s = t ? Zi.instance().xx : Zi.instance().Sx;
+    const t = BattlePropsMgr.instance().Yx(this.ez);
+    const s = t ? BattlePropsMgr.instance().xx : BattlePropsMgr.instance().Sx;
     this.rz(s[0]);
     for (let k = 0; k < 6; k++)
       if (k < s.length) {
@@ -75,11 +70,11 @@ export class ReplacePropsTipDialog extends Laya.Dialog {
         const i = this.oldPropsBox.getChildAt(k);
         i.skin =
           "resources/img/shop/itemBg" +
-          (Zi.instance().Yx(s[k]) ? "0" : "1") +
+          (BattlePropsMgr.instance().Yx(s[k]) ? "0" : "1") +
           "_" +
-          F.instance().props.Ue[s[k]].rarity +
+          GameMgr.instance().props.Ue[s[k]].rarity +
           ".png";
-        i.getChildByName("img").skin = "resources/img/props/" + F.instance().props.Ue[s[k]].name + "_1.png";
+        i.getChildByName("img").skin = "resources/img/props/" + GameMgr.instance().props.Ue[s[k]].name + "_1.png";
         const h = (this.oldPropsBox.width - i.width * s.length - 5 * (s.length - 1)) / 2;
         i.x = h + i.width * k + 5 * k + i.width / 2;
         i.on(Laya.Event.CLICK, this, () => {
@@ -91,19 +86,19 @@ export class ReplacePropsTipDialog extends Laya.Dialog {
 
   rz(t: number): void {
     this.oz = t;
-    this.oldIntro.text = F.instance().props.Ue[t].intro;
+    this.oldIntro.text = GameMgr.instance().props.Ue[t].intro;
   }
 
   hz(): void {
-    Zi.instance().sS(this.oz);
-    Zi.instance().addProps(this.ez);
-    Zi.instance().Kn(this.oz);
-    y.instance.event(u.Kt, this.ez);
+    BattlePropsMgr.instance().sS(this.oz);
+    BattlePropsMgr.instance().addProps(this.ez);
+    BattlePropsMgr.instance().Kn(this.oz);
+    EventMgr.instance.event(u.Kt, this.ez);
     this.Uu();
   }
 
   Uu(): void {
-    Zi.instance().Kn(this.ez);
-    K.instance().closeDialog("ReplacePropsTipDialog");
+    BattlePropsMgr.instance().Kn(this.ez);
+    SceneMgr.instance().closeDialog("ReplacePropsTipDialog");
   }
 }

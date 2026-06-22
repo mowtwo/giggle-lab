@@ -1,12 +1,12 @@
 // Props — the battle items (shovel/spell/bulldozer…) base + factory.
 //
 // Faithful reconstruction of reconstruction/reference/bundle.pretty.js: the
-// PropsFactory (`_i`, ~12018), the prop base `Si` (~12151) and the concrete
+// PropsFactory (`PropsFactory`, ~12018), the prop base `Si` (~12151) and the concrete
 // props (`bi` shovel, … registered with the factory). Each prop extends Prop,
 // drives its cooldown ring, and on drop runs its `tk` use-effect. The remaining
 // concrete props are layered into this file. Opaque names kept verbatim.
 //
-//   PropsFactory=_i  PropBase=Si  ShovelProp=bi  cooldown=cd  useEffect=tk
+//   PropsFactory=PropsFactory  PropBase=Si  ShovelProp=bi  cooldown=cd  useEffect=tk
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -36,27 +36,15 @@ import { BattlePropsMgr } from "./battle-props-mgr";
 
 const Ws = Soldier;
 const ki = Farmer;
-const Zi = BattlePropsMgr;
-const F = GameMgr;
 const X = LayerZ;
-const y = EventMgr;
 const u = GameEvent;
-const tt = TipMgr;
-const Ki = EntityRegistry;
-const th = BuffMgr;
 const ci = BowSoldier;
 const gi = GeneralPart;
-const Na = SpawnQueueMgr;
 const Oi = CellReservationMgr;
 const L = SpecialIndex;
-const wi = BoardMgr;
-const K = SceneMgr;
-const f = MathE;
-const z = PrefabFactory;
 const $ = AudioMgr;
-const q = EffectMgr;
 
-/** Pools + produces prop instances by enum type. (`_i`) */
+/** Pools + produces prop instances by enum type. (`PropsFactory`) */
 export class PropsFactory {
   private ag = new Map<number, () => any>();
   private static _instance: PropsFactory;
@@ -84,7 +72,6 @@ export class PropsFactory {
     return s();
   }
 }
-const _i = PropsFactory;
 
 /** Base for a draggable, cooldown-gated battle item. (`Si`) */
 export class PropBase extends Prop {
@@ -99,14 +86,14 @@ export class PropBase extends Prop {
 
   init(qd: any, type: number): void {
     super.init(qd, type);
-    console.log(F.instance().props.Ue[this.type].txt);
-    this.cd = F.instance().props.Ue[type].cd;
+    console.log(GameMgr.instance().props.Ue[this.type].txt);
+    this.cd = GameMgr.instance().props.Ue[type].cd;
     this.props.zIndex = X.wr;
   }
   start(): void {
     super.start();
     if (this.cd <= 0 && this.Hv.containerType === 4)
-      y.instance.event(u.jt, this.qd, this.Xv, this.Gv, 360);
+      EventMgr.instance.event(u.jt, this.qd, this.Xv, this.Gv, 360);
   }
   /** Whether the prop can be used at the drop target. (`Jv`) */
   Jv(_t: any, _s: any = null): boolean {
@@ -114,7 +101,7 @@ export class PropBase extends Prop {
   }
   /** Use the prop (announces enemy use, then runs the effect). (`tk`) */
   tk(t: any, s: any = null): void {
-    if (!this.qd) tt.instance().showTip(`敌方使用了${F.instance().props.Ue[this.type].txt}`);
+    if (!this.qd) TipMgr.instance().showTip(`敌方使用了${GameMgr.instance().props.Ue[this.type].txt}`);
     this.Nv(t, s);
   }
   update(t: number): void {
@@ -137,7 +124,7 @@ export class PropBase extends Prop {
       s = 1;
       this.Kv = this.cd;
     }
-    y.instance.event(u.jt, this.qd, this.Xv, this.Gv, 360 * s);
+    EventMgr.instance.event(u.jt, this.qd, this.Xv, this.Gv, 360 * s);
   }
   ak(): void {
     this.props.x = this.bd.x;
@@ -146,7 +133,7 @@ export class PropBase extends Prop {
   reset(): void {
     super.reset();
     this.Kv = 0;
-    y.instance.event(u.$t, this.qd, this.Xv, this.Gv);
+    EventMgr.instance.event(u.$t, this.qd, this.Xv, this.Gv);
   }
   gameOver(): void {
     this.cd = 0;
@@ -187,7 +174,7 @@ export class ShovelProp extends PropBase {
     this.Wv.anchorY = 0.5;
     this.Wv.pos(this.props.width / 2, this.props.height / 2);
     this.Wv.zIndex = 2;
-    this.Gi = qd ? F.instance().battleState.Gi : F.instance().battleState.Hi;
+    this.Gi = qd ? GameMgr.instance().battleState.Gi : GameMgr.instance().battleState.Hi;
     this.Wv.skin = this.Gi ? "resources/img/props/shovel_2.png" : "resources/img/props/shovel_1.png";
     this.lk.visible = true;
   }
@@ -204,14 +191,14 @@ export class ShovelProp extends PropBase {
     if (i) {
       if (this.qd) {
         this.ak();
-        tt.instance().showTip("请先妥善安置农民");
+        TipMgr.instance().showTip("请先妥善安置农民");
         return;
       }
-      Ki.instance().uk(i.id);
+      EntityRegistry.instance().uk(i.id);
     }
     s.Mv(this.Hv.containerType, this.qd).removeItem(this.Hv.x, this.Hv.y);
-    y.instance.event(u.At, this.qd, t.x, t.y);
-    y.instance.event(u.Lt, this.id);
+    EventMgr.instance.event(u.At, this.qd, t.x, t.y);
+    EventMgr.instance.event(u.Lt, this.id);
   }
   gameOver(): void {
     super.gameOver();
@@ -219,7 +206,7 @@ export class ShovelProp extends PropBase {
     this.Wv.size(80, 80);
   }
 }
-_i.instance().register(0, () => Laya.Pool.createByClass(ShovelProp));
+PropsFactory.instance().register(0, () => Laya.Pool.createByClass(ShovelProp));
 
 /** 推土机 — drives down the lane shoving enemies off the path. (`Mi`) */
 export class BulldozerProp extends PropBase {
@@ -244,7 +231,7 @@ export class BulldozerProp extends PropBase {
     this.Wv.anchorY = 1;
     this.Wv.y += this.props.height / 2;
     i.zIndex = X.gr;
-    y.instance.on(u.gs, this, this.dk);
+    EventMgr.instance.on(u.gs, this, this.dk);
   }
   update(t: number): void {
     if (this.step === 1) {
@@ -257,22 +244,22 @@ export class BulldozerProp extends PropBase {
       EnemySpatialMgr.instance().mk(this.qd, this.props.x + this.props.width / 2, this.props.y + this.props.height / 2, s.offsetX, s.offsetY);
       if (this.props.alpha <= 0) {
         this.props.alpha = 0;
-        y.instance.event(u.Lt, this.id);
+        EventMgr.instance.event(u.Lt, this.id);
       }
     }
   }
   tk(): void {
     $.instance().playSound("bulldozer_land");
     this.wk();
-    this.props.zIndex = X.entityZIndexFromPixelY(this.props.y, F.instance().map.gridHei);
+    this.props.zIndex = X.entityZIndexFromPixelY(this.props.y, GameMgr.instance().map.gridHei);
   }
   vk(): void {
     if (this.step === 0 && this.path.length > 0) this.step = 1;
   }
   private move(t: number): void {
     if (this.path.length <= 0) return;
-    const s = this.path[this.pk].x * F.instance().map.gridWid;
-    const i = this.path[this.pk].y * F.instance().map.gridHei;
+    const s = this.path[this.pk].x * GameMgr.instance().map.gridWid;
+    const i = this.path[this.pk].y * GameMgr.instance().map.gridHei;
     const h = s - this.props.x;
     const e = i - this.props.y;
     const a = (this.Xu * t) / 1000;
@@ -301,20 +288,20 @@ export class BulldozerProp extends PropBase {
     }
     this.props.x += r;
     this.props.y += o;
-    this.props.zIndex = X.entityZIndexFromPixelY(this.props.y, F.instance().map.gridHei);
+    this.props.zIndex = X.entityZIndexFromPixelY(this.props.y, GameMgr.instance().map.gridHei);
   }
   private Lk(): { offsetX: number; offsetY: number } {
-    const t = F.instance().map;
+    const t = GameMgr.instance().map;
     const s = Math.floor(this.props.x / t.gridWid) * t.gridWid;
     const i = Math.floor(this.props.y / t.gridHei) * t.gridHei;
     return { offsetX: this.props.x - s, offsetY: this.props.y - i };
   }
   private wk(): void {
-    const t = this.qd ? F.instance().map.de : F.instance().map.Le;
+    const t = this.qd ? GameMgr.instance().map.de : GameMgr.instance().map.Le;
     const s = t.length - 2;
-    this.props.pos(t[s].x * F.instance().map.gridWid, t[s].y * F.instance().map.gridHei);
+    this.props.pos(t[s].x * GameMgr.instance().map.gridWid, t[s].y * GameMgr.instance().map.gridHei);
     const i = { x: t[s].x, y: t[s].y };
-    y.instance.event(u.bt, this.props, i.x, i.y);
+    EventMgr.instance.event(u.bt, this.props, i.x, i.y);
     const h = t[s - 1];
     if (h.x < i.x) {
       this.Wv.skin = "resources/img/props/bulldozer_0.png";
@@ -435,8 +422,8 @@ export class WritingBrushProp extends PropBase {
   protected Nv(t: any, s: any): void {
     const i = s.Mv(t.containerType, this.qd);
     this.xk = i.getItem(t.x, t.y).id;
-    if (t.containerType === 2 || t.containerType === 1) y.instance.event(u.bt, this.props, t.x, t.y);
-    else if (t.containerType === 3 && this.qd) y.instance.event(u.Mt, this.props, t.x);
+    if (t.containerType === 2 || t.containerType === 1) EventMgr.instance.event(u.bt, this.props, t.x, t.y);
+    else if (t.containerType === 3 && this.qd) EventMgr.instance.event(u.Mt, this.props, t.x);
     this.write();
   }
   private write(): void {
@@ -452,7 +439,7 @@ export class WritingBrushProp extends PropBase {
         if (this.pk === 1) this.Sk.visible = true;
         if (this.pk === 3) this.bk.visible = true;
         if (this.pk === this.path.length) {
-          y.instance.event(u.et, this.xk);
+          EventMgr.instance.event(u.et, this.xk);
           this.reset();
           this.Wv.skin = "resources/img/props/writingBrush_1.png";
           return;
@@ -463,14 +450,14 @@ export class WritingBrushProp extends PropBase {
   reset(): void {
     super.reset();
     this.pk = 0;
-    this.Wv.pos(F.instance().map.gridWid / 2, F.instance().map.gridHei / 2);
+    this.Wv.pos(GameMgr.instance().map.gridWid / 2, GameMgr.instance().map.gridHei / 2);
     this.Sk.visible = false;
     this.bk.visible = false;
   }
   gameOver(): void {
     super.gameOver();
     Laya.Tween.killAll(this.Wv);
-    this.Wv.pos(F.instance().map.gridWid / 2, F.instance().map.gridHei / 2);
+    this.Wv.pos(GameMgr.instance().map.gridWid / 2, GameMgr.instance().map.gridHei / 2);
     this.pk = 0;
     if (this.Sk) this.Sk.destroy();
     if (this.bk) this.bk.destroy();
@@ -496,12 +483,12 @@ export class TrainingSpellProp extends PropBase {
     this.Zv = true;
   }
   protected Nv(t: any, s: any = null): void {
-    if (t.containerType === 2 || t.containerType === 1) y.instance.event(u.bt, this.props, t.x, t.y);
-    else if (t.containerType === 3) y.instance.event(u.Mt, this.props, t.x);
+    if (t.containerType === 2 || t.containerType === 1) EventMgr.instance.event(u.bt, this.props, t.x, t.y);
+    else if (t.containerType === 3) EventMgr.instance.event(u.Mt, this.props, t.x);
     const i = s.Mv(t.containerType, this.qd);
     this.xk = i.getItem(t.x, t.y).id;
-    this.Ak = q.instance().registerImgLoop(this.Wv, this.Ek, 100, 0, 1, (id: number) => {
-      q.instance().removeEvent("imgLoop", id);
+    this.Ak = EffectMgr.instance().registerImgLoop(this.Wv, this.Ek, 100, 0, 1, (id: number) => {
+      EffectMgr.instance().removeEvent("imgLoop", id);
       this.Bk();
       this.reset();
     });
@@ -512,9 +499,9 @@ export class TrainingSpellProp extends PropBase {
     Laya.Point.TEMP.x = 0;
     Laya.Point.TEMP.y = 0;
     this.props.localToGlobal(Laya.Point.TEMP);
-    if (t > 0) q.instance().playLvlUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
-    else q.instance().playLvlDown(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
-    y.instance.event(u.q, this.xk, t, false);
+    if (t > 0) EffectMgr.instance().playLvlUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    else EffectMgr.instance().playLvlDown(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    EventMgr.instance.event(u.q, this.xk, t, false);
   }
   protected Ik(): number {
     const t = EntityRegistry.instance().Dk(this.xk);
@@ -527,7 +514,7 @@ export class TrainingSpellProp extends PropBase {
     this.Wv.skin = "resources/img/props/trainingSpell_1.png";
   }
   gameOver(): void {
-    if (this.Ak > 0) q.instance().removeEvent("imgLoop", this.Ak);
+    if (this.Ak > 0) EffectMgr.instance().removeEvent("imgLoop", this.Ak);
     this.Ak = 0;
     Laya.Tween.killAll(this.Wv);
     this.xk = -1;
@@ -604,7 +591,7 @@ export class LifePillProp extends PropBase {
     if (this.qd) this.ak();
     const n = this.Xk(a);
     this.Tk = n;
-    y.instance.event(u.Xt, this.qd, n, () => {
+    EventMgr.instance.event(u.Xt, this.qd, n, () => {
       if (i === this.Ck) {
         this.Uk = true;
         this.Yk();
@@ -618,7 +605,7 @@ export class LifePillProp extends PropBase {
     s.size(this.props.width, this.props.height);
     s.anchorX = 0.5;
     s.anchorY = 0.5;
-    y.instance.event(u.Ut, s, X.wr);
+    EventMgr.instance.event(u.Ut, s, X.wr);
     const i = s.parent;
     this.Rk.x = this.props.width / 2;
     this.Rk.y = this.props.height / 2;
@@ -643,7 +630,7 @@ export class LifePillProp extends PropBase {
   }
   private Gk(t: number): void {
     Laya.timer.clearAll(this);
-    const s = F.instance().battleState;
+    const s = GameMgr.instance().battleState;
     s.Xi = false;
     if (this.qd) s.playerLives += t;
     else s.enemyLives += t;
@@ -657,7 +644,7 @@ export class LifePillProp extends PropBase {
       this.count = 10;
       this.Fk.text = "10";
       this.Kv = 0;
-      y.instance.event(u.$t, this.qd, this.Xv, this.Gv);
+      EventMgr.instance.event(u.$t, this.qd, this.Xv, this.Gv);
     }
   }
   private Wk(): void {
@@ -716,12 +703,12 @@ export class RangeUpProp extends PropBase {
     let a = false;
     if (i instanceof ci) {
       h = i;
-      e = F.instance().toLocal(i.Yn, true);
+      e = GameMgr.instance().toLocal(i.Yn, true);
       a = false;
     } else if (i instanceof gi) {
       const g = EntityRegistry.instance().Qk.get(i.Zw);
       h = g;
-      e = F.instance().toLocal(g.general, true);
+      e = GameMgr.instance().toLocal(g.general, true);
       a = true;
     }
     this.xk = h.id;
@@ -732,7 +719,7 @@ export class RangeUpProp extends PropBase {
     this.Vk.anchor(0.5, 0.5);
     this.Vk.scale(1, 1);
     this.Vk.alpha = 0;
-    y.instance.event(u.bt, this.Vk);
+    EventMgr.instance.event(u.bt, this.Vk);
     this.Vk.pos(e.x, e.y);
     this.Nk = 1;
     this.reset();
@@ -753,7 +740,7 @@ export class RangeUpProp extends PropBase {
       this.Vk.alpha -= t / 500;
       if (this.Vk.alpha <= 0) {
         const tid = this.xk;
-        th.instance().applyBuff(tid, 2, 1, true);
+        BuffMgr.instance().applyBuff(tid, 2, 1, true);
         EntityRegistry.instance().Kk(tid, 0, 2, 1, true);
         this.Vk.removeSelf();
         this.Nk = 0;
@@ -801,9 +788,9 @@ export class InkstoneProp extends PropBase {
     this.ink.alpha = 1;
     this.ink.scale(0.5, 0.5);
     this.ink.zIndex = X.vr;
-    y.instance.event(u.bt, this.Jk, i, h - 1);
-    Laya.Tween.to(this.Jk, { y: this.Jk.y + F.instance().map.gridWid, scaleX: 0.8, scaleY: 0.8 }, 320);
-    const e = q.instance().registerImgLoop(
+    EventMgr.instance.event(u.bt, this.Jk, i, h - 1);
+    Laya.Tween.to(this.Jk, { y: this.Jk.y + GameMgr.instance().map.gridWid, scaleX: 0.8, scaleY: 0.8 }, 320);
+    const e = EffectMgr.instance().registerImgLoop(
       this.Jk,
       [
         "resources/img/props/inkstone_2.png",
@@ -815,10 +802,10 @@ export class InkstoneProp extends PropBase {
       0,
       1,
       () => {
-        q.instance().removeEvent("imgLoop", e);
+        EffectMgr.instance().removeEvent("imgLoop", e);
         Laya.Tween.to(this.Jk, { alpha: 0 }, 100, null, Laya.Handler.create(this, () => {}));
-        y.instance.event(u.bt, this.ink, i, h);
-        this.ink.pos(this.ink.x + F.instance().map.gridWid / 2, this.ink.y + F.instance().map.gridHei / 2);
+        EventMgr.instance.event(u.bt, this.ink, i, h);
+        this.ink.pos(this.ink.x + GameMgr.instance().map.gridWid / 2, this.ink.y + GameMgr.instance().map.gridHei / 2);
         $.instance().playSound("skill_ink_splash");
         Laya.Tween.to(
           this.ink,
@@ -826,8 +813,8 @@ export class InkstoneProp extends PropBase {
           200,
           Laya.Ease.cubicOut,
           Laya.Handler.create(this, () => {
-            const list = EntityRegistry.instance().t_(this.ink.x, this.ink.y, 1.5 * F.instance().map.gridWid, !this.qd);
-            for (let s = 0; s < list.length; s++) th.instance().applyBuff(list[s].id, 1, -0.2, true, 5000);
+            const list = EntityRegistry.instance().t_(this.ink.x, this.ink.y, 1.5 * GameMgr.instance().map.gridWid, !this.qd);
+            for (let s = 0; s < list.length; s++) BuffMgr.instance().applyBuff(list[s].id, 1, -0.2, true, 5000);
             Laya.Tween.to(this.ink, { alpha: 0 }, 5000);
             this.reset();
           }),
@@ -867,8 +854,8 @@ export class TrapProp extends PropBase {
     const { x: i, y: h } = t;
     const e = new Laya.Image("resources/img/props/trap_1.png");
     e.size(80, 80);
-    y.instance.event(u.bt, e, i, h);
-    this.h_.set((q.instance().So += 1), { img: e, x: i, y: h });
+    EventMgr.instance.event(u.bt, e, i, h);
+    this.h_.set((EffectMgr.instance().So += 1), { img: e, x: i, y: h });
     const a = s.Mv(2, this.qd);
     a.setItem(this, i, h);
     this.container = a;
@@ -922,11 +909,11 @@ export class LandmineProp extends PropBase {
     e.size(80, 80);
     e.anchorX = 0.5;
     e.anchorY = 0.5;
-    y.instance.event(u.bt, e, i, h);
+    EventMgr.instance.event(u.bt, e, i, h);
     e.x += e.width / 2;
     e.y += e.height / 2;
     const a = new Laya.Image("resources/img/props/mound.png");
-    this.o_.set((q.instance().So += 1), { img: e, l_: a, x: i, y: h, c_: 0 });
+    this.o_.set((EffectMgr.instance().So += 1), { img: e, l_: a, x: i, y: h, c_: 0 });
     const n = new Laya.Image("resources/img/props/leadLight0.png");
     n.pos(56 - e.width / 2, 28 - e.height / 2);
     n.size(17, 17);
@@ -934,7 +921,7 @@ export class LandmineProp extends PropBase {
     n.anchorY = 0.5;
     n.visible = false;
     e.addChild(n);
-    const r = F.instance().map.ue[i][h].endsWith("0");
+    const r = GameMgr.instance().map.ue[i][h].endsWith("0");
     const o = s.Mv(2, r);
     o.setItem(this, i, h);
     this.container = o;
@@ -980,7 +967,7 @@ export class LandmineProp extends PropBase {
       .duration(300)
       .then(() => this.p_(t), this);
   }
-  e_(t: number, s: number, _i: any): void {
+  e_(t: number, s: number, PropsFactory: any): void {
     for (const k of this.o_)
       if (k[1].x === t && k[1].y === s) {
         this.a_(k[0]);
@@ -993,7 +980,7 @@ export class LandmineProp extends PropBase {
     this.o_.delete(t);
     const i = s.img.getChildAt(0);
     i.visible = true;
-    const h = q.instance().registerImgLoop(
+    const h = EffectMgr.instance().registerImgLoop(
       i,
       ["resources/img/props/leadLight0.png", "resources/img/props/leadLight1.png"],
       50,
@@ -1010,7 +997,7 @@ export class LandmineProp extends PropBase {
           20,
           null,
           Laya.Handler.create(this, () => {
-            q.instance().removeEvent("imgLoop", h);
+            EffectMgr.instance().removeEvent("imgLoop", h);
             i.visible = false;
             s.img.mask.removeSelf();
             s.img.mask = null;
@@ -1021,7 +1008,7 @@ export class LandmineProp extends PropBase {
             s.img.anchorY = 1;
             s.img.x += 40 - s.img.width / 2;
             s.img.y += 56 - s.img.height / 2;
-            s.c_ = q.instance().registerImgLoop(
+            s.c_ = EffectMgr.instance().registerImgLoop(
               s.img,
               [
                 "resources/img/effect/explode0.png",
@@ -1064,7 +1051,7 @@ export class LandmineProp extends PropBase {
   gameOver(): void {
     super.gameOver();
     for (const t of this.o_) {
-      q.instance().removeEvent("imgLoop", t[1].c_);
+      EffectMgr.instance().removeEvent("imgLoop", t[1].c_);
       t[1].img.destroy(true);
       t[1].l_.destroy(true);
     }
@@ -1091,19 +1078,19 @@ export class AttackSpeedSpellProp extends TrainingSpellProp {
     return !!i && !(i instanceof gi && i.Zw === -1);
   }
   protected Nv(t: any, s: any = null): void {
-    if (t.containerType === 2 || t.containerType === 1) y.instance.event(u.bt, this.props, t.x, t.y);
-    else if (t.containerType === 3) y.instance.event(u.Mt, this.props, t.x);
+    if (t.containerType === 2 || t.containerType === 1) EventMgr.instance.event(u.bt, this.props, t.x, t.y);
+    else if (t.containerType === 3) EventMgr.instance.event(u.Mt, this.props, t.x);
     const i = s.Mv(t.containerType, this.qd).getItem(t.x, t.y);
     if (i instanceof gi && i.Zw !== -1) this.xk = i.Zw;
     else this.xk = i.id;
-    q.instance().registerImgLoop(this.Wv, this.Ek, 100, 0, 1, (id: number) => {
-      q.instance().removeEvent("imgLoop", id);
+    EffectMgr.instance().registerImgLoop(this.Wv, this.Ek, 100, 0, 1, (id: number) => {
+      EffectMgr.instance().removeEvent("imgLoop", id);
       this.Bk();
       this.reset();
     });
   }
   protected Bk(): void {
-    th.instance().applyBuff(this.xk, 1, 0.4, true);
+    BuffMgr.instance().applyBuff(this.xk, 1, 0.4, true);
     EntityRegistry.instance().Kk(this.xk, 1, 1, 0.4, true);
   }
   reset(): void {
@@ -1145,7 +1132,7 @@ export class ExorcismSpellProp extends InstantProp {
     this.Zg.zIndex = 1;
     this.Zg.visible = false;
     this.g_.addChild(this.Zg);
-    y.instance.on(u.cs, this, this.L_);
+    EventMgr.instance.on(u.cs, this, this.L_);
   }
   private L_(t: any, s: any, i: number, h: number): void {
     if (s === this.qd) {
@@ -1170,13 +1157,13 @@ export class ExorcismSpellProp extends InstantProp {
     } else EnemySpatialMgr.instance().m_(t, true);
   }
   private w_(_t: any): void {
-    q.instance().registerImgLoop(this.g_, this.Ek, 50, 0, 1, (id: number) => {
-      q.instance().removeEvent("imgLoop", id);
-      q.instance().removeEvent("imgLoop", this.f_);
+    EffectMgr.instance().registerImgLoop(this.g_, this.Ek, 50, 0, 1, (id: number) => {
+      EffectMgr.instance().removeEvent("imgLoop", id);
+      EffectMgr.instance().removeEvent("imgLoop", this.f_);
       this.reset();
     });
     this.Zg.visible = true;
-    this.f_ = q.instance().registerImgLoop(
+    this.f_ = EffectMgr.instance().registerImgLoop(
       this.Zg,
       ["resources/img/props/fire0.png", "resources/img/props/fire1.png", "resources/img/props/fire2.png"],
       50,
@@ -1191,7 +1178,7 @@ export class ExorcismSpellProp extends InstantProp {
     this.Zg.skin = "resources/img/props/fire0.png";
   }
   gameOver(): void {
-    y.instance.off(u.cs, this, this.L_);
+    EventMgr.instance.off(u.cs, this, this.L_);
     Laya.Tween.killAll(this.g_);
     super.gameOver();
   }
@@ -1209,7 +1196,7 @@ export class RecruitFarmerProp extends InstantProp {
     this.I_ += t;
     if (this.I_ < this.B_) return;
     this.I_ = 0;
-    const s = F.instance().map.ue;
+    const s = GameMgr.instance().map.ue;
     const i = this.qd ? s[0].length / 2 : 0;
     const h = this.qd ? s[0].length : s[0].length / 2;
     const e = this.qd ? "2_0" : "2_1";
@@ -1233,7 +1220,7 @@ export class RecruitFarmerProp extends InstantProp {
       }
   }
   private T_(t: number, s: number, i = 0): boolean {
-    if (wi.instance().Mv(t, this.qd)!.getItem(s, i)) return true;
+    if (BoardMgr.instance().Mv(t, this.qd)!.getItem(s, i)) return true;
     const h = Oi.instance();
     return t === 3 ? h.b_(3, this.qd, s, 0) : t === 1 && h.b_(1, this.qd, s, i);
   }
@@ -1256,7 +1243,7 @@ PropsFactory.instance().register(12, () => Laya.Pool.createByClass(RecruitFarmer
 export class RefillProp extends InstantProp {
   init(qd: any, type: number): void {
     super.init(qd, type);
-    Na.instance().U_(qd);
+    SpawnQueueMgr.instance().U_(qd);
   }
 }
 PropsFactory.instance().register(13, () => Laya.Pool.createByClass(RefillProp));
@@ -1296,11 +1283,11 @@ export class BigLifeProp extends InstantProp {
   init(qd: any, type: number): void {
     super.init(qd, type);
     if (this.qd) {
-      F.instance().battleState.playerLives += 5;
-      F.instance().battleState.enemyLives += 3;
+      GameMgr.instance().battleState.playerLives += 5;
+      GameMgr.instance().battleState.enemyLives += 3;
     } else {
-      F.instance().battleState.playerLives += 3;
-      F.instance().battleState.enemyLives += 5;
+      GameMgr.instance().battleState.playerLives += 3;
+      GameMgr.instance().battleState.enemyLives += 5;
     }
   }
 }
@@ -1310,8 +1297,8 @@ PropsFactory.instance().register(16, () => Laya.Pool.createByClass(BigLifeProp))
 export class LifeProp extends InstantProp {
   init(qd: any, type: number): void {
     super.init(qd, type);
-    if (this.qd) F.instance().battleState.playerLives += 3;
-    else F.instance().battleState.enemyLives += 3;
+    if (this.qd) GameMgr.instance().battleState.playerLives += 3;
+    else GameMgr.instance().battleState.enemyLives += 3;
   }
 }
 PropsFactory.instance().register(17, () => Laya.Pool.createByClass(LifeProp));
@@ -1323,11 +1310,11 @@ export class SiltProp extends InstantProp {
   init(qd: any, type: number): void {
     super.init(qd, type);
     this.Y_ = new Laya.Image("resources/img/props/silt_1.png");
-    this.Y_.size(F.instance().map.gridWid, F.instance().map.gridHei);
+    this.Y_.size(GameMgr.instance().map.gridWid, GameMgr.instance().map.gridHei);
     this.Y_.zIndex = X.ur;
-    Laya.Point.TEMP.x = qd ? F.instance().map.se.x : F.instance().map.ee.x;
-    Laya.Point.TEMP.y = qd ? F.instance().map.se.y : F.instance().map.ee.y;
-    y.instance.event(u.St, this.Y_, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    Laya.Point.TEMP.x = qd ? GameMgr.instance().map.se.x : GameMgr.instance().map.ee.x;
+    Laya.Point.TEMP.y = qd ? GameMgr.instance().map.se.y : GameMgr.instance().map.ee.y;
+    EventMgr.instance.event(u.St, this.Y_, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
     this.X_ = new Laya.Image("resources/img/props/silt_2.png");
     this.X_.size(110, 60);
     this.X_.anchorX = 0.5;
@@ -1336,13 +1323,13 @@ export class SiltProp extends InstantProp {
     this.X_.visible = false;
     this.Y_.addChild(this.X_);
     if (qd) {
-      F.instance().battleState.Ri = true;
+      GameMgr.instance().battleState.Ri = true;
       EnemySpatialMgr.instance().F_("silt" + this.id, this.qd, 3, -0.1, true, L.Ji);
     } else {
-      F.instance().battleState.Ci = true;
+      GameMgr.instance().battleState.Ci = true;
       EnemySpatialMgr.instance().F_("siltAi" + this.id, this.qd, 3, -0.1, true, L.Ji);
     }
-    y.instance.on(u.rs, this, this.G_);
+    EventMgr.instance.on(u.rs, this, this.G_);
   }
   private G_(): void {
     this.X_.scale(0, 0);
@@ -1369,7 +1356,7 @@ export class SiltProp extends InstantProp {
   }
   gameOver(): void {
     super.gameOver();
-    y.instance.off(u.rs, this, this.G_);
+    EventMgr.instance.off(u.rs, this, this.G_);
     this.Y_.removeSelf();
     Laya.Tween.killAll(this.X_);
     this.X_.removeSelf();
@@ -1392,7 +1379,7 @@ export class TreasureMapProp extends InstantProp {
     Laya.Point.TEMP.x = 0;
     Laya.Point.TEMP.y = 0;
     this.props.localToGlobal(Laya.Point.TEMP);
-    y.instance.event(u.zt, this.qd, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    EventMgr.instance.event(u.zt, this.qd, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
     this.I_ = 0;
   }
   gameOver(): void {
@@ -1418,57 +1405,57 @@ export class MeteorShowerProp extends InstantProp {
   private z_(): void {
     if (this.W_) return;
     this.W_ = true;
-    const t = F.instance();
+    const t = GameMgr.instance();
     const s = this.qd ? t.map.de : t.map.Le;
     if (!s || s.length < 10) return;
     const i = s.slice(-10);
     const h: any[] = [];
     for (let k = 0; k < i.length; k++) {
       const e = i[k];
-      const a = f.range(1, 2, true) as number;
+      const a = MathE.range(1, 2, true) as number;
       for (let m = 0; m < a; m++) {
         $.instance().playSound("meteor_fall");
-        const dx = f.range(0.3 * -t.map.gridWid, 0.3 * t.map.gridWid, true) as number;
-        const dy = f.range(0.3 * -t.map.gridHei, 0.3 * t.map.gridHei, true) as number;
+        const dx = MathE.range(0.3 * -t.map.gridWid, 0.3 * t.map.gridWid, true) as number;
+        const dy = MathE.range(0.3 * -t.map.gridHei, 0.3 * t.map.gridHei, true) as number;
         const ax = e.x * t.map.gridWid + t.map.gridWid / 2 + dx;
         const ny = e.y * t.map.gridHei + t.map.gridHei / 2 + dy;
         let r = 0;
         let o = 0;
-        const pt = this.qd ? f.pointAtAngle2({ x: ax, y: ny }, 1000, 210) : f.pointAtAngle2({ x: ax, y: ny }, 1000, 330);
+        const pt = this.qd ? MathE.pointAtAngle2({ x: ax, y: ny }, 1000, 210) : MathE.pointAtAngle2({ x: ax, y: ny }, 1000, 330);
         r = pt.x;
         o = pt.y;
         h.push({ j_: r, N_: o, q_: ax, V_: ny });
       }
     }
-    f.shuffle(h);
+    MathE.shuffle(h);
     let e = 0;
     for (let k = 0; k < h.length; k++) {
       const s2 = h[k];
       Laya.timer.once(e, this, () => {
         this.Q_(s2.j_, s2.N_, s2.q_, s2.V_);
       });
-      e += f.range(50, 100, true) as number;
+      e += MathE.range(50, 100, true) as number;
     }
     this.Kv = 0;
     this.Wv.gray = true;
   }
   private Q_(t: number, s: number, i: number, h: number): void {
-    const e = z.instance().getItem("meteor", this);
-    const a = f.range(0.8, 1) as number;
+    const e = PrefabFactory.instance().getItem("meteor", this);
+    const a = MathE.range(0.8, 1) as number;
     e.x = t;
     e.y = s;
     e.scale(a, a);
     e.zIndex = 1;
-    y.instance.event(u.bt, e);
-    const n = q.instance().registerImgLoop(
+    EventMgr.instance.event(u.bt, e);
+    const n = EffectMgr.instance().registerImgLoop(
       e,
       ["resources/img/props/meteor_2.png", "resources/img/props/meteor_3.png"],
       50,
     );
-    e.rotation = f.angle({ x: t, y: s }, { x: i, y: h }) + 90;
+    e.rotation = MathE.angle({ x: t, y: s }, { x: i, y: h }) + 90;
     let r = 0;
     let o = 0;
-    const l = 1000 * (f.range(0.8, 1.2, false) as number);
+    const l = 1000 * (MathE.range(0.8, 1.2, false) as number);
     Laya.Tween.create(e)
       .to("x", i)
       .to("y", h)
@@ -1485,7 +1472,7 @@ export class MeteorShowerProp extends InstantProp {
         }
       }, this)
       .then(() => {
-        q.instance().removeEvent("imgLoop", n);
+        EffectMgr.instance().removeEvent("imgLoop", n);
         this.K_(i, h);
         this.J_(e);
         e.rotation = 0;
@@ -1501,7 +1488,7 @@ export class MeteorShowerProp extends InstantProp {
             e.skin = "resources/img/props/meteor_2.png";
             e.alpha = 1;
             e.removeSelf();
-            z.instance().recover("meteor", e);
+            PrefabFactory.instance().recover("meteor", e);
           });
       });
     const c = new Laya.Image("resources/img/props/redCircle.png");
@@ -1510,7 +1497,7 @@ export class MeteorShowerProp extends InstantProp {
     c.pos(i, h);
     c.scale(0, 0);
     c.alpha = 0.5;
-    y.instance.event(u.bt, c);
+    EventMgr.instance.event(u.bt, c);
     Laya.Tween.create(c)
       .to("scaleX", a)
       .to("scaleY", a)
@@ -1526,11 +1513,11 @@ export class MeteorShowerProp extends InstantProp {
       });
   }
   private Z_(t: number, s: number): void {
-    const i = z.instance().getItem("fireParticl", this);
-    y.instance.event(u.bt, i);
+    const i = PrefabFactory.instance().getItem("fireParticl", this);
+    EventMgr.instance.event(u.bt, i);
     i.pos(t, s);
-    i.rotation = f.range(0, 360) as number;
-    i.pos(t, s + (f.range(-i.height, i.height) as number));
+    i.rotation = MathE.range(0, 360) as number;
+    i.pos(t, s + (MathE.range(-i.height, i.height) as number));
     let h = 0;
     Laya.Tween.create(i)
       .to("alpha", 0)
@@ -1539,18 +1526,18 @@ export class MeteorShowerProp extends InstantProp {
       .duration(600)
       .onUpdate(() => {
         h += Laya.timer.delta / 600;
-        i.color = f.rgbToHex(1, 1 - h, 1 - h);
+        i.color = MathE.rgbToHex(1, 1 - h, 1 - h);
       }, this)
       .then(() => {
         i.alpha = 1;
         i.scale(1, 1);
         i.removeSelf();
-        z.instance().recover("fireParticl", i);
+        PrefabFactory.instance().recover("fireParticl", i);
       });
   }
   private K_(t: number, s: number): void {
     const i = EnemySpatialMgr.instance();
-    const h = F.instance();
+    const h = GameMgr.instance();
     const e = h.map.gridWid;
     for (const [, n] of i.kw) {
       if (n.qd !== this.qd) continue;
@@ -1564,8 +1551,8 @@ export class MeteorShowerProp extends InstantProp {
     }
   }
   private J_(t: any): void {
-    q.instance().playRocketEffect(t, t.width / 2, t.height / 2, 2);
-    K.instance().shakeBattleScene(100);
+    EffectMgr.instance().playRocketEffect(t, t.width / 2, t.height / 2, 2);
+    SceneMgr.instance().shakeBattleScene(100);
   }
   update(t: number): void {
     super.update(t);
@@ -1600,8 +1587,8 @@ PropsFactory.instance().register(22, () => Laya.Pool.createByClass(PlaceholderPr
 export class ShovelUpgradeProp extends InstantProp {
   init(qd: any, type: number): void {
     super.init(qd, type);
-    if (qd) F.instance().battleState.Gi = true;
-    else F.instance().battleState.Hi = true;
+    if (qd) GameMgr.instance().battleState.Gi = true;
+    else GameMgr.instance().battleState.Hi = true;
   }
 }
 PropsFactory.instance().register(24, () => Laya.Pool.createByClass(ShovelUpgradeProp));
@@ -1711,7 +1698,7 @@ export class TrashCanProp extends PropBase {
     this.ak();
     this.Kv = 0;
     const l = o.getChildByName("lid");
-    q.instance().registerImgLoop(
+    EffectMgr.instance().registerImgLoop(
       l,
       [
         "resources/img/props/trashCanLid1.png",
@@ -1725,8 +1712,8 @@ export class TrashCanProp extends PropBase {
         l.pos(15, 3);
         e.Yn.zIndex = 1;
         e.Yd = 2;
-        const t2 = F.instance().map.gridWid;
-        const s2 = F.instance().map.gridHei;
+        const t2 = GameMgr.instance().map.gridWid;
+        const s2 = GameMgr.instance().map.gridHei;
         const i2 = o.width / 2 - t2 / 2;
         const h2 = o.height / 2 - s2 / 2;
         e.nL(
@@ -1734,8 +1721,8 @@ export class TrashCanProp extends PropBase {
           -1,
           -1,
           () => {
-            e.Nd ? Ki.instance().gx(e.id) : Ki.instance().Lx(e.id);
-            q.instance().registerImgLoop(
+            e.Nd ? EntityRegistry.instance().gx(e.id) : EntityRegistry.instance().Lx(e.id);
+            EffectMgr.instance().registerImgLoop(
               l,
               [
                 "resources/img/props/trashCanLid2.png",
@@ -1750,10 +1737,10 @@ export class TrashCanProp extends PropBase {
                 Laya.Point.TEMP.setTo(40, -50);
                 o.localToGlobal(Laya.Point.TEMP);
                 o.removeSelf();
-                F.instance().battleState.gold += e.level;
-                q.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, e.level, 1.2);
-                Zi.instance().mx();
-                y.instance.event(u.ls);
+                GameMgr.instance().battleState.gold += e.level;
+                EffectMgr.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, e.level, 1.2);
+                BattlePropsMgr.instance().mx();
+                EventMgr.instance.event(u.ls);
               },
             );
           },
@@ -1766,7 +1753,7 @@ export class TrashCanProp extends PropBase {
 
   gameOver(): void {
     super.gameOver();
-    this.props.size(F.instance().map.gridWid, F.instance().map.gridHei);
+    this.props.size(GameMgr.instance().map.gridWid, GameMgr.instance().map.gridHei);
     this.Wv.size(this.props.width, this.props.height);
     this.Wv.anchor(0.5, 0.5);
     this.Wv.pos(this.props.width / 2, this.props.height / 2);

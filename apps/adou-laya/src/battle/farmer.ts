@@ -17,11 +17,8 @@ import { GameEvent } from "../core/game-event";
 import { LayerZ } from "../core/layer-z";
 import { EffectMgr } from "./effect-mgr";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
 const X = LayerZ;
-const q = EffectMgr;
 
 /** Farmer behaviour states. (`vi`) */
 export const FarmerState = {
@@ -56,7 +53,7 @@ export class Farmer extends Soldier {
   }
 
   protected Zd(_t?: any): void {
-    this.id = F.instance().incCounter();
+    this.id = GameMgr.instance().incCounter();
     this.Yn.name = "farmer_" + this.id;
     if (!this.hL) {
       this.hL = new Laya.Image();
@@ -107,7 +104,7 @@ export class Farmer extends Soldier {
       this.Yn.zIndex = X.entityZIndexFromPixelY(this.Yn.y, this.dg.map.gridHei);
       const cx = this.Cd.x;
       const cy = this.Cd.y;
-      y.instance.event(u.Et, this.qd, cx, cy);
+      EventMgr.instance.event(u.Et, this.qd, cx, cy);
       Laya.timer.once(10000, this, () => {
         if (this.currentState === "FarmerCrazy") this.changeState("FarmerFraming");
       });
@@ -224,7 +221,7 @@ export class Farmer extends Soldier {
     Laya.Point.TEMP.x = 40;
     Laya.Point.TEMP.y = -20;
     this.Yn.localToGlobal(Laya.Point.TEMP);
-    q.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, this.gold);
+    EffectMgr.instance().playGoldUp(Laya.Point.TEMP.x, Laya.Point.TEMP.y, this.gold);
     if (this.qd) this.dg.battleState.gold += this.gold;
     else this.dg.battleState.Ki += this.gold;
   }
@@ -249,7 +246,7 @@ export class Farmer extends Soldier {
   }
 
   gameOver(): void {
-    y.instance.event(u.j, this.id);
+    EventMgr.instance.event(u.j, this.id);
     super.gameOver();
     this.step = 0;
     this.Bv = 0;

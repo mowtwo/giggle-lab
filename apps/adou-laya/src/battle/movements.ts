@@ -18,8 +18,6 @@ import { MathE } from "../core/math-e";
 import { GameMgr } from "../core/game-mgr";
 import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 
-const f = MathE;
-const F = GameMgr;
 
 /** Homing bezier arc toward an enemy by id. (`oi`) */
 export class TargetEnemyBezierMovement extends BulletMovementBase {
@@ -48,7 +46,7 @@ export class TargetEnemyBezierMovement extends BulletMovementBase {
         this.uw.x + (this.yw.x - this.uw.x) / 2,
         this.uw.y + (this.yw.y - this.uw.y) / 2 - this.dw,
       );
-      if (this.Ym.fm) this.Ym.rotation = f.bezierTangentDeg(this.uw, this.pw, this.yw, 0) + 90;
+      if (this.Ym.fm) this.Ym.rotation = MathE.bezierTangentDeg(this.uw, this.pw, this.yw, 0) + 90;
     }
   }
 
@@ -56,8 +54,8 @@ export class TargetEnemyBezierMovement extends BulletMovementBase {
     let i = (t * this.YL * s) / 500;
     if (!this.fw) this.gw();
     if (this.Lw) {
-      const total = f.distance(this.uw, this.yw);
-      const remain = f.distance(this.Ym, this.yw);
+      const total = MathE.distance(this.uw, this.yw);
+      const remain = MathE.distance(this.Ym, this.yw);
       if (total > 0) {
         const h = Math.max(0.1, remain / total);
         i *= Math.sqrt(h);
@@ -65,10 +63,10 @@ export class TargetEnemyBezierMovement extends BulletMovementBase {
     }
     this.cw += i;
     const h = this.Ym.Pm;
-    if (!(f.distanceSq(this.yw, h) < this.mw) && this.cw < 1) {
-      f.quadraticBezierPoint(this.uw, this.pw, this.yw, h, this.cw);
+    if (!(MathE.distanceSq(this.yw, h) < this.mw) && this.cw < 1) {
+      MathE.quadraticBezierPoint(this.uw, this.pw, this.yw, h, this.cw);
       if (this.Ym.fm) {
-        const s2 = f.angle(this._lastPosition, h);
+        const s2 = MathE.angle(this._lastPosition, h);
         if (this.ww) {
           const i2 = h.rotation - s2;
           const e = i2 > 10;
@@ -85,8 +83,8 @@ export class TargetEnemyBezierMovement extends BulletMovementBase {
     const t = this.xw.kw.get(this.FL);
     if (t) {
       this.yw.setTo(t.enemy.x, t.enemy.y);
-      this.yw.x += F.instance().map.gridWid / 2;
-      this.yw.y += F.instance().map.gridHei / 2;
+      this.yw.x += GameMgr.instance().map.gridWid / 2;
+      this.yw.y += GameMgr.instance().map.gridHei / 2;
     } else this.fw = true;
   }
 
@@ -127,7 +125,7 @@ export class TargetEnemyBezierMovement extends BulletMovementBase {
     if (!t) t = this.uw;
     this.gw();
     this.pw.setTo(t.x + (this.yw.x - t.x) / 2, t.y + (this.yw.y - t.y) / 2 - this.dw);
-    return f.bezierTangentDeg(t, this.pw, this.yw, 0) + 90;
+    return MathE.bezierTangentDeg(t, this.pw, this.yw, 0) + 90;
   }
 }
 TargetEnemyBezierMovement.zL = "TargetEnemyBezierMovement";
@@ -211,7 +209,7 @@ export class TargetDirectionLineMovement extends BulletMovementBase {
     Laya.Vector2.normalize(this.XL, this.XL);
   }
   HL(): void {
-    if (this.Ym.fm) this.Ym.rotation = f.angle(Laya.Vector2.ZERO, this.XL);
+    if (this.Ym.fm) this.Ym.rotation = MathE.angle(Laya.Vector2.ZERO, this.XL);
   }
   tm(t: number, s: number): void {
     const i = this.Ym.Pm;
@@ -243,7 +241,7 @@ export class TargetDirectionWaveMovement extends BulletMovementBase {
   HL(): void {
     this.yE = Laya.timer.currTimer;
     this.fE = 0;
-    if (this.Ym.fm) this.Ym.rotation = f.angle(Laya.Vector2.ZERO, this.XL);
+    if (this.Ym.fm) this.Ym.rotation = MathE.angle(Laya.Vector2.ZERO, this.XL);
   }
   tm(t: number, s: number): void {
     this.fE += t;
@@ -255,7 +253,7 @@ export class TargetDirectionWaveMovement extends BulletMovementBase {
     const r = Math.sin(i * this.a + this.offset) * this.b;
     e.x = a + r * this.XL.y;
     e.y = n - r * this.XL.x;
-    e.rotation = f.angle(this._lastPosition, e);
+    e.rotation = MathE.angle(this._lastPosition, e);
     this._lastPosition.setTo(e.x, e.y);
   }
   jL(t: number, s: number, i: number): void {
@@ -291,7 +289,7 @@ export class TargetEnemyInstantaneous extends BulletMovementBase {
     this.$w();
   }
   Zd(): void {
-    const t = F.instance().map;
+    const t = GameMgr.instance().map;
     this.offsetX = t.gridWid / 2;
     this.offsetY = t.gridHei / 2;
     if (this.fw) {
@@ -352,8 +350,8 @@ export class TargetPositionBezierMovement extends BulletMovementBase {
     this.cw += (t * this.YL * s) / 500;
     const i = this.Ym.Pm;
     if (this.cw < 1) {
-      f.quadraticBezierPoint(this.uw, this.pw, this.GL, i, this.cw);
-      if (this.Ym.fm) i.rotation = f.angle(this._lastPosition, i);
+      MathE.quadraticBezierPoint(this.uw, this.pw, this.GL, i, this.cw);
+      if (this.Ym.fm) i.rotation = MathE.angle(this._lastPosition, i);
       this._lastPosition.setTo(i.x, i.y);
     } else this.Ym.Am();
     this.Ym.PL = this.cw > 0.8;
@@ -369,7 +367,7 @@ export class TargetPositionBezierMovement extends BulletMovementBase {
   bw(t?: any): number {
     if (!t) t = this.uw;
     this.pw.setTo(t.x + (this.GL.x - t.x) / 2, t.y + (this.GL.y - t.y) / 2 - this.CD);
-    return f.bezierTangentDeg(t, this.pw, this.GL, 0) + 90;
+    return MathE.bezierTangentDeg(t, this.pw, this.GL, 0) + 90;
   }
 }
 TargetPositionBezierMovement.zL = "TargetPositionBezierMovement";
@@ -387,7 +385,7 @@ export class TargetEnemyMovement extends BulletMovementBase {
   tm(_t: number, s: number): void {
     const i = this.Ym.Pm;
     if (!this.fw) this.gw();
-    if (f.distanceSq(i, this.yw) < 100) this.Ym.Am();
+    if (MathE.distanceSq(i, this.yw) < 100) this.Ym.Am();
     else {
       this._direction.setValue(this.yw.x - i.x, this.yw.y - i.y);
       Laya.Vector2.normalize(this._direction, this._direction);
@@ -435,7 +433,7 @@ export class ForwardMovement extends BulletMovementBase {
   Zd(): void {}
   tm(t: number, s: number): void {
     const i = this.Ym.Pm;
-    const h = f.angleToDirection(i.rotation);
+    const h = MathE.angleToDirection(i.rotation);
     i.x += h.x * t * this.YL * s;
     i.y += h.y * t * this.YL * s;
   }

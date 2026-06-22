@@ -3,7 +3,7 @@
 // Faithful reconstruction of reconstruction/reference/bundle.pretty.js lines
 // ~34846-35591. Hosts the Adou/Zhaoyun idle animations, the play button (spends
 // stamina, rolls the opponent, opens MatchScene), gold/stamina HUD, rank stars
-// (with a GM rank/star picker when `Cn.OH`), the sword/knife collision loop on the
+// (with a GM rank/star picker when `GameController.OH`), the sword/knife collision loop on the
 // play button, the weapon-bag bounce, the shop walker, talk bubbles, and the nav
 // buttons (setting/shop/rank/weapon/avatar/sidebar/get-stamina). Opaque field /
 // method names kept verbatim; node refs bound from MainScene.ls.
@@ -32,25 +32,9 @@ import { RankScoreMgr } from "../battle/rank-score-mgr";
 import { AnalyticsMgr } from "../battle/analytics-mgr";
 import { SkillBagDialog } from "../dialogs/skill-bag-dialog";
 
-const Kr = PrivacyAgreementMgr;
-const Cn = GameController;
-const K = SceneMgr;
-const q = EffectMgr;
-const In = AvatarMgr;
-const y = EventMgr;
 const u = GameEvent;
 const Zt = AnimPlayer;
-const F = GameMgr;
-const eh = WeaponFragmentMgr;
 const $ = AudioMgr;
-const Mt = PlatformMgr;
-const Rn = StaminaCtrl;
-const Dn = LeaderboardMgr;
-const Zi = BattlePropsMgr;
-const tt = TipMgr;
-const f = MathE;
-const En = RankScoreMgr;
-const St = AnalyticsMgr;
 
 /** Sparkle-emitter config used by the sidebar button. (`so`) */
 export class SparkleConfig {
@@ -143,17 +127,17 @@ export class MainScene extends Laya.Scene {
 
   onAwake(): void {
     this.TV();
-    Kr.instance().bindAgeBadge(this.ageTip);
+    PrivacyAgreementMgr.instance().bindAgeBadge(this.ageTip);
     this.k$();
     this.aW();
     this.playBtn.on(Laya.Event.CLICK, this, this.startGame);
     this.settingBtn.on(Laya.Event.CLICK, this, () => {
-      K.instance().openScene("SettingScene");
+      SceneMgr.instance().openScene("SettingScene");
     });
     this.shopBtn.on(Laya.Event.CLICK, this, () => {
-      K.instance().openScene("ShopScene");
+      SceneMgr.instance().openScene("ShopScene");
     });
-    const t = Kr.instance().platformConfig().isShowRank;
+    const t = PrivacyAgreementMgr.instance().platformConfig().isShowRank;
     if (typeof t === "boolean" && !t) this.rankBtn.visible = false;
     this.rankBtn.on(Laya.Event.CLICK, this, this.Re);
     this.talkHitArea.on(Laya.Event.CLICK, this, this.X$);
@@ -161,11 +145,11 @@ export class MainScene extends Laya.Scene {
     this.addStaminaBtn.on(Laya.Event.CLICK, this, this.CV);
     this.weaponBtn.on(Laya.Event.CLICK, this, this.UV);
     this.shopWalk.on(Laya.Event.CLICK, this, this.FV);
-    In.instance().FG(() => {
+    AvatarMgr.instance().FG(() => {
       this.OV();
     });
     this.dySidebarBtn.on(Laya.Event.CLICK, this, this.YV);
-    q.instance().bindButtons([
+    EffectMgr.instance().bindButtons([
       this.playBtn,
       this.settingBtn,
       this.avatarArea,
@@ -175,12 +159,12 @@ export class MainScene extends Laya.Scene {
       this.dySidebarBtn,
       this.shopWalk,
     ]);
-    y.instance.on(u.qt, this, this.k$);
-    y.instance.on(u.Vt, this, this.aW);
-    y.instance.on(u.Qt, this, this.XV);
-    y.instance.on(u.Zt, this, this.GV);
+    EventMgr.instance.on(u.qt, this, this.k$);
+    EventMgr.instance.on(u.Vt, this, this.aW);
+    EventMgr.instance.on(u.Qt, this, this.XV);
+    EventMgr.instance.on(u.Zt, this, this.GV);
     this.HV();
-    if (Cn.instance().OH) this.WV();
+    if (GameController.instance().OH) this.WV();
     this.createSkillBagEntry();
   }
 
@@ -241,21 +225,21 @@ export class MainScene extends Laya.Scene {
     btn.on(Laya.Event.CLICK, this, () => {
       this.addChild(new SkillBagDialog());
     });
-    q.instance().bindButtons([btn]);
+    EffectMgr.instance().bindButtons([btn]);
     this.addChild(btn);
   }
 
   onOpened(_t?: any): void {
-    St.instance().Ty();
+    AnalyticsMgr.instance().Ty();
     this.OV();
     this.weaponBtn.visible = true;
-    const s = F.instance().player;
-    if (eh.instance().Zb() && !s.weaponFree) {
-      eh.instance().tM();
+    const s = GameMgr.instance().player;
+    if (WeaponFragmentMgr.instance().Zb() && !s.weaponFree) {
+      WeaponFragmentMgr.instance().tM();
       s.weaponFree = true;
     }
     $.instance().playMusic("bg_mainScene");
-    if (!(F.instance().player.sidebarState !== 2 && Mt.instance().qy())) this.dySidebarBtn.visible = false;
+    if (!(GameMgr.instance().player.sidebarState !== 2 && PlatformMgr.instance().qy())) this.dySidebarBtn.visible = false;
     this.zV();
     this.jV();
     this.$V();
@@ -265,7 +249,7 @@ export class MainScene extends Laya.Scene {
 
   onClosed(): void {
     if (this.AV > 0) {
-      q.instance().removeEvent("btnSparkle", this.AV);
+      EffectMgr.instance().removeEvent("btnSparkle", this.AV);
       this.AV = 0;
     }
     this.VV();
@@ -275,7 +259,7 @@ export class MainScene extends Laya.Scene {
 
   OV(): void {
     this.avatarImg.texture = null;
-    In.instance().GG(this.avatarImg);
+    AvatarMgr.instance().GG(this.avatarImg);
   }
 
   TV(): void {
@@ -301,7 +285,7 @@ export class MainScene extends Laya.Scene {
   }
 
   k$(): void {
-    this.goldTxt.text = F.instance().player.gold.toString();
+    this.goldTxt.text = GameMgr.instance().player.gold.toString();
   }
 
   aW(): void {
@@ -317,10 +301,10 @@ export class MainScene extends Laya.Scene {
     Laya.Point.TEMP.x = this.talkHitArea.width / 4;
     Laya.Point.TEMP.y = this.talkHitArea.height / 3;
     this.talkHitArea.localToGlobal(Laya.Point.TEMP);
-    q.instance().showTalkBox(
+    EffectMgr.instance().showTalkBox(
       Laya.Point.TEMP.x,
       Laya.Point.TEMP.y,
-      this.yV[f.range(0, this.yV.length, true)],
+      this.yV[MathE.range(0, this.yV.length, true)],
       this.talkHitArea,
       false,
     );
@@ -337,7 +321,7 @@ export class MainScene extends Laya.Scene {
     this.shopWalk.x = 320;
     const t = (1386 * (640 + this.shopWalk.width)) / Laya.stage.height;
     Laya.Tween.to(this.shopWalk, { x: t }, 5000);
-    this.KV = q
+    this.KV = EffectMgr
       .instance()
       .registerImgLoop(
         this.shopWalk,
@@ -350,59 +334,59 @@ export class MainScene extends Laya.Scene {
     Laya.Point.TEMP.x = this.shopWalk.width / 2 - 20;
     Laya.Point.TEMP.y = 30;
     this.shopWalk.localToGlobal(Laya.Point.TEMP);
-    q.instance().showTalkBox(
+    EffectMgr.instance().showTalkBox(
       Laya.Point.TEMP.x,
       Laya.Point.TEMP.y,
-      this.EV[f.range(0, this.EV.length, true)],
+      this.EV[MathE.range(0, this.EV.length, true)],
       this.shopWalk,
       false,
     );
   }
 
   Re(): void {
-    K.instance().openScene("RankScene");
+    SceneMgr.instance().openScene("RankScene");
   }
 
   async startGame(): Promise<void> {
-    if (!Rn.instance().EH()) {
-      tt.instance().showTip("体力不足，无法开始游戏！");
+    if (!StaminaCtrl.instance().EH()) {
+      TipMgr.instance().showTip("体力不足，无法开始游戏！");
       return Promise.reject("体力不足");
     }
     if (Date.now() - this.gV < this.fV) return;
-    Rn.instance().BH();
+    StaminaCtrl.instance().BH();
     this.gV = Date.now();
     await this.JV();
-    Dn.instance().eH();
-    Zi.instance().tS();
-    K.instance().openScene("MatchScene");
+    LeaderboardMgr.instance().eH();
+    BattlePropsMgr.instance().tS();
+    SceneMgr.instance().openScene("MatchScene");
     Laya.Tween.killAll(this.shopWalk);
     this.shopWalk.visible = false;
     this.shopWalk.x = 320;
-    q.instance().removeEvent("imgLoop", this.KV);
+    EffectMgr.instance().removeEvent("imgLoop", this.KV);
     this.shopWalk.skin = "resources/img/mainUI/walk0.png";
   }
 
   YV(): void {
-    K.instance().openDialog("SidebarDialog");
+    SceneMgr.instance().openDialog("SidebarDialog");
   }
 
   UV(): void {
-    const t = eh.instance();
-    if (t.Zb()) K.instance().openScene("WeaponScene");
-    else tt.instance().showTip("第" + t.Jb() + "天解锁武器呦~");
+    const t = WeaponFragmentMgr.instance();
+    if (t.Zb()) SceneMgr.instance().openScene("WeaponScene");
+    else TipMgr.instance().showTip("第" + t.Jb() + "天解锁武器呦~");
   }
 
   CV(): void {
-    K.instance().openDialog("GetStaminaDialog");
+    SceneMgr.instance().openDialog("GetStaminaDialog");
   }
 
   RV(): void {
-    K.instance().openScene("AvatarSettingScene");
+    SceneMgr.instance().openScene("AvatarSettingScene");
   }
 
   JV(): Promise<void> {
     return new Promise((resolve) => {
-      const s = F.instance().stamina.an;
+      const s = GameMgr.instance().stamina.an;
       Laya.Point.TEMP.x = this.staminaImg.width / 2;
       Laya.Point.TEMP.y = this.staminaImg.height / 2;
       this.staminaImg.localToGlobal(Laya.Point.TEMP);
@@ -413,7 +397,7 @@ export class MainScene extends Laya.Scene {
       this.btnStaminaImg.localToGlobal(Laya.Point.TEMP);
       this.globalToLocal(Laya.Point.TEMP);
       const h = new Laya.Point(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
-      q.instance().explodeAndFlyReward(
+      EffectMgr.instance().explodeAndFlyReward(
         this,
         "resources/img/mainUI/stamina/stamina.png",
         this.staminaImg.width / 2,
@@ -512,7 +496,7 @@ export class MainScene extends Laya.Scene {
   }
 
   zV(): void {
-    const t = F.instance().rank.currentRank;
+    const t = GameMgr.instance().rank.currentRank;
     this.rankTxt.text = t.rank;
     if (t.rank !== "皇帝") {
       for (let s = 0; s < 5; s++) {
@@ -530,7 +514,7 @@ export class MainScene extends Laya.Scene {
 
   WV(): void {
     if (this.SV || this.bV) return;
-    const t = F.instance().rank;
+    const t = GameMgr.instance().rank;
     const s = Array.from(t.table.keys()).sort((a: any, b: any) => a - b);
     this.MV = s;
     const i = "#ffffff";
@@ -582,37 +566,37 @@ export class MainScene extends Laya.Scene {
     if (this.PV) return;
     const s = this.MV[t];
     if (s == null) return;
-    const i = F.instance().rank.table.get(s);
+    const i = GameMgr.instance().rank.table.get(s);
     if (!i) throw new Error("段位配置不存在: " + s);
-    const h = F.instance().rank.currentRank;
+    const h = GameMgr.instance().rank.currentRank;
     h.id = i.id;
     h.rank = i.rank;
     h.reward = i.reward;
     const e = Math.max(1, i.level);
     h.level = Math.max(1, Math.min(h.level, e));
-    F.instance().player.curStar = En.instance().bG(h.id, h.level);
-    Dn.instance().sH();
+    GameMgr.instance().player.curStar = RankScoreMgr.instance().bG(h.id, h.level);
+    LeaderboardMgr.instance().sH();
     this.zV();
     this.jV();
   }
 
   lQ(t: number): void {
     if (this.PV) return;
-    const s = F.instance().rank.currentRank;
-    const i = F.instance().rank.table.get(s.id);
+    const s = GameMgr.instance().rank.currentRank;
+    const i = GameMgr.instance().rank.table.get(s.id);
     if (!i) throw new Error("段位配置不存在: " + s.id);
     const h = Math.max(1, i.level);
     s.level = Math.max(1, Math.min(t + 1, h));
-    F.instance().player.curStar = En.instance().bG(s.id, s.level);
-    Dn.instance().sH();
+    GameMgr.instance().player.curStar = RankScoreMgr.instance().bG(s.id, s.level);
+    LeaderboardMgr.instance().sH();
     this.zV();
     this.jV();
   }
 
   jV(): void {
     if (!this.SV || !this.bV || this.MV.length === 0) return;
-    const t = F.instance().rank.currentRank;
-    const s = F.instance().rank.table.get(t.id);
+    const t = GameMgr.instance().rank.currentRank;
+    const s = GameMgr.instance().rank.table.get(t.id);
     if (!s) throw new Error("段位配置不存在: " + t.id);
     this.PV = true;
     const i = Math.max(0, this.MV.indexOf(t.id));
@@ -901,7 +885,7 @@ export class MainScene extends Laya.Scene {
   qV(): void {
     if (this.dySidebarBtn.visible) {
       Laya.Tween.create(this.dySidebarBtnLight).to("alpha", 0.7).duration(1000).repeat(-1, true);
-      this.AV = q.instance().registerBtnSparkle(this.dySidebarBtn, new so(["resources/img/mainUI/sidebar/star.png"]));
+      this.AV = EffectMgr.instance().registerBtnSparkle(this.dySidebarBtn, new so(["resources/img/mainUI/sidebar/star.png"]));
     }
   }
 }

@@ -19,10 +19,6 @@ import { GameMgr } from "../core/game-mgr";
 import { AnimPlayer } from "../battle/anim-player";
 
 const X = LayerZ;
-const q = EffectMgr;
-const K = SceneMgr;
-const j = UpdateMgr;
-const F = GameMgr;
 const Zt = AnimPlayer;
 
 @regClass("3PtiqZCFQj2dH_DSHFFblw")
@@ -72,11 +68,11 @@ export class BossTipDialog extends Laya.Dialog {
   onAwake(): void {
     this.zIndex = X.Zr;
     this.confirmBtn.on(Laya.Event.CLICK, this, this.Uu);
-    q.instance().bindButtons([this.confirmBtn]);
+    EffectMgr.instance().bindButtons([this.confirmBtn]);
   }
 
   onEnable(): void {
-    const t = K.instance().getDialogData("BossTipDialog");
+    const t = SceneMgr.instance().getDialogData("BossTipDialog");
     this.red.alpha = 0;
     this.tipBox.scaleY = 0;
     this.boss.alpha = 1;
@@ -233,7 +229,7 @@ export class BossTipDialog extends Laya.Dialog {
     this.bg1.visible = true;
     this.bg2.visible = true;
     this.$f();
-    j.instance().pause(false);
+    UpdateMgr.instance().pause(false);
   }
 
   $f(): void {
@@ -346,7 +342,7 @@ export class BossTipDialog extends Laya.Dialog {
 
   bf(t: number): void {
     this.ph = t;
-    const s = F.instance().enemy.gh[t];
+    const s = GameMgr.instance().enemy.gh[t];
     this.skillName.text = s.skillName + "：";
     this.skillName.color = s.color;
     this.skillIntro.text = s.skillIntro;
@@ -378,7 +374,7 @@ export class BossTipDialog extends Laya.Dialog {
     Laya.timer.clearAll(this);
     this.Hf();
     this.tg();
-    j.instance().resume();
+    UpdateMgr.instance().resume();
     this.zf = Laya.Tween.create(this.banner)
       .to("scaleY", 0)
       .duration(300)
@@ -391,7 +387,7 @@ export class BossTipDialog extends Laya.Dialog {
   eg(): void {
     this.hg.removeSelf();
     Zt.instance().gf(this.hg, Zt.instance().ff(this.ph));
-    j.instance().resume();
-    K.instance().closeDialog("BossTipDialog");
+    UpdateMgr.instance().resume();
+    SceneMgr.instance().closeDialog("BossTipDialog");
   }
 }

@@ -40,31 +40,13 @@ import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 import { gt, dt } from "../battle/analytics-mgr";
 
-const F = GameMgr;
 const X = LayerZ;
-const q = EffectMgr;
 const $ = AudioMgr;
-const j = UpdateMgr;
-const Zi = BattlePropsMgr;
-const z = PrefabFactory;
-const H = PrefabPool;
 const G = PrefabName;
 const Zt = AnimPlayer;
-const Ki = EntityRegistry;
 const Oi = CellReservationMgr;
-const en = PlacementMgr;
-const Pn = BoardInputMgr;
-const wn = TutorialMgr;
-const mn = GeneralAIController;
-const Na = SpawnQueueMgr;
-const wi = BoardMgr;
-const Mt = PlatformMgr;
-const tt = TipMgr;
-const K = SceneMgr;
 const Fh = BulletTrailPool;
 const Xr = MoveComponent;
-const f = MathE;
-const y = EventMgr;
 const u = GameEvent;
 
 @regClass("a1VsRozfQfKce35jblVR3w")
@@ -150,7 +132,7 @@ export class BattleScene extends Laya.Scene {
   private c$!: Map<number, any>;
 
   onAwake(): void {
-    this.dg = F.instance();
+    this.dg = GameMgr.instance();
     this.deckBtn.zIndex = X.Hr;
     this.end1.zIndex = X.pr;
     this.end2.zIndex = X.pr;
@@ -177,7 +159,7 @@ export class BattleScene extends Laya.Scene {
     this.refreshBtn.on(Laya.Event.CLICK, this, this.p$);
     this.deckBtn.on(Laya.Event.CLICK, this, this.y$);
     this.xBtn.on(Laya.Event.CLICK, this, this.pause);
-    q.instance().bindButtons([this.refreshBtn, this.deckBtn, this.xBtn]);
+    EffectMgr.instance().bindButtons([this.refreshBtn, this.deckBtn, this.xBtn]);
   }
 
   onOpened(): void {
@@ -225,43 +207,43 @@ export class BattleScene extends Laya.Scene {
       this.propsBox.visible = false;
       this.propsBoxAi.visible = false;
     }
-    j.instance().register("BattleScene", this, this.update);
-    Zi.instance().Kx(true);
+    UpdateMgr.instance().register("BattleScene", this, this.update);
+    BattlePropsMgr.instance().Kx(true);
   }
 
   onClosed(_t?: any): void {
-    j.instance().unregister("BattleScene");
+    UpdateMgr.instance().unregister("BattleScene");
     this.b$.offAllCaller(this);
     this.M$.offAllCaller(this);
   }
 
   addEvent(): void {
-    y.instance.on(u.St, this, this.P$);
-    y.instance.on(u.bt, this, this.A$);
-    y.instance.on(u.xt, this, this.E$);
-    y.instance.on(u.Mt, this, this.B$);
-    y.instance.on(u.Pt, this, this.I$);
-    y.instance.on(u.It, this, this.k$);
-    y.instance.on(u.At, this, this.D$);
-    y.instance.on(u.Et, this, this.T$);
-    y.instance.on(u.Bt, this, this.R$);
-    y.instance.on(u.Dt, this, this.gameOver);
-    y.instance.on(u.Tt, this, this.C$);
-    y.instance.on(u.Rt, this, this.U$);
-    y.instance.on(u.Ct, this, this.F$);
-    y.instance.on(u.Ut, this, this.O$);
-    y.instance.on(u.Ft, this, this.uX);
-    y.instance.on(u.Ot, this, this.Y$);
-    y.instance.on(u.Yt, this, this.X$);
-    y.instance.on(u.Xt, this, this.G$);
-    y.instance.on(u.Gt, this, this.H$);
-    y.instance.on(u.Ht, this, this.W$);
-    y.instance.on(u.Wt, this, this.z$);
-    y.instance.on(u.zt, this, this.j$);
-    y.instance.on(u.jt, this, this.$$);
-    y.instance.on(u.$t, this, this.N$);
-    y.instance.on(u.ds, this, this.q$);
-    y.instance.on(u.Nt, this, this.V$);
+    EventMgr.instance.on(u.St, this, this.P$);
+    EventMgr.instance.on(u.bt, this, this.A$);
+    EventMgr.instance.on(u.xt, this, this.E$);
+    EventMgr.instance.on(u.Mt, this, this.B$);
+    EventMgr.instance.on(u.Pt, this, this.I$);
+    EventMgr.instance.on(u.It, this, this.k$);
+    EventMgr.instance.on(u.At, this, this.D$);
+    EventMgr.instance.on(u.Et, this, this.T$);
+    EventMgr.instance.on(u.Bt, this, this.R$);
+    EventMgr.instance.on(u.Dt, this, this.gameOver);
+    EventMgr.instance.on(u.Tt, this, this.C$);
+    EventMgr.instance.on(u.Rt, this, this.U$);
+    EventMgr.instance.on(u.Ct, this, this.F$);
+    EventMgr.instance.on(u.Ut, this, this.O$);
+    EventMgr.instance.on(u.Ft, this, this.uX);
+    EventMgr.instance.on(u.Ot, this, this.Y$);
+    EventMgr.instance.on(u.Yt, this, this.X$);
+    EventMgr.instance.on(u.Xt, this, this.G$);
+    EventMgr.instance.on(u.Gt, this, this.H$);
+    EventMgr.instance.on(u.Ht, this, this.W$);
+    EventMgr.instance.on(u.Wt, this, this.z$);
+    EventMgr.instance.on(u.zt, this, this.j$);
+    EventMgr.instance.on(u.jt, this, this.$$);
+    EventMgr.instance.on(u.$t, this, this.N$);
+    EventMgr.instance.on(u.ds, this, this.q$);
+    EventMgr.instance.on(u.Nt, this, this.V$);
   }
 
   update(t: number): void {
@@ -277,7 +259,7 @@ export class BattleScene extends Laya.Scene {
     for (let s = 0; s < t.length; s++) {
       this.Uj.push([]);
       for (let i = 0; i < t[s].length; i++) {
-        const cell = z.instance().getItem("mapImg", this);
+        const cell = PrefabFactory.instance().getItem("mapImg", this);
         cell.name = `${s}_${i}`;
         this.Uj[s].push(cell);
         cell.pos(s * cell.width, i * cell.height);
@@ -289,7 +271,7 @@ export class BattleScene extends Laya.Scene {
   f$(): void {
     this.Z$ = this.c$.get(this.mapIndex);
     if (!this.Z$) {
-      this.Z$ = H.instance().so((G as any)["mapBg" + this.mapIndex]).create();
+      this.Z$ = PrefabPool.instance().so((G as any)["mapBg" + this.mapIndex]).create();
       this.c$.set(this.mapIndex, this.Z$);
     }
     this.Z$.zIndex = X.rr;
@@ -432,7 +414,7 @@ export class BattleScene extends Laya.Scene {
   p$(): void {
     if (Date.now() - this.Oj < this.Yj) return;
     this.Oj = Date.now();
-    if (en.instance().yF({ type: 2, qd: true, onComplete: () => {} }).success) this.J$();
+    if (PlacementMgr.instance().yF({ type: 2, qd: true, onComplete: () => {} }).success) this.J$();
   }
 
   J$(): void {
@@ -441,8 +423,8 @@ export class BattleScene extends Laya.Scene {
       this.dg.map.we = false;
     }
     this.goldNumTxt.text = this.dg.battleState.yi.toString();
-    y.instance.event(u.It);
-    q.instance().clearTrails();
+    EventMgr.instance.event(u.It);
+    EffectMgr.instance().clearTrails();
     const t = this.refreshBox.width / this.dg.map.ye;
     const s = this.refreshBox.height;
     let i = false;
@@ -491,9 +473,9 @@ export class BattleScene extends Laya.Scene {
             const r = n.A_(true, a);
             if (!r) {
               if (a === this.dg.map.ye - 1) {
-                wn.instance().VY();
+                TutorialMgr.instance().VY();
                 Laya.timer.once(100, this, () => {
-                  en.instance().wF();
+                  PlacementMgr.instance().wF();
                 });
               }
               return;
@@ -502,7 +484,7 @@ export class BattleScene extends Laya.Scene {
             this.Po.x = t * o + t / 2;
             this.Po.y = s / 2;
             this.refreshBox.localToGlobal(this.Po);
-            const c = wn.instance().NY(a);
+            const c = TutorialMgr.instance().NY(a);
             let uColor = "#ffffff";
             if (c !== "铲" && c !== "刀" && c !== "弓" && c !== "枪" && c !== "骑") uColor = "#f8e37d";
             const p = this.dg.generals;
@@ -511,10 +493,10 @@ export class BattleScene extends Laya.Scene {
             if (ff === -1) yy = `resources/img/gameObject/soldier/generalParts_${p.nameChars.indexOf(c)}.png`;
             else yy = `resources/img/gameObject/soldier/soldier_${ff}.png`;
             if (c === "铲")
-              yy = F.instance().battleState.Gi ? "resources/img/props/shovel_2.png" : "resources/img/props/shovel_1.png";
+              yy = GameMgr.instance().battleState.Gi ? "resources/img/props/shovel_2.png" : "resources/img/props/shovel_1.png";
             if (c === "农") yy = "resources/img/props/farmer_1.png";
             $.instance().playSound("soldier_create");
-            q.instance().spawnTrail(
+            EffectMgr.instance().spawnTrail(
               this.Mo.x,
               this.Mo.y,
               this.Po.x,
@@ -524,11 +506,11 @@ export class BattleScene extends Laya.Scene {
                 if (this.tN()) n.release(l);
                 else
                   try {
-                    Pn.instance().refresh(c, o);
+                    BoardInputMgr.instance().refresh(c, o);
                     if (a === this.dg.map.ye - 1) {
-                      wn.instance().VY();
+                      TutorialMgr.instance().VY();
                       Laya.timer.once(100, this, () => {
-                        en.instance().wF();
+                        PlacementMgr.instance().wF();
                       });
                     }
                   } finally {
@@ -555,7 +537,7 @@ export class BattleScene extends Laya.Scene {
   D$(t: boolean, s: number, i: number): void {
     this.dg.map.ue[s][i] = t ? "1_0" : "1_1";
     this.Fj.get(`${s}_${i}`).skin = `resources/img/map/space_${this.mapIndex}.png`;
-    q
+    EffectMgr
       .instance()
       .digGrassToRoad(
         this.map,
@@ -569,7 +551,7 @@ export class BattleScene extends Laya.Scene {
   T$(t: boolean, s: number, i: number): void {
     this.dg.map.ue[s][i] = t ? "2_0" : "2_1";
     this.Fj.get(`${s}_${i}`).skin = "resources/img/map/grass_" + this.dg.map.mapIndex + "_" + (t ? 0 : 1) + ".png";
-    q
+    EffectMgr
       .instance()
       .growGrass(
         this.highGround,
@@ -584,10 +566,10 @@ export class BattleScene extends Laya.Scene {
     const h: any[] = [];
     for (let x = 0; x < this.dg.map.ue.length; x++)
       for (let e = 0; e < this.dg.map.ue[x].length; e++)
-        if (this.dg.map.ue[x][e] === i && !Ki.instance().ZS(t, x, e)) h.push({ x, y: e });
+        if (this.dg.map.ue[x][e] === i && !EntityRegistry.instance().ZS(t, x, e)) h.push({ x, y: e });
     console.log("设置格子");
     if (h.length <= 0) return void s.removeSelf();
-    const e = h[f.range(0, h.length, true)];
+    const e = h[MathE.range(0, h.length, true)];
     const a = new Laya.Image("resources/img/gameObject/enemy/vine2.png");
     a.size(125, 112);
     a.anchor(0.5, 0.5);
@@ -600,7 +582,7 @@ export class BattleScene extends Laya.Scene {
     this.Mo.y = s.y;
     this.Po.x = n + this.dg.map.gridWid / 2;
     this.Po.y = r + this.dg.map.gridHei / 2;
-    const o = f.distance(this.Mo as any, this.Po as any);
+    const o = MathE.distance(this.Mo as any, this.Po as any);
     Laya.Tween.create(s)
       .to("x", this.Po.x)
       .to("y", this.Po.y)
@@ -628,7 +610,7 @@ export class BattleScene extends Laya.Scene {
         tree.pos(e.x * this.dg.map.gridWid, e.y * this.dg.map.gridHei);
         tree.alpha = 0.7;
         this.gameObjectBox.addChild(tree);
-        q
+        EffectMgr
           .instance()
           .registerImgLoop(
             tree,
@@ -660,9 +642,9 @@ export class BattleScene extends Laya.Scene {
   }
 
   y$(): void {
-    if (!Na.instance().pU) {
-      K.instance().openDialog("DeckDialog");
-      Na.instance().pU = true;
+    if (!SpawnQueueMgr.instance().pU) {
+      SceneMgr.instance().openDialog("DeckDialog");
+      SpawnQueueMgr.instance().pU = true;
     }
     Laya.Point.TEMP.x = 0;
     Laya.Point.TEMP.y = 500;
@@ -709,8 +691,8 @@ export class BattleScene extends Laya.Scene {
   }
 
   r$(): void {
-    this.Qj = f.range(3, 7, true);
-    this.Zj = f.range(3, 7, true);
+    this.Qj = MathE.range(3, 7, true);
+    this.Zj = MathE.range(3, 7, true);
     this.iN = new Laya.Image();
     this.iN.name = "eat";
     this.iN.skin = "resources/img/battleUI/eat1.png";
@@ -757,14 +739,14 @@ export class BattleScene extends Laya.Scene {
       this.qj += 1;
       if (this.qj > this.Qj) {
         this.qj = 0;
-        this.Qj = f.range(3, 7, true);
+        this.Qj = MathE.range(3, 7, true);
         t.play("dou", false);
       } else t.play("zhan", false);
     } else {
       this.Vj += 1;
       if (this.Vj > this.Zj) {
         this.Vj = 0;
-        this.Zj = f.range(3, 7, true);
+        this.Zj = MathE.range(3, 7, true);
         t.play("dou", false);
       } else t.play("zhan", false);
     }
@@ -832,7 +814,7 @@ export class BattleScene extends Laya.Scene {
     let n = a.numChildren;
     if (e > n)
       for (let k = 0; k < e - n; k++) {
-        s = z.instance().getItem("heart", this);
+        s = PrefabFactory.instance().getItem("heart", this);
         a.addChild(s);
       }
     else if (e < n)
@@ -852,7 +834,7 @@ export class BattleScene extends Laya.Scene {
         h.rotation = 0;
         h.pos(11, 20);
         h.alpha = 1;
-        z.instance().recover("heart", s);
+        PrefabFactory.instance().recover("heart", s);
       }
     const r = Math.ceil(a.numChildren / 3);
     n = a.numChildren;
@@ -941,7 +923,7 @@ export class BattleScene extends Laya.Scene {
     i.parent.localToGlobal(this.Mo);
     for (let s = 0; s < 10; s++)
       Laya.timer.once(100 * s, this, () => {
-        q.instance().playGoldUp(this.Mo.x, this.Mo.y);
+        EffectMgr.instance().playGoldUp(this.Mo.x, this.Mo.y);
         if (t) this.dg.battleState.gold += 1;
         else this.dg.battleState.Ki += 1;
       });
@@ -966,7 +948,7 @@ export class BattleScene extends Laya.Scene {
       this.Mo.y = heart.y;
       this.Mo = heart.parent.localToGlobal(this.Mo);
       this.Mo = this.effectBox.globalToLocal(this.Mo);
-      q.instance().redPoint(this.Mo.x, this.Mo.y);
+      EffectMgr.instance().redPoint(this.Mo.x, this.Mo.y);
     }
   }
 
@@ -1026,9 +1008,9 @@ export class BattleScene extends Laya.Scene {
     if (this.dg.map.we) {
       this.ma.length = 0;
       const t = Oi.instance();
-      const s = wi.instance().Mv(3)!.mv;
+      const s = BoardMgr.instance().Mv(3)!.mv;
       for (let i = 0; i < s.length; i++) if (t.M_(true, i)) this.ma.push(i);
-      if (this.ma.length <= 0) return void tt.instance().showTip("当前刷新栏无空格");
+      if (this.ma.length <= 0) return void TipMgr.instance().showTip("当前刷新栏无空格");
       const i = this.ma.length >= 2 ? 2 : this.ma.length;
       const h = () => {
         Laya.Point.TEMP.x = this.shovelAd.width / 2;
@@ -1038,7 +1020,7 @@ export class BattleScene extends Laya.Scene {
         this.shovelAd.visible = false;
         this.dg.map.we = false;
         this.dg.map.me = true;
-        tt.instance().showTip(`恭喜您获得了${i}把铲子`);
+        TipMgr.instance().showTip(`恭喜您获得了${i}把铲子`);
       };
       // 改造:去掉看广告,铲子救场免费且不限次直接发放。
       h();
@@ -1059,7 +1041,7 @@ export class BattleScene extends Laya.Scene {
         this.map.localToGlobal(Laya.Point.TEMP);
         const n = Laya.Point.TEMP.x;
         const r = Laya.Point.TEMP.y;
-        q.instance().spawnTrail(
+        EffectMgr.instance().spawnTrail(
           tx,
           ty,
           n,
@@ -1067,7 +1049,7 @@ export class BattleScene extends Laya.Scene {
           500,
           () => {
             if (this.tN()) return;
-            Zi.instance().Zx(true, 1).tk(null);
+            BattlePropsMgr.instance().Zx(true, 1).tk(null);
           },
           "#ffffff",
           "resources/img/battleUI/ad/bulldozer.png",
@@ -1075,7 +1057,7 @@ export class BattleScene extends Laya.Scene {
         this.shovelAd.visible = false;
         this.dg.map.ke = false;
         this.dg.map.ve = true;
-        tt.instance().showTip("阿斗已经高枕无忧了");
+        TipMgr.instance().showTip("阿斗已经高枕无忧了");
       };
       // 改造:去掉看广告,推土车救场免费且不限次直接发放。
       t();
@@ -1161,7 +1143,7 @@ export class BattleScene extends Laya.Scene {
     this.Mo.x = i.x < 320 ? i.width : 0;
     this.Mo.y = 0;
     this.Mo = i.localToGlobal(this.Mo);
-    q.instance().showTalkBox(this.Mo.x, this.Mo.y, s, i);
+    EffectMgr.instance().showTalkBox(this.Mo.x, this.Mo.y, s, i);
   }
 
   G$(t: boolean, s: any, i: () => void): void {
@@ -1195,7 +1177,7 @@ export class BattleScene extends Laya.Scene {
   }
 
   pause(): void {
-    K.instance().openDialog("PauseDialog");
+    SceneMgr.instance().openDialog("PauseDialog");
   }
 
   _$(t: any, s: number): void {
@@ -1293,9 +1275,9 @@ export class BattleScene extends Laya.Scene {
         .to("scaleY", 2.2)
         .to("alpha", 0)
         .duration(400);
-      if (!wn.instance().CY && !this.s$ && !mn.instance().LY) {
+      if (!TutorialMgr.instance().CY && !this.s$ && !GeneralAIController.instance().LY) {
         this.s$ = true;
-        if (Math.random() <= this.dg.config.ni[this.dg.battleState.ki]) mn.instance().TY();
+        if (Math.random() <= this.dg.config.ni[this.dg.battleState.ki]) GeneralAIController.instance().TY();
       }
     }
   }
@@ -1342,8 +1324,8 @@ export class BattleScene extends Laya.Scene {
     this.Po.x = r * a + r / 2;
     this.Po.y = o / 2;
     this.refreshBox.localToGlobal(this.Po);
-    const l = F.instance().battleState.Gi ? "resources/img/props/shovel_2.png" : "resources/img/props/shovel_1.png";
-    q.instance().spawnTrail(
+    const l = GameMgr.instance().battleState.Gi ? "resources/img/props/shovel_2.png" : "resources/img/props/shovel_1.png";
+    EffectMgr.instance().spawnTrail(
       t,
       s,
       this.Po.x,
@@ -1355,7 +1337,7 @@ export class BattleScene extends Laya.Scene {
           return;
         }
         try {
-          Zi.instance().Zx(true, 0, 3, a);
+          BattlePropsMgr.instance().Zx(true, 0, 3, a);
         } finally {
           h.release(n);
         }
@@ -1382,10 +1364,10 @@ export class BattleScene extends Laya.Scene {
     Laya.Point.TEMP.x = this.dg.map.gridWid * h + this.dg.map.gridWid / 2;
     Laya.Point.TEMP.y = this.dg.map.gridHei * e + this.dg.map.gridHei / 2;
     this.map.localToGlobal(Laya.Point.TEMP);
-    const a = (t ? F.instance().battleState.Gi : F.instance().battleState.Hi)
+    const a = (t ? GameMgr.instance().battleState.Gi : GameMgr.instance().battleState.Hi)
       ? "resources/img/props/shovel_2.png"
       : "resources/img/props/shovel_1.png";
-    q.instance().spawnTrail(
+    EffectMgr.instance().spawnTrail(
       s,
       i,
       Laya.Point.TEMP.x,
@@ -1563,14 +1545,14 @@ export class BattleScene extends Laya.Scene {
       .to("scaleY", 1)
       .duration(300)
       .then(() => {
-        const i1 = h.y > e.y ? s.y - F.instance().map.gridHei / 4 : s.y + F.instance().map.gridHei * (3 / 4);
+        const i1 = h.y > e.y ? s.y - GameMgr.instance().map.gridHei / 4 : s.y + GameMgr.instance().map.gridHei * (3 / 4);
         Laya.Tween.create(s)
           .to("y", i1)
           .to("scaleX", 1.2)
           .to("scaleY", 1.2)
           .duration(300)
           .then(() => {
-            const i2 = h.y > e.y ? s.y - F.instance().map.gridHei / 4 : s.y + F.instance().map.gridHei * (3 / 4);
+            const i2 = h.y > e.y ? s.y - GameMgr.instance().map.gridHei / 4 : s.y + GameMgr.instance().map.gridHei * (3 / 4);
             Laya.Tween.create(s)
               .to("y", i2)
               .to("scaleX", 1)
@@ -1614,11 +1596,11 @@ export class BattleScene extends Laya.Scene {
     });
     h.enable();
     if (Math.random() < 0.5)
-      Laya.timer.once(f.range(1000, 2000, true), this, () => {
+      Laya.timer.once(MathE.range(1000, 2000, true), this, () => {
         this.X$(t, "护驾！护驾！");
       });
     if (Math.random() < 0.5)
-      Laya.timer.once(f.range(2000, 3000, true), this, () => {
+      Laya.timer.once(MathE.range(2000, 3000, true), this, () => {
         const dir = h.Tj();
         i.stop();
         Laya.Tween.create(i)
@@ -1743,7 +1725,7 @@ export class BattleScene extends Laya.Scene {
   gameOver(): void {
     this.gM = true;
     Oi.instance().clear();
-    j.instance().unregister("BattleScene");
+    UpdateMgr.instance().unregister("BattleScene");
     Laya.timer.clearAll(this);
     this.nN();
     this.shovelAd.visible = false;
@@ -1756,14 +1738,14 @@ export class BattleScene extends Laya.Scene {
     this.deckLight.scale(0, 0);
     this.oN();
     this.Xj = 0;
-    q.instance().clearTrails();
+    EffectMgr.instance().clearTrails();
     Fh.clearAllDeferredTrails();
     this.Z$.removeSelf();
     for (let t = 0; t < this.propsBox.numChildren; t++)
       if (this.propsBox.getChildAt(t).name === "bg") this.propsBox.getChildAt(t).visible = false;
     for (let t = 0; t < this.propsBoxAi.numChildren; t++)
       if (this.propsBoxAi.getChildAt(t).name === "bg") this.propsBoxAi.getChildAt(t).visible = false;
-    K.instance().closeScene("BattleScene", false);
+    SceneMgr.instance().closeScene("BattleScene", false);
     for (let t = 0; t < this.dg.props.Ze; t++) {
       this.N$(true, t, 0);
       this.N$(false, t, 0);

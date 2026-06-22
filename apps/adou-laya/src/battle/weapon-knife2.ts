@@ -24,13 +24,7 @@ import { DaoQiBullet, TiaoQiBullet, VirtualBullet } from "./bullet-variants";
 import { ForwardMovement, TargetEnemyBezierMovement, TargetObjectInstantaneous } from "./movements";
 import { JumpSlash } from "./skills";
 
-const de = WeaponFactory;
-const F = GameMgr;
 const $ = AudioMgr;
-const f = MathE;
-const th = BuffMgr;
-const q = EffectMgr;
-const si = HitStrategyFactory;
 const te = DaoQiBullet;
 const ee = TiaoQiBullet;
 const Gh = VirtualBullet;
@@ -118,7 +112,7 @@ class QingLongBlade extends KnifeWeaponBase {
       type: te,
       bm: this.general,
       Om: oi.create(250, true).qL(t.id),
-      Um: si.produce(100, { FL: t.id, IL: "requestRemove", BL: true }),
+      Um: HitStrategyFactory.produce(100, { FL: t.id, IL: "requestRemove", BL: true }),
       Sm: this.general.Ta,
       Fm: 6,
       Cw: { width: 91, height: 45 },
@@ -177,7 +171,7 @@ class QingLongBlade extends KnifeWeaponBase {
         this.OI();
       })
       .chain()
-      .go("rotation", a, a + f.deltaAngle(a, h))
+      .go("rotation", a, a + MathE.deltaAngle(a, h))
       .duration(250 / s)
       .parallel(this._D)
       .to("y", n - 40)
@@ -205,7 +199,7 @@ class QingLongBlade extends KnifeWeaponBase {
     Laya.Tween.killAll(this._D);
   }
 }
-de.register(2, 29, () => Laya.Pool.createByClass(QingLongBlade));
+WeaponFactory.register(2, 29, () => Laya.Pool.createByClass(QingLongBlade));
 
 /** 方天画戟 (30) — juggles + slams an enemy. (`We`) */
 class FangTianHalberd extends KnifeWeaponBase {
@@ -252,7 +246,7 @@ class FangTianHalberd extends KnifeWeaponBase {
         },
         s,
         this.xw.kw.get(t.id),
-        f.distance(this.general.general, t),
+        MathE.distance(this.general.general, t),
         this.general.fL,
       );
     else super.AI(t);
@@ -289,8 +283,8 @@ class FangTianHalberd extends KnifeWeaponBase {
           .duration(100 / e)
           .ease(Laya.Ease.cubicOut)
           .then(() => {
-            th.instance().applyBuff(i.id, 8, 0, false, 1000);
-            q.instance().playBloodEff(i.enemy, i.enemy.width / 2, i.enemy.height / 2);
+            BuffMgr.instance().applyBuff(i.id, 8, 0, false, 1000);
+            EffectMgr.instance().playBloodEff(i.enemy, i.enemy.width / 2, i.enemy.height / 2);
             this.PT(i);
           })
           .chain()
@@ -329,14 +323,14 @@ class FangTianHalberd extends KnifeWeaponBase {
                 .duration(1)
                 .then(() => {
                   enemy.anchor(0, 0);
-                  q.instance().playFallEff(enemy, enemy.width / 2, enemy.height);
+                  EffectMgr.instance().playFallEff(enemy, enemy.width / 2, enemy.height);
                   i.Bw = true;
                   if (i.Qi >= 0.2 * i.VM) i.hit(5 * this.Sm, this.general);
                   else i.hit(i.Qi, this.general);
                   const list: any[] = [];
                   this.xw.CA(o.x, o.y, 50, this.general.qd, list);
                   list.forEach((en: any) => {
-                    th.instance().applyBuff(en.id, 9, this.Sm, false, 1000, this.general);
+                    BuffMgr.instance().applyBuff(en.id, 9, this.Sm, false, 1000, this.general);
                   });
                 });
             });
@@ -382,4 +376,4 @@ class FangTianHalberd extends KnifeWeaponBase {
     Laya.Tween.killAll(this._D);
   }
 }
-de.register(2, 30, () => Laya.Pool.createByClass(FangTianHalberd));
+WeaponFactory.register(2, 30, () => Laya.Pool.createByClass(FangTianHalberd));

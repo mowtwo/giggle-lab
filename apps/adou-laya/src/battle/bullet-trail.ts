@@ -12,7 +12,6 @@
 
 import { GameMgr } from "../core/game-mgr";
 
-const F = GameMgr;
 
 export class BulletTrailPool {
   static BulletTrailConfig = new Map<string, any>();
@@ -85,7 +84,7 @@ export class BulletTrailPool {
     } else {
       this.cancelBulletTrailFadeTimer(s);
       Laya.Point.TEMP.setTo(s.x, s.y);
-      const root = F.instance().Qn;
+      const root = GameMgr.instance().Qn;
       const road = root.getChildByName("road") ?? root;
       const n = s.parent;
       if (!n) {

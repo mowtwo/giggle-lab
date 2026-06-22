@@ -19,13 +19,7 @@ import { GameEvent } from "../core/game-event";
 import { EffectMgr } from "./effect-mgr";
 import { MathE } from "../core/math-e";
 
-const F = GameMgr;
-const z = PrefabFactory;
-const j = UpdateMgr;
-const y = EventMgr;
 const u = GameEvent;
-const q = EffectMgr;
-const f = MathE;
 
 export class EnemyBoss extends Enemy {
   protected dh = 0;
@@ -37,21 +31,21 @@ export class EnemyBoss extends Enemy {
   protected FP = "";
 
   init(t: any): void {
-    this.enemy = z.instance().getItem("boss", this);
+    this.enemy = PrefabFactory.instance().getItem("boss", this);
     this.yM = true;
     super.init(t);
-    const s = F.instance().bossHp(this.type, this.qd);
+    const s = GameMgr.instance().bossHp(this.type, this.qd);
     this.Qi = s.uh;
     this.QM = s.uh;
     this.SM = s.speed;
-    this.dh = s.dh * F.instance().map.gridWid;
+    this.dh = s.dh * GameMgr.instance().map.gridWid;
     this.Lh = 1000 * s.Lh;
     this.qM.text = this.Qi.toFixed(0);
     this.KM.visible = false;
     this.enemy.visible = false;
     this.IP(() => {
       this.yP();
-      j.instance().register("Enemy" + this.id, this, this.update);
+      UpdateMgr.instance().register("Enemy" + this.id, this, this.update);
       this.changeState(1);
       this.KM.visible = true;
     });
@@ -70,7 +64,7 @@ export class EnemyBoss extends Enemy {
         Laya.Point.TEMP.x = 0;
         Laya.Point.TEMP.y = 0;
         this.enemy.localToGlobal(Laya.Point.TEMP);
-        if (!y.instance.event(u.cs, this.id, this.qd, Laya.Point.TEMP.x, Laya.Point.TEMP.y)) this.OP();
+        if (!EventMgr.instance.event(u.cs, this.id, this.qd, Laya.Point.TEMP.x, Laya.Point.TEMP.y)) this.OP();
       }
     }
   }
@@ -81,7 +75,7 @@ export class EnemyBoss extends Enemy {
     if (this.type === 2) t = "#00aaff";
     else if (this.type === 1) t = "#00b500";
     else if (this.type === 0) t = "#bd1c01";
-    q.instance().playMobDead(this.enemy.parent, this.enemy.x + this.enemy.width / 2, this.enemy.y + this.enemy.height / 2, t, 2);
+    EffectMgr.instance().playMobDead(this.enemy.parent, this.enemy.x + this.enemy.width / 2, this.enemy.y + this.enemy.height / 2, t, 2);
     Laya.Tween.to(
       this.enemy,
       { alpha: 0 },
@@ -114,7 +108,7 @@ export class EnemyBoss extends Enemy {
         Laya.Point.TEMP.x = this.enemy.width / 2;
         Laya.Point.TEMP.y = this.enemy.height + 30;
         this.enemy.localToGlobal(Laya.Point.TEMP);
-        q.instance().playThunderStrike(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+        EffectMgr.instance().playThunderStrike(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
         Laya.Tween.create(this.enemy)
           .to("rotation", -30)
           .duration(50)
@@ -126,14 +120,14 @@ export class EnemyBoss extends Enemy {
           .duration(50)
           .delay(100)
           .then(() => {
-            this.hit(this.VM * (f.range(0.1, 0.2) as number), null);
+            this.hit(this.VM * (MathE.range(0.1, 0.2) as number), null);
           }, this);
         this.ZM.play(this.FP, true);
       });
     });
   }
   gameOver(): void {
-    j.instance().unregister("blownUp");
+    UpdateMgr.instance().unregister("blownUp");
     Laya.timer.clearAll(this);
     super.gameOver();
     this.ZM.fb(Laya.Event.STOPPED);
@@ -143,6 +137,6 @@ export class EnemyBoss extends Enemy {
     this.ZM.recover();
     this.ZM.removeSelf();
     this.ZM = null;
-    z.instance().recover("boss", this.enemy);
+    PrefabFactory.instance().recover("boss", this.enemy);
   }
 }

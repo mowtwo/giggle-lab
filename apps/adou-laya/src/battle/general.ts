@@ -27,17 +27,10 @@ import { AnimPlayer } from "./anim-player";
 import { WeaponMgr } from "./weapon-factory";
 import { GeneralMergeFactory } from "./general-merge-factory";
 
-const F = GameMgr;
 const $ = AudioMgr;
-const y = EventMgr;
 const u = GameEvent;
 const X = LayerZ;
-const j = UpdateMgr;
-const f = MathE;
-const q = EffectMgr;
-const z = PrefabFactory;
 const Zt = AnimPlayer;
-const ma = WeaponMgr;
 const $a = GeneralMergeFactory;
 
 export class General extends GameObject {
@@ -130,7 +123,7 @@ export class General extends GameObject {
   }
 
   init(t: any[], s: any, i: number): void {
-    this.dg = F.instance();
+    this.dg = GameMgr.instance();
     const h = this.dg.map.gridWid;
     const e = this.dg.map.gridHei;
     this.id = this.dg.incCounter();
@@ -145,7 +138,7 @@ export class General extends GameObject {
       for (let s2 = 0; s2 < t.length; s2++) this.SD += t[s2].Qd;
     } else this.SD = this.dg.generals.generalNames[this.type];
     this.qd = s;
-    y.instance.event(u.m, this.id, this);
+    EventMgr.instance.event(u.m, this.id, this);
     if (!this.general) {
       this.general = new Laya.Sprite();
       this.root = this.general;
@@ -161,12 +154,12 @@ export class General extends GameObject {
     this.va = t;
     this.general.zIndex = this.SR
       ? X.Qr
-      : X.entityZIndexFromPixelY(this.general.y, F.instance().map.gridHei);
+      : X.entityZIndexFromPixelY(this.general.y, GameMgr.instance().map.gridHei);
     this.general.pos(t[0].Yn.x, t[0].Yn.y);
     if (t[0].Td === 5) {
       this.SR = true;
-      y.instance.event(u.ss, this.general);
-    } else y.instance.event(u.bt, this.general);
+      EventMgr.instance.event(u.ss, this.general);
+    } else EventMgr.instance.event(u.bt, this.general);
     this.AR();
     this.box = new Laya.Sprite();
     this.box.size(this.general.width, this.general.height);
@@ -216,7 +209,7 @@ export class General extends GameObject {
     } else {
       for (let s2 = 0; s2 < t.length; s2++) {
         const i2 = t[s2].hL;
-        const h2 = F.instance().generals.nameChars.indexOf(this.va[s2].Qd);
+        const h2 = GameMgr.instance().generals.nameChars.indexOf(this.va[s2].Qd);
         if (this.level === 4 || this.level === 5)
           i2.skin = "resources/img/gameObject/soldier/generalParts_" + h2 + "_" + this.level + ".png";
         else i2.skin = "resources/img/gameObject/soldier/generalParts_" + h2 + ".png";
@@ -226,12 +219,12 @@ export class General extends GameObject {
       this.ER();
     }
     this.changeState("GeneralIdle");
-    j.instance().register("GeneralBase" + this.id, this, this.update);
+    UpdateMgr.instance().register("GeneralBase" + this.id, this, this.update);
     if (!this.SR) {
       Laya.Point.TEMP.x = this.general.width / 2;
       Laya.Point.TEMP.y = this.general.height / 2;
       this.general.localToGlobal(Laya.Point.TEMP);
-      q.instance().playGeneralMergeTip(Laya.Point.TEMP.x, Laya.Point.TEMP.y, !this.xR);
+      EffectMgr.instance().playGeneralMergeTip(Laya.Point.TEMP.x, Laya.Point.TEMP.y, !this.xR);
     }
     this.BR();
     if (this.PR) for (const t2 of this.PR) t2.initialize(this);
@@ -244,10 +237,10 @@ export class General extends GameObject {
     const t = this.general;
     Laya.Point.TEMP.setTo(this.general.width / 2, this.general.height / 2);
     t.localToGlobal(Laya.Point.TEMP);
-    q.instance().toggleTargetCircle(true, this.Da, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
+    EffectMgr.instance().toggleTargetCircle(true, this.Da, Laya.Point.TEMP.x, Laya.Point.TEMP.y);
   }
   bL(): void {
-    q.instance().toggleTargetCircle(false);
+    EffectMgr.instance().toggleTargetCircle(false);
   }
 
   changeState(t: string): void {
@@ -415,7 +408,7 @@ export class General extends GameObject {
     this.Vd.value = this.level.toString();
     for (const t2 of this.va) t2.cL(this.level - t2.level, s);
     if (i) {
-      y.instance.event(u.ns, this.id);
+      EventMgr.instance.event(u.ns, this.id);
       this.event("onLevelChange", [h, true]);
       $.instance().playSound("general_level_up");
     } else this.event("onLevelChange", [h, false]);
@@ -434,7 +427,7 @@ export class General extends GameObject {
       } else
         for (let t2 = 0; t2 < this.va.length; t2++) {
           const sp = this.va[t2].hL;
-          const idx = F.instance().generals.nameChars.indexOf(this.va[t2].Qd);
+          const idx = GameMgr.instance().generals.nameChars.indexOf(this.va[t2].Qd);
           sp.skin =
             h === 4 || h === 5
               ? "resources/img/gameObject/soldier/generalParts_" + idx + "_" + h + ".png"
@@ -462,7 +455,7 @@ export class General extends GameObject {
   }
 
   protected AR(): void {
-    this.XR = z.instance().getItem("generalBg", this);
+    this.XR = PrefabFactory.instance().getItem("generalBg", this);
     this.jD = this.XR.getChildAt(0);
     this.XR.zIndex = X.dr;
     this.jD.zIndex = X.dr;
@@ -476,7 +469,7 @@ export class General extends GameObject {
       this.XR.skin = "resources/img/gameObject/soldier/generalBg3.png";
       this.jD.skin = "resources/img/gameObject/soldier/generalBg4.png";
     }
-    y.instance.event(u.Wt, this.id, this.XR, this.general.x, this.general.y);
+    EventMgr.instance.event(u.Wt, this.id, this.XR, this.general.x, this.general.y);
   }
 
   /** Equip / swap the weapon component. (`BR`) */
@@ -485,22 +478,22 @@ export class General extends GameObject {
     if (this.QE) {
       i = this.QE.aI;
       this.QE.MI();
-      ma.instance()._R(this.QE);
+      WeaponMgr.instance()._R(this.QE);
       this.QE = null;
     }
     if (this.type === -1) this.cT = 2;
     else this.cT = t != null ? t : this.dg.generals.generalTypes[this.type].type;
     const h = s != null ? s : this.weaponId;
-    this.QE = ma.instance().vR(this.cT, h);
+    this.QE = WeaponMgr.instance().vR(this.cT, h);
     this.weaponId = this.SR ? h : this.QE.weaponId;
     this.QE.mI(this);
     const e = this.QE.aI;
     if (e > i) {
-      q.instance().playArrowRainUp(this.general);
-      q.instance().showFloatingText(this.general, "攻击提升", false);
+      EffectMgr.instance().playArrowRainUp(this.general);
+      EffectMgr.instance().showFloatingText(this.general, "攻击提升", false);
     } else if (e < i) {
-      q.instance().playArrowRainDown(this.general);
-      q.instance().showFloatingText(this.general, "攻击降低", true);
+      EffectMgr.instance().playArrowRainDown(this.general);
+      EffectMgr.instance().showFloatingText(this.general, "攻击降低", true);
     }
     this.Gd += this.QE.aI;
     if (this.SR) this.mL = this.weaponId !== -1;
@@ -530,9 +523,9 @@ export class General extends GameObject {
     }
     const h = this.dg.map.gridWid / 2;
     const e = this.dg.map.gridHei / 2;
-    let a = f.distanceSq(s, { x: i.x + h, y: i.y + e });
+    let a = MathE.distanceSq(s, { x: i.x + h, y: i.y + e });
     for (let t2 = 1; t2 < this.Ew.length; t2++) {
-      const n = f.distanceSq(s, { x: this.Ew[t2].x + h, y: this.Ew[t2].y + e });
+      const n = MathE.distanceSq(s, { x: this.Ew[t2].x + h, y: this.Ew[t2].y + e });
       if (n < a) {
         i = this.Ew[t2];
         a = n;
@@ -562,10 +555,10 @@ export class General extends GameObject {
     if (this.PR) for (const t of this.PR) ((t.removeSelf(), t.dT()));
     let t: any;
     this.QE.MI();
-    j.instance().unregister("GeneralBase" + this.id);
-    y.instance.event(u.es, this.id);
+    UpdateMgr.instance().unregister("GeneralBase" + this.id);
+    EventMgr.instance.event(u.es, this.id);
     Laya.timer.clearAll(this);
-    y.instance.event(u._, this.id);
+    EventMgr.instance.event(u._, this.id);
     Laya.Tween.killAll(this.box, true);
     Laya.Tween.killAll(this.general, true);
     this.DR();
@@ -574,7 +567,7 @@ export class General extends GameObject {
     });
     for (let s = this.va.length - 1; s >= 0; s--) {
       t = this.va[s];
-      const i = F.instance().generals.nameChars.indexOf(this.va[s].Qd);
+      const i = GameMgr.instance().generals.nameChars.indexOf(this.va[s].Qd);
       t.hL.skin = "resources/img/gameObject/soldier/generalParts_" + i + ".png";
       t.hL.alpha = 1;
       t.hL.visible = true;
@@ -584,8 +577,8 @@ export class General extends GameObject {
         Laya.Point.TEMP.y = t.Yn.y;
         t.Yn.parent.localToGlobal(Laya.Point.TEMP);
         t.Yn.removeSelf();
-        if (this.SR) y.instance.event(u.ss, t.Yn, t.Cd.x, t.Cd.y);
-        else y.instance.event(u.bt, t.Yn);
+        if (this.SR) EventMgr.instance.event(u.ss, t.Yn, t.Cd.x, t.Cd.y);
+        else EventMgr.instance.event(u.bt, t.Yn);
         t.Yn.parent.globalToLocal(Laya.Point.TEMP);
         t.Yn.pos(Laya.Point.TEMP.x, Laya.Point.TEMP.y);
         t.Vd.visible = true;
@@ -610,9 +603,9 @@ export class General extends GameObject {
     this.yL = 0;
     this.pL = 0;
     this.addAttPower = 0;
-    ma.instance()._R(this.QE);
+    WeaponMgr.instance()._R(this.QE);
     this.XR.removeSelf();
-    z.instance().recover("generalBg", this.XR);
+    PrefabFactory.instance().recover("generalBg", this.XR);
     this.resetForPool();
     $a.HR(this);
   }

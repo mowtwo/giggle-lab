@@ -20,11 +20,7 @@ import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 import { BulletSpawnMgr } from "./bullet-spawn-mgr";
 import { HitStrategyFactory } from "./hit-strategy";
 
-const F = GameMgr;
-const f = MathE;
 const X = LayerZ;
-const fe = BulletSpawnMgr;
-const si = HitStrategyFactory;
 
 export class WeaponComponent {
   protected JB = true;
@@ -97,9 +93,9 @@ export class WeaponComponent {
   init(t: number, s: number): void {
     this.weaponId = t;
     this.type = s;
-    this.xE = fe.instance();
+    this.xE = BulletSpawnMgr.instance();
     this.xw = EnemySpatialMgr.instance();
-    this.dg = F.instance();
+    this.dg = GameMgr.instance();
     if (t >= 0) {
       const cfg = this.dg.weaponData.weapons.get(t);
       this.type = cfg.type;
@@ -218,7 +214,7 @@ export class WeaponComponent {
         if (!(("FL" in s && s.FL))) s.FL = this.hI;
       } else s = { FL: this.hI };
     }
-    return si.produce(t, s);
+    return HitStrategyFactory.produce(t, s);
   }
   RI(t: any): any {
     return t.qL(this.hI[0]).QL(this.eI);
@@ -236,10 +232,10 @@ export class WeaponComponent {
     this.dg.toLocal(this.Hn, h);
     const e = Laya.Point.TEMP;
     e.setTo(s.x + i.gridWid / 2, s.y + i.gridHei / 2);
-    let a = f.angle(h, e);
-    a = f.normalizeDeg(a);
+    let a = MathE.angle(h, e);
+    a = MathE.normalizeDeg(a);
     const n = this.Hn.rotation;
-    const r = f.deltaAngle(n, a);
+    const r = MathE.deltaAngle(n, a);
     this.cI = n + r;
     return this.cI;
   }

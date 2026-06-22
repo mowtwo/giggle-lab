@@ -10,7 +10,7 @@
 // ES/BS/Lx/gx/uk/IS/DS/bS/pS/fS/$S/gS/YS/Kk and the spawn-related event
 // handlers) instantiates the concrete entity classes — GeneralPart (`gi`),
 // Farmer (`ki`), the soldier-class registry (`di`), the general-merge factory
-// (`$a`), the board-container mgr (`wi`) and the battle-props mgr (`Zi`) — which
+// (`$a`), the board-container mgr (`BoardMgr`) and the battle-props mgr (`BattlePropsMgr`) — which
 // are ported alongside those classes. This file currently provides the registry
 // data layer + the map-only queries that the buff system and spatial manager
 // depend on; the spawn logic is layered on once the entity classes exist.
@@ -35,15 +35,7 @@ import { BaseSoldier } from "./base-soldier";
 import { GeneralPart } from "./general-part";
 import { Farmer } from "./farmer";
 
-const F = GameMgr;
-const Zi = BattlePropsMgr;
-const y = EventMgr;
 const u = GameEvent;
-const f = MathE;
-const q = EffectMgr;
-const th = BuffMgr;
-const wi = BoardMgr;
-const Hs = PoolFactory;
 const $a = GeneralMergeFactory;
 const zs = BaseSoldier;
 const gi = GeneralPart;
@@ -71,14 +63,14 @@ export class EntityRegistry extends Singleton {
   startGame(): void {}
 
   addEvent(): void {
-    y.instance.on(u.m, this, this.oS);
-    y.instance.on(u._, this, this.lS);
-    y.instance.on(u.j, this, this.cS);
-    y.instance.on(u.q, this, this.pS);
-    y.instance.on(u.st, this, this.SL);
-    y.instance.on(u.it, this, this.bL);
-    y.instance.on(u.ts, this, this.gS);
-    y.instance.on(u.ns, this, this.dS);
+    EventMgr.instance.on(u.m, this, this.oS);
+    EventMgr.instance.on(u._, this, this.lS);
+    EventMgr.instance.on(u.j, this, this.cS);
+    EventMgr.instance.on(u.q, this, this.pS);
+    EventMgr.instance.on(u.st, this, this.SL);
+    EventMgr.instance.on(u.it, this, this.bL);
+    EventMgr.instance.on(u.ts, this, this.gS);
+    EventMgr.instance.on(u.ns, this, this.dS);
   }
 
   // --- registry mutation (general add/remove) -------------------------------
@@ -133,7 +125,7 @@ export class EntityRegistry extends Singleton {
 
   /** Hide the unit-info tooltip. (`bL`) */
   bL(): void {
-    q.instance().toggleTargetCircle(false);
+    EffectMgr.instance().toggleTargetCircle(false);
   }
 
   // --- queries --------------------------------------------------------------
@@ -146,7 +138,7 @@ export class EntityRegistry extends Singleton {
 
   /** Other members of `t`'s merge recipe. (`OS`) */
   OS(t: any): any[] {
-    const s = F.instance().generals.mergeRecipes;
+    const s = GameMgr.instance().generals.mergeRecipes;
     const i: any[] = [];
     for (let h = 0; h < s.length; h++)
       for (let e = 0; e < s[h].length; e++)
@@ -174,7 +166,7 @@ export class EntityRegistry extends Singleton {
     const e: any[] = [];
     this.Qk.forEach((a, n) => {
       const r = a.general;
-      if (a.qd === h && f.circleRectOverlap(i, t, s, r.x, r.y, r.width, r.height)) e.push({ id: n, x: r.x, y: r.y });
+      if (a.qd === h && MathE.circleRectOverlap(i, t, s, r.x, r.y, r.width, r.height)) e.push({ id: n, x: r.x, y: r.y });
     });
     return e;
   }
@@ -184,7 +176,7 @@ export class EntityRegistry extends Singleton {
     const e: any[] = [];
     this.hS.forEach((a, n) => {
       const r = a.Yn;
-      if (a.qd === h && f.circleRectOverlap(i, t, s, r.x, r.y, r.width, r.height)) e.push({ id: n, x: r.x, y: r.y });
+      if (a.qd === h && MathE.circleRectOverlap(i, t, s, r.x, r.y, r.width, r.height)) e.push({ id: n, x: r.x, y: r.y });
     });
     return e;
   }
@@ -194,7 +186,7 @@ export class EntityRegistry extends Singleton {
     const e: any[] = [];
     this.eS.forEach((a, n) => {
       const r = a.Yn;
-      if (a.qd === h && f.circleRectOverlap(i, t, s, r.x, r.y, r.width, r.height)) e.push({ id: n, x: r.x, y: r.y });
+      if (a.qd === h && MathE.circleRectOverlap(i, t, s, r.x, r.y, r.width, r.height)) e.push({ id: n, x: r.x, y: r.y });
     });
     return e;
   }
@@ -224,10 +216,10 @@ export class EntityRegistry extends Singleton {
       const e = i[1].general.y;
       for (const a of i[1].va)
         if (
-          (h + a.Yn.x) / F.instance().map.gridWid === t &&
-          (e + a.Yn.y) / F.instance().map.gridHei === s
+          (h + a.Yn.x) / GameMgr.instance().map.gridWid === t &&
+          (e + a.Yn.y) / GameMgr.instance().map.gridHei === s
         )
-          return { x: h / F.instance().map.gridWid + 0.5, y: e / F.instance().map.gridHei };
+          return { x: h / GameMgr.instance().map.gridWid + 0.5, y: e / GameMgr.instance().map.gridHei };
     }
     return { x: -1, y: -1 };
   }
@@ -236,7 +228,7 @@ export class EntityRegistry extends Singleton {
   NS(t: any): { id: number; Xe: number } | null {
     let s: any;
     for (const i of this.hS)
-      if (t === i[1].qd && i[1].Td === 1 && !th.instance().qS(i[1].id, 16)) {
+      if (t === i[1].qd && i[1].Td === 1 && !BuffMgr.instance().qS(i[1].id, 16)) {
         if (s) {
           if (i[1].level > s.level) s = i[1];
         } else s = i[1];
@@ -293,7 +285,7 @@ export class EntityRegistry extends Singleton {
     i.Xd = i.Xd.concat(s);
     if (!h)
       for (let k = 0; k < s.length; k++)
-        if (!(e && s[k].type === 0)) th.instance().applyBuff(i.id, s[k].Lg, s[k].num, s[k].CS);
+        if (!(e && s[k].type === 0)) BuffMgr.instance().applyBuff(i.id, s[k].Lg, s[k].num, s[k].CS);
   }
 
   // --- area group buffs over the unit set -----------------------------------
@@ -304,11 +296,11 @@ export class EntityRegistry extends Singleton {
     this.rS.push(n);
     for (const x of this.hS) {
       if (x[1].qd !== s) continue;
-      n.map.set(x[1].id, th.instance().applyBuff(x[1].id, i, h, e, a));
+      n.map.set(x[1].id, BuffMgr.instance().applyBuff(x[1].id, i, h, e, a));
     }
     for (const x of this.Qk) {
       if (x[1].qd !== s) continue;
-      n.map.set(x[1].id, th.instance().applyBuff(x[1].id, i, h, e, a));
+      n.map.set(x[1].id, BuffMgr.instance().applyBuff(x[1].id, i, h, e, a));
     }
   }
 
@@ -317,7 +309,7 @@ export class EntityRegistry extends Singleton {
     const s = this.rS.findIndex((x) => x.sign === t);
     if (s < 0) return;
     const i = this.rS[s];
-    for (const x of i.map) if (x[1] >= 0) th.instance().kg(x[0], i.Lg, x[1]);
+    for (const x of i.map) if (x[1] >= 0) BuffMgr.instance().kg(x[0], i.Lg, x[1]);
     this.rS.splice(s, 1);
   }
 
@@ -328,7 +320,7 @@ export class EntityRegistry extends Singleton {
       if (!i.sign.startsWith("rain")) continue;
       const h = i.map.get(t);
       if (h === undefined || h < 0) continue;
-      th.instance().kg(t, i.Lg, h);
+      BuffMgr.instance().kg(t, i.Lg, h);
       i.map.delete(t);
     }
   }
@@ -337,7 +329,7 @@ export class EntityRegistry extends Singleton {
   MS(t: any): void {
     for (let s = 0; s < this.rS.length; s++) {
       if (t.qd !== this.rS[s].qd) continue;
-      const i = th
+      const i = BuffMgr
         .instance()
         .applyBuff(t.id, this.rS[s].Lg, this.rS[s].num, this.rS[s].CS, this.rS[s].time);
       this.rS[s].map.set(t.id, i);
@@ -348,7 +340,7 @@ export class EntityRegistry extends Singleton {
   Lx(t: number): void {
     const s = this.hS.get(t);
     if (!s) return;
-    const i = wi.instance().Mv(s.Td, s.qd);
+    const i = BoardMgr.instance().Mv(s.Td, s.qd);
     if (i) i.removeItem(s.Cd.x, s.Cd.y);
     s.gameOver();
     this.hS.delete(t);
@@ -357,7 +349,7 @@ export class EntityRegistry extends Singleton {
   gx(t: number): void {
     const s = this.eS.get(t);
     if (!s) return;
-    const i = wi.instance().Mv(s.Td, s.qd);
+    const i = BoardMgr.instance().Mv(s.Td, s.qd);
     if (i) i.removeItem(s.Cd.x, s.Cd.y);
     s.gameOver();
     this.eS.delete(t);
@@ -366,7 +358,7 @@ export class EntityRegistry extends Singleton {
   uk(t: number): void {
     const s = this.aS.get(t);
     if (!s) return;
-    const i = wi.instance().Mv(s.Td, s.qd);
+    const i = BoardMgr.instance().Mv(s.Td, s.qd);
     if (i) i.removeItem(s.Cd.x, s.Cd.y);
     s.gameOver();
     this.aS.delete(t);
@@ -381,7 +373,7 @@ export class EntityRegistry extends Singleton {
 
   /** Create + register a unit from a spawn request. (`LS`) */
   LS(t: any): any {
-    if (F.instance().battleState.Vi) return null;
+    if (GameMgr.instance().battleState.Vi) return null;
     const { containerType: s, text: i, qd: h, x: e, y: a, Xe: n = 1, Xd: r } = t;
     const o = this.mS(i);
     const l = this.wS(o, i);
@@ -400,15 +392,15 @@ export class EntityRegistry extends Singleton {
   /** Shovel-prop (22) chance to spawn a soldier at level 2 instead. (`bS`) */
   bS(t: any, s: number): number {
     if (t) {
-      if (!Zi.instance().iS(t, 22)) return s;
-      const i = Zi.instance().Nx(22);
-      const h = 0.01 * F.instance().props.Ue[22].Ge[i - 1];
+      if (!BattlePropsMgr.instance().iS(t, 22)) return s;
+      const i = BattlePropsMgr.instance().Nx(22);
+      const h = 0.01 * GameMgr.instance().props.Ue[22].Ge[i - 1];
       if (h > 0 && Math.random() < h) return 2;
     } else {
-      for (const [, p] of Zi.instance().kx)
+      for (const [, p] of BattlePropsMgr.instance().kx)
         if (p.type === 22 && !p.qd) {
           const lv = p.level || 1;
-          const i = 0.01 * F.instance().props.Ue[22].Ge[lv - 1];
+          const i = 0.01 * GameMgr.instance().props.Ue[22].Ge[lv - 1];
           if (i > 0 && Math.random() < i) return 2;
           break;
         }
@@ -419,7 +411,7 @@ export class EntityRegistry extends Singleton {
   /** Map a unit's display text to its kind. (`mS`) */
   mS(t: string): string {
     if (t === "农") return "Farmer";
-    const s = F.instance().generals;
+    const s = GameMgr.instance().generals;
     return s.soldierTypes.indexOf(t) !== -1 ? "Soldier" : s.nameChars.indexOf(t) !== -1 ? "GeneralPart" : "Soldier";
   }
 
@@ -427,12 +419,12 @@ export class EntityRegistry extends Singleton {
   wS(t: string, s: string): any {
     switch (t) {
       case "Farmer":
-        return Hs.instance().produce(ki);
+        return PoolFactory.instance().produce(ki);
       case "GeneralPart":
-        return Hs.instance().produce(di.rv[4]);
+        return PoolFactory.instance().produce(di.rv[4]);
       case "Soldier": {
-        const i = F.instance().generals.soldierTypes.indexOf(s);
-        return Hs.instance().produce(di.rv[i]);
+        const i = GameMgr.instance().generals.soldierTypes.indexOf(s);
+        return PoolFactory.instance().produce(di.rv[i]);
       }
       default:
         throw new Error(`未知的单位类型: ${t}`);
@@ -454,7 +446,7 @@ export class EntityRegistry extends Singleton {
 
   /** Place the unit in its board container. (`xS`) */
   xS(t: any, s: number, i: any, h: number, e: number): void {
-    const a = wi.instance().Mv(s, i);
+    const a = BoardMgr.instance().Mv(s, i);
     if (a) a.setItem(t, h, e);
   }
 
@@ -472,21 +464,21 @@ export class EntityRegistry extends Singleton {
     }
   }
   AS(t: any, s: any, i: number): void {
-    if (s) y.instance.event(u.Mt, t.Yn, i);
-    else y.instance.event(u.bt, t.Yn, 4, -5);
+    if (s) EventMgr.instance.event(u.Mt, t.Yn, i);
+    else EventMgr.instance.event(u.bt, t.Yn, 4, -5);
   }
   ES(t: any, s: number, i: number, _h: number, e: string): void {
-    y.instance.event(u.bt, t.Yn, s, i);
+    EventMgr.instance.event(u.bt, t.Yn, s, i);
     if (e === "GeneralPart") {
       t.changeState("GeneralPartWait");
-      y.instance.event(u.ts, t);
+      EventMgr.instance.event(u.ts, t);
     }
   }
   BS(t: any, s: number, i: number, h: string): void {
-    y.instance.event(u.ss, t.Yn, s, i);
+    EventMgr.instance.event(u.ss, t.Yn, s, i);
     if (h === "GeneralPart") {
       t.changeState("GeneralPartWait");
-      y.instance.event(u.ts, t);
+      EventMgr.instance.event(u.ts, t);
     }
   }
 
@@ -506,16 +498,16 @@ export class EntityRegistry extends Singleton {
       a += t[k].Qd;
       if (e < t[k].Id) e = t[k].Id;
     }
-    const n = F.instance().generals.generalNames.findIndex((g: any) => g === a);
+    const n = GameMgr.instance().generals.generalNames.findIndex((g: any) => g === a);
     const r = $a.TS(n);
     if (s) {
-      if (h) r.weaponId = F.instance().player.equip[n];
+      if (h) r.weaponId = GameMgr.instance().player.equip[n];
       else {
-        const ai = F.instance().battleState.Pi.Ai;
+        const ai = GameMgr.instance().battleState.Pi.Ai;
         for (let k = 0; k < ai.length; k++)
-          if (F.instance().generals.generalNames[n] === ai[k].general) {
+          if (GameMgr.instance().generals.generalNames[n] === ai[k].general) {
             const wid = ai[k].Hn;
-            const wt = F.instance().weaponData.weapons.get(wid)?.type;
+            const wt = GameMgr.instance().weaponData.weapons.get(wid)?.type;
             if (wt !== undefined && wt !== 4) {
               r.weaponId = wid;
               break;
@@ -530,11 +522,11 @@ export class EntityRegistry extends Singleton {
       const o = t[k];
       l.push(o.id);
       o.Zw = r.id;
-      for (let m = 0; m < o.Xd.length; m++) th.instance().applyBuff(r.id, o.Xd[m].Lg, o.Xd[m].num, o.Xd[m].CS);
+      for (let m = 0; m < o.Xd.length; m++) BuffMgr.instance().applyBuff(r.id, o.Xd[m].Lg, o.Xd[m].num, o.Xd[m].CS);
     }
     this.nS.set(r.id, l);
     this.MS(r);
-    if (h && s) F.instance().player.addMergedGeneral(n);
+    if (h && s) GameMgr.instance().player.addMergedGeneral(n);
     return r;
   }
 
@@ -549,7 +541,7 @@ export class EntityRegistry extends Singleton {
     if (jS) {
       const g = this.Qk.get(this.uS(jS.id));
       if (g) {
-        const e = F.instance().generals;
+        const e = GameMgr.instance().generals;
         const table = g.Ya ? e.Wa : e.Ha;
         if (g.level + s - 1 < 0 || g.level + s - 1 >= table.length) return;
         g.RS(table[g.level + s - 1] - g.Id, i);
@@ -580,29 +572,29 @@ export class EntityRegistry extends Singleton {
   }
   /** Pick a random different unit type from the merged pool. (`$S`) */
   $S(t: string): string {
-    const s = F.instance().soldierPool.hh;
+    const s = GameMgr.instance().soldierPool.hh;
     this.ma.length = 0;
     for (let i = 0; i < s.length; i++) if (s[i] !== t && s[i] !== "铲") this.ma.push(s[i]);
-    return this.ma[f.range(0, this.ma.length, true) as number];
+    return this.ma[MathE.range(0, this.ma.length, true) as number];
   }
 
   /** Auto-merge check when a general-part lands. (`gS`) */
   gS(t: any): void {
     if (t.Zw !== -1) return;
-    const s = F.instance().generals.mergeRecipes;
+    const s = GameMgr.instance().generals.mergeRecipes;
     const i = t.Td;
     let h: any;
     let e: number;
     let a: number;
     if (i === 5) {
-      const grid = wi.instance().Mv(5, t.qd)!;
+      const grid = BoardMgr.instance().Mv(5, t.qd)!;
       h = grid.mv;
       e = h.length;
       a = h[0].length;
     } else {
-      h = wi.instance().Mv(1, t.qd)!.mv;
-      e = F.instance().map.ue.length;
-      a = F.instance().map.ue[0].length;
+      h = BoardMgr.instance().Mv(1, t.qd)!.mv;
+      e = GameMgr.instance().map.ue.length;
+      a = GameMgr.instance().map.ue[0].length;
     }
     void a;
     const n: any[] = [];
@@ -633,21 +625,21 @@ export class EntityRegistry extends Singleton {
         return;
       }
     }
-    if (!F.instance().generals.Xa) return;
+    if (!GameMgr.instance().generals.Xa) return;
     if (i === 5) return;
     o.length = 0;
-    if (F.instance().generals.familyNames.indexOf(t.Qd) >= 0) {
+    if (GameMgr.instance().generals.familyNames.indexOf(t.Qd) >= 0) {
       r = t.Cd.x + 1;
       if (r >= e) return;
       const l = h[r][t.Cd.y];
-      if (!l || F.instance().generals.givenNames.indexOf(l.Qd) < 0) return;
+      if (!l || GameMgr.instance().generals.givenNames.indexOf(l.Qd) < 0) return;
       o.push(t);
       o.push(l);
-    } else if (F.instance().generals.givenNames.indexOf(t.Qd) >= 0) {
+    } else if (GameMgr.instance().generals.givenNames.indexOf(t.Qd) >= 0) {
       r = t.Cd.x - 1;
       if (r < 0) return;
       const l = h[r][t.Cd.y];
-      if (!l || F.instance().generals.familyNames.indexOf(l.Qd) < 0) return;
+      if (!l || GameMgr.instance().generals.familyNames.indexOf(l.Qd) < 0) return;
       o.push(l);
       o.push(t);
     }

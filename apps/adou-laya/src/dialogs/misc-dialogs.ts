@@ -20,12 +20,6 @@ import { GameEvent } from "../core/game-event";
 import { AudioMgr } from "../core/audio-mgr";
 import { LayerZ } from "../core/layer-z";
 
-const K = SceneMgr;
-const Mt = PlatformMgr;
-const tt = TipMgr;
-const q = EffectMgr;
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
 const $ = AudioMgr;
 const X = LayerZ;
@@ -44,9 +38,9 @@ export class ShareLpDialog extends Laya.Dialog {
   }
 
   gu(): void {
-    Mt.instance().gu(
+    PlatformMgr.instance().gu(
       () => {
-        tt.instance().showTip("分享成功", 2000);
+        TipMgr.instance().showTip("分享成功", 2000);
         this.Uu();
       },
       () => {},
@@ -54,7 +48,7 @@ export class ShareLpDialog extends Laya.Dialog {
   }
 
   Uu(): void {
-    K.instance().closeDialog("ShareLpDialog");
+    SceneMgr.instance().closeDialog("ShareLpDialog");
   }
 }
 
@@ -68,12 +62,12 @@ export class SidebarDialog extends Laya.Dialog {
   private sidebarState = 0;
 
   onAwake(): void {
-    y.instance.on(u.Ls, this, this.updateState);
-    q.instance().bindButtons([this.xBtn, this.getBtn]);
+    EventMgr.instance.on(u.Ls, this, this.updateState);
+    EffectMgr.instance().bindButtons([this.xBtn, this.getBtn]);
   }
 
   onOpened(_t?: any): void {
-    this.sidebarState = F.instance().player.sidebarState;
+    this.sidebarState = GameMgr.instance().player.sidebarState;
     if (this.sidebarState === 0) this.getTxt.text = "进入侧边栏";
     else if (this.sidebarState === 1) this.getTxt.text = "领取奖励";
     else if (this.sidebarState === 2) this.getTxt.text = "已领取";
@@ -82,23 +76,23 @@ export class SidebarDialog extends Laya.Dialog {
   }
 
   lz(): void {
-    if (this.sidebarState === 0) Mt.instance().du();
+    if (this.sidebarState === 0) PlatformMgr.instance().du();
     else if (this.sidebarState === 1) {
-      F.instance().player.gold += 100;
-      F.instance().player.sidebarState = 2;
+      GameMgr.instance().player.gold += 100;
+      GameMgr.instance().player.sidebarState = 2;
       this.sidebarState = 2;
       this.Uu();
     }
   }
 
   updateState(): void {
-    F.instance().player.sidebarState = 1;
+    GameMgr.instance().player.sidebarState = 1;
     this.sidebarState = 1;
     this.getTxt.text = "领取奖励";
   }
 
   Uu(): void {
-    K.instance().closeDialog("SidebarDialog");
+    SceneMgr.instance().closeDialog("SidebarDialog");
   }
 }
 
@@ -118,7 +112,7 @@ export class TipDialog extends Laya.Dialog {
   private duration = 0;
 
   onEnable(): void {
-    const t = K.instance().getDialogData("TipDialog");
+    const t = SceneMgr.instance().getDialogData("TipDialog");
     this.y = 0.3 * Laya.stage.height;
     this.uz = t[0].content;
     this.duration = t[0].time;

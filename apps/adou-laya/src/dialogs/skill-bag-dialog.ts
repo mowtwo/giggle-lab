@@ -12,9 +12,6 @@ import { GameMgr } from "../core/game-mgr";
 import { BattlePropsMgr } from "../battle/battle-props-mgr";
 import { TipMgr } from "../core/tip-mgr";
 
-const F = GameMgr;
-const Zi = BattlePropsMgr;
-const tt = TipMgr;
 
 // props 稀有度配色(稀有/卓越/史诗/传说)。
 const RARITY_COLORS = ["#95e45a", "#2dddff", "#D955FF", "#E99431"];
@@ -33,13 +30,13 @@ export class SkillBagDialog extends Laya.Sprite {
 
   /** 该技能是否为主动技能(cd !== -1)。 */
   private isActive(i: number): boolean {
-    return F.instance().props.Ue[i].cd !== -1;
+    return GameMgr.instance().props.Ue[i].cd !== -1;
   }
 
   /** 当前已选的主动 / 被动技能数量。 */
   private countSelected(active: boolean): number {
     let n = 0;
-    for (const x of F.instance().player.getPropsData()) {
+    for (const x of GameMgr.instance().player.getPropsData()) {
       const type = Array.isArray(x) ? x[0] : x;
       if (this.isActive(type) === active) n++;
     }
@@ -55,7 +52,7 @@ export class SkillBagDialog extends Laya.Sprite {
 
   private initUI(): void {
     // 清理脏数据:铲子(0)/推土车(1)/行军丹(23)不是技能背包技能,不该留在 _props。
-    const player = F.instance().player;
+    const player = GameMgr.instance().player;
     for (const bad of [0, 1, 23]) if (player.hasProps(bad)) player.removeProps(bad);
 
     const SW = Laya.stage.width || 640;
@@ -122,7 +119,7 @@ export class SkillBagDialog extends Laya.Sprite {
     const content = new Laya.Sprite();
     viewport.addChild(content);
 
-    const props = F.instance().props.Ue;
+    const props = GameMgr.instance().props.Ue;
     const actives: number[] = [];
     const passives: number[] = [];
     for (let i = 0; i < props.length; i++) {
@@ -214,7 +211,7 @@ export class SkillBagDialog extends Laya.Sprite {
   }
 
   private makeRow(i: number, def: any, w: number, h: number): any {
-    const player = F.instance().player;
+    const player = GameMgr.instance().player;
     const row = new Laya.Sprite();
     row.size(w, h);
     row.mouseEnabled = true;
@@ -238,7 +235,7 @@ export class SkillBagDialog extends Laya.Sprite {
 
     let intro = def.intro || "";
     try {
-      intro = F.instance().props.introAtLevel(i, 1);
+      intro = GameMgr.instance().props.introAtLevel(i, 1);
     } catch {
       /* keep base intro */
     }
@@ -285,7 +282,7 @@ export class SkillBagDialog extends Laya.Sprite {
       } else {
         const max = active ? MAX_ACTIVE : MAX_PASSIVE;
         if (this.countSelected(active) >= max) {
-          tt.instance().showTip(active ? "主动技能最多 2 个" : "被动技能最多 6 个");
+          TipMgr.instance().showTip(active ? "主动技能最多 2 个" : "被动技能最多 6 个");
           return;
         }
         player.addProps(i, 1, !!def.Xe);
@@ -298,7 +295,7 @@ export class SkillBagDialog extends Laya.Sprite {
 
   private doClose(): void {
     // 把技能背包的选择同步到战斗用的主动/被动技能列表,使其在下一场战斗生效。
-    Zi.instance().reloadFromSave();
+    BattlePropsMgr.instance().reloadFromSave();
     this.removeSelf();
   }
 }

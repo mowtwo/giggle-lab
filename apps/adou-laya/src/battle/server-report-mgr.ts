@@ -15,10 +15,7 @@ import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 import { MathE } from "../core/math-e";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const f = MathE;
 
 export class ServerReportMgr extends Singleton {
   static wp = 1201;
@@ -73,9 +70,9 @@ export class ServerReportMgr extends Singleton {
               const prov = r.data.attach.province;
               if (typeof prov === "string") n = prov;
             }
-            F.instance().player.province = n.length > 0 ? n : "未知";
+            GameMgr.instance().player.province = n.length > 0 ? n : "未知";
             if (i?.success) i.success(r);
-            if (e > 0) y.instance.event(u.xs, e);
+            if (e > 0) EventMgr.instance.event(u.xs, e);
           },
           fail: (err: any) => {
             if (i?.fail) i.fail(err);
@@ -91,7 +88,7 @@ export class ServerReportMgr extends Singleton {
   }
 
   yp(t: boolean, s?: any): void {
-    const i = F.instance().player.curStar;
+    const i = GameMgr.instance().player.curStar;
     this.request("zyyad/game/end?star=" + i + "&win=" + (t ? 1 : 0), { skin: 1 }, s || {}, "get");
   }
 
@@ -115,7 +112,7 @@ export class ServerReportMgr extends Singleton {
     this.getTime({
       success: (s: any) => {
         const h = s && typeof s.data === "number" ? s.data : 0;
-        if (f.daysBetween(h, F.instance().player.isGetLastRankReward) >= 1) this.request("bestRank", null, t);
+        if (MathE.daysBetween(h, GameMgr.instance().player.isGetLastRankReward) >= 1) this.request("bestRank", null, t);
       },
     });
   }

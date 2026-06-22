@@ -16,11 +16,6 @@ import { GameMgr } from "../core/game-mgr";
 import { TipMgr } from "../core/tip-mgr";
 import { SceneMgr } from "../core/scene-mgr";
 
-const q = EffectMgr;
-const eh = WeaponFragmentMgr;
-const F = GameMgr;
-const tt = TipMgr;
-const K = SceneMgr;
 
 const ir = 0;
 const hr = 1;
@@ -48,7 +43,7 @@ export class RecycleWeaponDialog extends Laya.Dialog {
   onAwake(): void {
     this.xBtn.on(Laya.Event.CLICK, this, this.Uu);
     this.bg.on(Laya.Event.CLICK, this, this.Uu);
-    q.instance().bindButtons([this.xBtn]);
+    EffectMgr.instance().bindButtons([this.xBtn]);
     for (const t of [this.selectBg0, this.selectBg1, this.selectBg2]) {
       const s = t.getChildByName("yes");
       if (s) s.visible = false;
@@ -57,7 +52,7 @@ export class RecycleWeaponDialog extends Laya.Dialog {
     this.selectBg1.on(Laya.Event.CLICK, this, () => this.GW(1));
     this.selectBg2.on(Laya.Event.CLICK, this, () => this.GW(2));
     this.getBtn.on(Laya.Event.CLICK, this, this.HW);
-    q.instance().bindButtons([this.selectBg0, this.selectBg1, this.selectBg2, this.getBtn]);
+    EffectMgr.instance().bindButtons([this.selectBg0, this.selectBg1, this.selectBg2, this.getBtn]);
   }
 
   onOpened(t: any): void {
@@ -79,7 +74,7 @@ export class RecycleWeaponDialog extends Laya.Dialog {
   }
 
   zW(): void {
-    this.goldTxt.text = String(F.instance().player.gold);
+    this.goldTxt.text = String(GameMgr.instance().player.gold);
   }
 
   jW(): void {
@@ -121,7 +116,7 @@ export class RecycleWeaponDialog extends Laya.Dialog {
 
   JW(): number[] {
     const t = [0, 0, 0];
-    for (const s of eh.instance().Fb()) {
+    for (const s of WeaponFragmentMgr.instance().Fb()) {
       if (s.Sb) continue;
       const i = s.rarity;
       if (i !== 0 && i !== 1 && i !== 2) continue;
@@ -161,7 +156,7 @@ export class RecycleWeaponDialog extends Laya.Dialog {
     const s: any[] = [];
     let i = 0;
     let h = 0;
-    for (const e of eh.instance().Fb()) {
+    for (const e of WeaponFragmentMgr.instance().Fb()) {
       if (e.Sb) continue;
       const a = e.rarity;
       if (a !== 0 && a !== 1 && a !== 2) continue;
@@ -187,10 +182,10 @@ export class RecycleWeaponDialog extends Laya.Dialog {
 
   HW(): void {
     const i = this.QW();
-    if (!i.rows.length || i.VW <= 0) return void tt.instance().showTip("请先勾选品级，或当前没有可回收碎片", 1800);
-    const h = F.instance().player;
+    if (!i.rows.length || i.VW <= 0) return void TipMgr.instance().showTip("请先勾选品级，或当前没有可回收碎片", 1800);
+    const h = GameMgr.instance().player;
     for (const r of i.rows) h.setWeaponFragments(r.weaponId, -r.fragments);
-    eh.instance().refresh();
+    WeaponFragmentMgr.instance().refresh();
     this.param?.sz?.call(this.param);
     this.qW();
     this.getBtn.mouseEnabled = false;
@@ -200,7 +195,7 @@ export class RecycleWeaponDialog extends Laya.Dialog {
   }
 
   iz(t: number, s: () => void): void {
-    const i = F.instance().player;
+    const i = GameMgr.instance().player;
     const h = this.$W();
     const e = h?.getChildByName("Image");
     const a = this.getBtn.localToGlobal(new Laya.Point(this.getBtn.width / 2, this.getBtn.height / 2));
@@ -243,7 +238,7 @@ export class RecycleWeaponDialog extends Laya.Dialog {
       fv++;
     };
     if (t > 0)
-      q.instance().explodeAndFlyReward(
+      EffectMgr.instance().explodeAndFlyReward(
         this,
         "resources/img/commonUI/gold.png",
         36,
@@ -268,6 +263,6 @@ export class RecycleWeaponDialog extends Laya.Dialog {
   }
 
   Uu(): void {
-    K.instance().closeDialog("RecycleWeaponDialog");
+    SceneMgr.instance().closeDialog("RecycleWeaponDialog");
   }
 }

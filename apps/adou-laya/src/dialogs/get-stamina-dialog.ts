@@ -17,12 +17,6 @@ import { GameMgr } from "../core/game-mgr";
 import { PlatformMgr } from "../platform/platform-mgr";
 import { SceneMgr } from "../core/scene-mgr";
 
-const q = EffectMgr;
-const j = UpdateMgr;
-const Rn = StaminaCtrl;
-const F = GameMgr;
-const Mt = PlatformMgr;
-const K = SceneMgr;
 
 @regClass("Jalv-8i7TNKXVIuvZLMTWA")
 export class GetStaminaDialog extends Laya.Dialog {
@@ -47,17 +41,17 @@ export class GetStaminaDialog extends Laya.Dialog {
     this.xBtn.on(Laya.Event.CLICK, this, this.Uu);
     this.bg.on(Laya.Event.CLICK, this, this.Uu);
     this.JH = this.player.getComponent(Laya.Spine2DRenderNode);
-    q.instance().bindButtons([this.adBtn, this.shareBtn, this.xBtn]);
-    j.instance().register("GetStaminaDialog", this, this.update);
+    EffectMgr.instance().bindButtons([this.adBtn, this.shareBtn, this.xBtn]);
+    UpdateMgr.instance().register("GetStaminaDialog", this, this.update);
   }
 
   onEnable(): void {
-    this.QH = Rn.instance().TH() ? 0 : Rn.instance().RH();
+    this.QH = StaminaCtrl.instance().TH() ? 0 : StaminaCtrl.instance().RH();
     if (this.QH > 0) this.tW(true);
     else this.tW(false);
-    this.adBtn.gray = !Rn.instance().IH();
+    this.adBtn.gray = !StaminaCtrl.instance().IH();
     this.sW();
-    this.curStaminaNum.text = F.instance().player.stamina.toString();
+    this.curStaminaNum.text = GameMgr.instance().player.stamina.toString();
     this.iW();
   }
 
@@ -65,7 +59,7 @@ export class GetStaminaDialog extends Laya.Dialog {
 
   update(): void {
     if (this.QH <= 0 || Date.now() - this.ZH < 1000) return;
-    this.QH = Rn.instance().RH();
+    this.QH = StaminaCtrl.instance().RH();
     if (this.QH === 0) this.tW(false);
     this.hW();
     this.ZH = Date.now();
@@ -74,32 +68,32 @@ export class GetStaminaDialog extends Laya.Dialog {
   KH(t: string): void {
     console.log("getStamina", t === "ad" ? "看视频" : "分享");
     if (t === "ad")
-      Rn.instance().DH(() => {
+      StaminaCtrl.instance().DH(() => {
         this.adBtn.gray = true;
-        this.eW(this.adBtn, F.instance().stamina.nn);
+        this.eW(this.adBtn, GameMgr.instance().stamina.nn);
       });
     else if (t === "share")
-      Rn.instance().CH(() => {
-        this.QH = Rn.instance().RH();
+      StaminaCtrl.instance().CH(() => {
+        this.QH = StaminaCtrl.instance().RH();
         this.ZH = Date.now();
         this.tW(true);
-        this.eW(this.shareBtn, F.instance().stamina.ln);
+        this.eW(this.shareBtn, GameMgr.instance().stamina.ln);
       });
   }
 
   aW(): void {
-    this.curStaminaNum.text = F.instance().player.stamina.toString();
+    this.curStaminaNum.text = GameMgr.instance().player.stamina.toString();
     this.iW();
   }
 
   iW(): void {
-    if (F.instance().player.stamina > 10) {
+    if (GameMgr.instance().player.stamina > 10) {
       this.JH.play("2", true);
       this.player.pos(370, 315);
       this.stateTxt.text = "体力充沛";
       this.stateTxt.color = "#ffa736";
       this.stateTxt.italic = false;
-    } else if (F.instance().player.stamina > 5 && F.instance().player.stamina <= 10) {
+    } else if (GameMgr.instance().player.stamina > 5 && GameMgr.instance().player.stamina <= 10) {
       this.JH.play("1", true);
       this.JH.useFastRender = false;
       this.player.pos(310, 345);
@@ -121,8 +115,8 @@ export class GetStaminaDialog extends Laya.Dialog {
     Laya.Point.TEMP.y = t.height / 2;
     t.localToGlobal(Laya.Point.TEMP);
     this.stamina.globalToLocal(Laya.Point.TEMP);
-    let i = F.instance().player.stamina - s;
-    q.instance().explodeAndFlyReward(
+    let i = GameMgr.instance().player.stamina - s;
+    EffectMgr.instance().explodeAndFlyReward(
       this.stamina,
       "resources/img/mainUI/stamina/stamina.png",
       this.stamina.width,
@@ -136,7 +130,7 @@ export class GetStaminaDialog extends Laya.Dialog {
       },
       () => {
         i++;
-        this.curStaminaNum.text = Math.min(i, F.instance().stamina.hn).toString();
+        this.curStaminaNum.text = Math.min(i, GameMgr.instance().stamina.hn).toString();
       },
       null,
       1,
@@ -147,7 +141,7 @@ export class GetStaminaDialog extends Laya.Dialog {
   }
 
   sW(): void {
-    if (!Mt.instance().canShare()) {
+    if (!PlatformMgr.instance().canShare()) {
       const adImg1 = this.adBtn.getChildByName("adImg1");
       const newSkin = adImg1 ? adImg1.skin : "resources/img/mainUI/stamina/adImg.png";
       const h = this.shareBtn.getChildByName("adImg1");
@@ -167,7 +161,7 @@ export class GetStaminaDialog extends Laya.Dialog {
   }
 
   Uu(): void {
-    j.instance().unregister("GetStaminaDialog");
-    K.instance().closeDialog("GetStaminaDialog");
+    UpdateMgr.instance().unregister("GetStaminaDialog");
+    SceneMgr.instance().closeDialog("GetStaminaDialog");
   }
 }

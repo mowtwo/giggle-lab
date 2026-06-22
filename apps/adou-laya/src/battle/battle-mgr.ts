@@ -22,14 +22,7 @@ import { WeaponFragmentMgr } from "./weapon-fragment-mgr";
 import { TutorialMgr } from "./tutorial-mgr";
 import { CellReservationMgr } from "./cell-reservation-mgr";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
-const f = MathE;
-const Ki = EntityRegistry;
-const eh = WeaponFragmentMgr;
-const wn = TutorialMgr;
 const Oi = CellReservationMgr;
 
 export class BattleMgr extends Singleton {
@@ -49,18 +42,18 @@ export class BattleMgr extends Singleton {
   private Qk!: Map<number, any>;
 
   init(): void {
-    this.dg = F.instance();
+    this.dg = GameMgr.instance();
     this.xw = EnemySpatialMgr.instance();
-    this.oX = y.instance;
+    this.oX = EventMgr.instance;
     this.lX = this.dg.battleState;
   }
   startGame(): void {
     Oi.instance().clear();
     this.lX.gold += this.lX.pi;
     this.tX = 1;
-    this.dg.battleState.ui = this.dg.enemy.wh[f.weightedIndex(this.dg.enemy.mh) as number];
+    this.dg.battleState.ui = this.dg.enemy.wh[MathE.weightedIndex(this.dg.enemy.mh) as number];
     console.log("当前对局的敌人出兵策略", this.dg.battleState.ui);
-    j.instance().register("BattleMgr", this, this.update);
+    UpdateMgr.instance().register("BattleMgr", this, this.update);
     this.cX();
   }
   update(t: number): void {
@@ -95,7 +88,7 @@ export class BattleMgr extends Singleton {
     this.lX.oi += 1;
     this.oX.event(u.Ft, true);
     this.oX.event(u.Jt);
-    if (!wn.instance().CY) this.xw.WA();
+    if (!TutorialMgr.instance().CY) this.xw.WA();
     if (this.lX.li) {
       if (this.lX.oi <= this.dg.enemy.nh.length) this.aX = this.dg.enemy.nh[this.lX.oi - 1];
       else this.aX = this.dg.enemy.nh[this.dg.enemy.nh.length - 1] + 2 * (this.lX.oi - this.dg.enemy.nh.length);
@@ -115,11 +108,11 @@ export class BattleMgr extends Singleton {
     }
   }
   private gX(): number {
-    return eh.instance().iM() ? (f.range(0, this.aX, true) as number) : -1;
+    return WeaponFragmentMgr.instance().iM() ? (MathE.range(0, this.aX, true) as number) : -1;
   }
   private cX(): void {
-    this.hS = Ki.instance().hS;
-    this.Qk = Ki.instance().Qk;
+    this.hS = EntityRegistry.instance().hS;
+    this.Qk = EntityRegistry.instance().Qk;
   }
   private pX(_t: number): void {
     const s = Date.now();
@@ -166,7 +159,7 @@ export class BattleMgr extends Singleton {
   }
   gameOver(): void {
     Laya.timer.clearAll(this);
-    j.instance().unregister("BattleMgr");
+    UpdateMgr.instance().unregister("BattleMgr");
     this.lX.oi = 0;
     this.hX = 0;
     this.eX = 0;

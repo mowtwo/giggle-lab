@@ -13,8 +13,6 @@ import { Singleton } from "../core/singleton";
 import { GameMgr } from "../core/game-mgr";
 import { WeaponFragmentMgr } from "./weapon-fragment-mgr";
 
-const F = GameMgr;
-const eh = WeaponFragmentMgr;
 
 export class AvatarMgr extends Singleton {
   static DG = ["军士", "校尉", "少将", "中将", "上将", "大将", "元帅", "诸侯", "霸主", "君主", "皇帝"];
@@ -45,9 +43,9 @@ export class AvatarMgr extends Singleton {
 
   get IG(): Map<number, { check: () => boolean; TG: string }> {
     const s = this.player;
-    const i = F.instance().rank;
-    const h = eh.instance();
-    const e = F.instance().weaponData;
+    const i = GameMgr.instance().rank;
+    const h = WeaponFragmentMgr.instance();
+    const e = GameMgr.instance().weaponData;
     const a = (x: string) => AvatarMgr.DG.indexOf(x.split(".")[0]);
     return new Map<number, { check: () => boolean; TG: string }>([
       [9, { check: () => s.winStreak >= 5, TG: "连胜5局解锁" }],
@@ -83,7 +81,7 @@ export class AvatarMgr extends Singleton {
   }
 
   init(): void {
-    this.player = F.instance().player;
+    this.player = GameMgr.instance().player;
     this.PG = this.player.gameAvatar ?? 1;
     this.CG();
   }

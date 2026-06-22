@@ -14,9 +14,7 @@ import { EventMgr } from "../core/event-mgr";
 import { GameEvent } from "../core/game-event";
 import { SceneMgr } from "../core/scene-mgr";
 
-const y = EventMgr;
 const u = GameEvent;
-const K = SceneMgr;
 
 export class FocusMgr extends Singleton {
   private wH = false;
@@ -31,7 +29,7 @@ export class FocusMgr extends Singleton {
   }
 
   init(): void {
-    y.instance.on(u.us, this, this.onFocusChanged);
+    EventMgr.instance.on(u.us, this, this.onFocusChanged);
   }
 
   startGame(): void {}
@@ -46,11 +44,11 @@ export class FocusMgr extends Singleton {
     if (this._H) this.xH();
     const s = this._H;
     this._H = t;
-    y.instance.event(u.ys, s);
+    EventMgr.instance.event(u.ys, s);
     if (t) {
       this._H.once("onDestroy", this.xH, this);
       this.SH();
-      K.instance()
+      SceneMgr.instance()
         .openDialog("UnitInfoDialog", false, null)
         .then((d: any) => {
           this.bH(d);
@@ -77,7 +75,7 @@ export class FocusMgr extends Singleton {
   }
 
   SH(): void {
-    K.instance().closeDialog("UnitInfoDialog");
+    SceneMgr.instance().closeDialog("UnitInfoDialog");
     this.wH = false;
   }
 }

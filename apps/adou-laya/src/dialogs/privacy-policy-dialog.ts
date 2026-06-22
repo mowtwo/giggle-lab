@@ -13,8 +13,6 @@ import { regClass } from "../laya/engine";
 import { SceneMgr } from "../core/scene-mgr";
 import { EffectMgr } from "../battle/effect-mgr";
 
-const K = SceneMgr;
-const q = EffectMgr;
 
 @regClass("dw3oSzA5R1aHXjnmpzT31A")
 export class PrivacyPolicyDialog extends Laya.Dialog {
@@ -68,11 +66,11 @@ export class PrivacyPolicyDialog extends Laya.Dialog {
   }
 
   onEnable(): void {
-    this.param = K.instance().getDialogData("PrivacyPolicyDialog");
+    this.param = SceneMgr.instance().getDialogData("PrivacyPolicyDialog");
     if (!this.param) throw new Error("PrivacyPolicyDialog: 缺少打开参数");
     const t = [this.returnBtn];
     if (!this.param.viewOnly) t.push(this.privacyBtn, this.userBtn, this.yesBtn, this.noBtn);
-    q.instance().bindButtons(t);
+    EffectMgr.instance().bindButtons(t);
     if (this.param.initialDetail) this.BW(this.IW(this.param.initialDetail));
     else this.DW();
   }
@@ -115,7 +113,7 @@ export class PrivacyPolicyDialog extends Laya.Dialog {
   }
 
   PW(): void {
-    if (this.param.viewOnly) K.instance().closeDialog("PrivacyPolicyDialog");
+    if (this.param.viewOnly) SceneMgr.instance().closeDialog("PrivacyPolicyDialog");
     else this.DW();
   }
 

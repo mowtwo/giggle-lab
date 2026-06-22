@@ -2,7 +2,7 @@
 // `Nn`, @regClass XxMayroKT9Kz-_jp3ylB1w).
 //
 // Faithful reconstruction of reconstruction/reference/bundle.pretty.js lines
-// ~30132-30262. Quitting ends the battle as a loss (`Cn.gameOver`); the two
+// ~30132-30262. Quitting ends the battle as a loss (`GameController.gameOver`); the two
 // reward panels (`vW`) lay out the player's and AI's earned weapon fragments as
 // rarity-sorted pooled chips with a scrollbar. Opaque field / method names kept
 // verbatim; node refs bound from the .ls.
@@ -19,12 +19,6 @@ import { SceneMgr } from "../core/scene-mgr";
 import { PrefabFactory } from "../battle/prefab-factory";
 
 const X = LayerZ;
-const q = EffectMgr;
-const j = UpdateMgr;
-const Cn = GameController;
-const F = GameMgr;
-const K = SceneMgr;
-const z = PrefabFactory;
 
 @regClass("XxMayroKT9Kz-_jp3ylB1w")
 export class PauseDialog extends Laya.Dialog {
@@ -46,11 +40,11 @@ export class PauseDialog extends Laya.Dialog {
     this.yesBtn.on(Laya.Event.CLICK, this, this.pause);
     this.noBtn.on(Laya.Event.CLICK, this, this.cancel);
     this.bg.on(Laya.Event.CLICK, this, this.cancel);
-    q.instance().bindButtons([this.yesBtn, this.noBtn]);
+    EffectMgr.instance().bindButtons([this.yesBtn, this.noBtn]);
   }
 
   onOpened(_t?: any): void {
-    j.instance().pause(false);
+    UpdateMgr.instance().pause(false);
     this.mW();
   }
 
@@ -59,20 +53,20 @@ export class PauseDialog extends Laya.Dialog {
   }
 
   pause(): void {
-    Cn.instance().gameOver(false, true, F.instance().battleState.oi < 5);
-    j.instance().resume();
+    GameController.instance().gameOver(false, true, GameMgr.instance().battleState.oi < 5);
+    UpdateMgr.instance().resume();
     this.wW();
   }
 
   cancel(): void {
-    K.instance().closeDialog("PauseDialog");
-    j.instance().resume();
+    SceneMgr.instance().closeDialog("PauseDialog");
+    UpdateMgr.instance().resume();
     this.wW();
   }
 
   mW(): void {
-    this.vW(F.instance().battleState.zi, this.rewardPanel, this.nullTxt, this.rewardBg, this.title);
-    this.vW(F.instance().battleState.ji, this.rewardPanelAI, this.nullTxtAI, this.rewardBgAI, this.enemyRewardTitle);
+    this.vW(GameMgr.instance().battleState.zi, this.rewardPanel, this.nullTxt, this.rewardBg, this.title);
+    this.vW(GameMgr.instance().battleState.ji, this.rewardPanelAI, this.nullTxtAI, this.rewardBgAI, this.enemyRewardTitle);
   }
 
   vW(t: any[], s: any, i: any, h: any, e: any): void {
@@ -87,8 +81,8 @@ export class PauseDialog extends Laya.Dialog {
       for (let c = 0; c < cnt; c++) n.push(item.weaponId);
     }
     n.sort((a, b) => {
-      const wa = F.instance().weaponData.weapons.get(a);
-      const wb = F.instance().weaponData.weapons.get(b);
+      const wa = GameMgr.instance().weaponData.weapons.get(a);
+      const wb = GameMgr.instance().weaponData.weapons.get(b);
       const ra = wa ? wa.rarity : -1;
       const rb = wb ? wb.rarity : -1;
       return rb !== ra ? rb - ra : a - b;
@@ -107,14 +101,14 @@ export class PauseDialog extends Laya.Dialog {
     let yv = r;
     for (let k = 0; k < n.length; k++) {
       const id = n[k];
-      const wd = F.instance().weaponData.weapons.get(id);
+      const wd = GameMgr.instance().weaponData.weapons.get(id);
       const h2 = wd.rarity;
-      const e2 = z.instance().getItem("weaponFragment", this);
+      const e2 = PrefabFactory.instance().getItem("weaponFragment", this);
       const ff = e2.getChildByName("bg");
       const g = e2.getChildByName("name");
       ff.skin = "resources/img/weaponBag/rarity" + h2 + ".png";
       g.text = wd.txt;
-      g.color = F.instance().weaponData.rarityColors[h2] ?? "#ffffff";
+      g.color = GameMgr.instance().weaponData.rarityColors[h2] ?? "#ffffff";
       const d = Math.max(g.textWidth || 0, g.text.length * (g.fontSize || 32));
       const L = Math.max(100, d + 36);
       const m = ff.height;
@@ -157,7 +151,7 @@ export class PauseDialog extends Laya.Dialog {
         for (let k = i.numChildren - 1; k >= 0; k--) {
           const c = i.getChildAt(k);
           c.removeSelf();
-          z.instance().recover("weaponFragment", c);
+          PrefabFactory.instance().recover("weaponFragment", c);
         }
         i.removeSelf();
       }

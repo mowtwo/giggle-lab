@@ -13,7 +13,6 @@
 
 import { EffectMgr } from "./effect-mgr";
 
-const q = EffectMgr;
 
 export abstract class Skill {
   protected OD = false;
@@ -48,8 +47,8 @@ export abstract class Skill {
       this.GD = 0;
       this.OD = true;
       this.onActive();
-      q.instance().playMergeEffect(this.HD.general, this.name);
-      q.instance().playAlertRings(this.HD.jD);
+      EffectMgr.instance().playMergeEffect(this.HD.general, this.name);
+      EffectMgr.instance().playAlertRings(this.HD.jD);
       this.HD.event("onSkillStart", this.name);
     }
   }

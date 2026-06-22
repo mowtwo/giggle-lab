@@ -18,8 +18,6 @@ import { Singleton } from "../core/singleton";
 import { UpdateMgr } from "../core/update-mgr";
 import { AnalyticsMgr } from "../battle/analytics-mgr";
 
-const j = UpdateMgr;
-const St = AnalyticsMgr;
 
 /** Default web adapter — every platform hook is a no-op. (`V`) */
 export class WebAdapter {
@@ -133,17 +131,17 @@ export class PlatformMgr extends Singleton {
 
   uu(t?: any, s?: any, i?: any): void {
     console.log("当前平台", this.zy);
-    if (i) St.instance().Gy(i);
-    j.instance().pause();
+    if (i) AnalyticsMgr.instance().Gy(i);
+    UpdateMgr.instance().pause();
     this.zy.uu(
       () => {
-        j.instance().resume();
-        if (i) St.instance().Hy(i, true);
+        UpdateMgr.instance().resume();
+        if (i) AnalyticsMgr.instance().Hy(i, true);
         if (t) t();
       },
       () => {
-        j.instance().resume();
-        if (i) St.instance().Hy(i, false);
+        UpdateMgr.instance().resume();
+        if (i) AnalyticsMgr.instance().Hy(i, false);
         if (s) s();
       },
     );

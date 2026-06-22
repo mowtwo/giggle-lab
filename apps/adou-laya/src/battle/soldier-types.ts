@@ -23,9 +23,7 @@ import { KnifeBullet, PikeBullet } from "./bullets-area";
 import { SimpleDynamicArrow } from "./bullet";
 import { TargetEnemyBezierMovement, TargetObjectInstantaneous } from "./movements";
 
-const F = GameMgr;
 const $ = AudioMgr;
-const f = MathE;
 const li = Laya.Point;
 
 /** Knife soldier (melee arc onto the nearest enemy). (`di.rv[0]`) */
@@ -57,11 +55,11 @@ export class KnifeSoldier extends BaseSoldier {
       return;
     }
     let t = this.Ew[0];
-    let s = f.distance({ x: this.Yn.x, y: this.Yn.y }, { x: t.x, y: t.y });
+    let s = MathE.distance({ x: this.Yn.x, y: this.Yn.y }, { x: t.x, y: t.y });
     for (let i = 1; i < this.Ew.length; i++) {
-      const h = f.distance(
+      const h = MathE.distance(
         { x: this.Yn.x + this.Yn.width / 2, y: this.Yn.y + this.Yn.height / 2 },
-        { x: this.Ew[i].x + F.instance().map.gridWid / 2, y: this.Ew[i].y + F.instance().map.gridHei / 2 },
+        { x: this.Ew[i].x + GameMgr.instance().map.gridWid / 2, y: this.Ew[i].y + GameMgr.instance().map.gridHei / 2 },
       );
       if (h < s) {
         t = this.Ew[i];
@@ -135,7 +133,7 @@ export class BowSoldier extends BaseSoldier {
     });
     this.hL.play("attack", false, true, 0, 650);
     const i = this.hL.rotation;
-    const h = f.deltaAngle(i, s);
+    const h = MathE.deltaAngle(i, s);
     Laya.Tween.to(this.hL, { rotation: i + h }, 650, Laya.Ease.linearInOut);
   }
   /** Fire the arrow at the locked target. (`Dw`) */
@@ -146,7 +144,7 @@ export class BowSoldier extends BaseSoldier {
     this.config.Um = HitStrategyFactory.produce(100, { FL: this.Iw });
     this.config.Om = TargetEnemyBezierMovement.create(120, true).qL(this.Iw);
     this.hL.play("attack", false, true, 650, 1000);
-    F.instance().toLocal(this.Yn, true);
+    GameMgr.instance().toLocal(this.Yn, true);
     this.config.Sm = this.Ta;
     BulletSpawnMgr.instance().Tw(this.config, Laya.Point.TEMP).Xm();
   }
@@ -154,7 +152,7 @@ export class BowSoldier extends BaseSoldier {
   private gw(t: number): any {
     const s = EnemySpatialMgr.instance().kw.get(t);
     return s
-      ? li.create().setTo(s.enemy.x + F.instance().map.gridWid / 2, s.enemy.y + F.instance().map.gridHei / 2)
+      ? li.create().setTo(s.enemy.x + GameMgr.instance().map.gridWid / 2, s.enemy.y + GameMgr.instance().map.gridHei / 2)
       : null;
   }
   /** Launch angle for the homing arc from origin `t` to target `s`. (`bw`) */
@@ -163,7 +161,7 @@ export class BowSoldier extends BaseSoldier {
     if (!h) return null;
     const e = li.create();
     e.setTo(t.x + (h.x - t.x) / 2, t.y + (h.y - t.y) / 2 - i);
-    const a = f.bezierTangentDeg(t, e, h, 0);
+    const a = MathE.bezierTangentDeg(t, e, h, 0);
     e.recover();
     h.recover();
     return a + 90;
@@ -229,22 +227,22 @@ export class PikeSoldier extends BaseSoldier {
   protected ov(): void {
     if (!this.Ew || this.Ew.length <= 0) return;
     let t = this.Ew[0];
-    let s = f.distance({ x: this.Yn.x, y: this.Yn.y }, { x: t.x, y: t.y });
+    let s = MathE.distance({ x: this.Yn.x, y: this.Yn.y }, { x: t.x, y: t.y });
     const i = this.Yn.x + this.pv.x;
     const h = this.Yn.y + this.pv.y;
     for (let e = 1; e < this.Ew.length; e++) {
-      const a = f.distance(
+      const a = MathE.distance(
         { x: i, y: h },
-        { x: this.Ew[e].x + F.instance().map.gridWid / 2, y: this.Ew[e].y + F.instance().map.gridHei / 2 },
+        { x: this.Ew[e].x + GameMgr.instance().map.gridWid / 2, y: this.Ew[e].y + GameMgr.instance().map.gridHei / 2 },
       );
       if (a < s) {
         t = this.Ew[e];
         s = a;
       }
     }
-    const e = f.angle(
+    const e = MathE.angle(
       { x: i, y: h },
-      { x: t.x + F.instance().map.gridWid / 2, y: t.y + F.instance().map.gridHei / 2 },
+      { x: t.x + GameMgr.instance().map.gridWid / 2, y: t.y + GameMgr.instance().map.gridHei / 2 },
     );
     let a = e;
     let n = 1;

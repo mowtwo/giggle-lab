@@ -17,10 +17,6 @@ import { GameMgr } from "../core/game-mgr";
 import { SceneMgr } from "../core/scene-mgr";
 
 const X = LayerZ;
-const q = EffectMgr;
-const Na = SpawnQueueMgr;
-const F = GameMgr;
-const K = SceneMgr;
 
 @regClass("zavuCnlJRrqJycITCILMqg")
 export class DeckDialog extends Laya.Dialog {
@@ -79,7 +75,7 @@ export class DeckDialog extends Laya.Dialog {
       }
     });
     this.maskBg.on(Laya.Event.CLICK, this, this.Uu);
-    q.instance().bindButtons([this.tab1, this.tab2]);
+    EffectMgr.instance().bindButtons([this.tab1, this.tab2]);
   }
 
   onEnable(): void {
@@ -95,8 +91,8 @@ export class DeckDialog extends Laya.Dialog {
   }
 
   SU(): void {
-    const t = Na.instance();
-    const s = F.instance();
+    const t = SpawnQueueMgr.instance();
+    const s = GameMgr.instance();
     console.log("重新生成武将区域");
     this.xU.forEach((v) => v.destroy(true));
     this.xU.clear();
@@ -162,7 +158,7 @@ export class DeckDialog extends Laya.Dialog {
 
   bU(): void {
     const t: any[] = [];
-    const s = Na.instance();
+    const s = SpawnQueueMgr.instance();
     const i = s.yU;
     console.log("重新生成武将区域");
     const h = this.generalPanel.width / this.kU;
@@ -183,7 +179,7 @@ export class DeckDialog extends Laya.Dialog {
   }
 
   MU(t: number, s: any): void {
-    const i = F.instance();
+    const i = GameMgr.instance();
     const h = new Laya.Sprite();
     const e = Math.min(this.generalPanel.width / this.kU, this.pe);
     const a = i.generals.generalNames[t];
@@ -245,7 +241,7 @@ export class DeckDialog extends Laya.Dialog {
   }
 
   EU(t: number): void {
-    const s = F.instance();
+    const s = GameMgr.instance();
     const i = s.generals.generalNames[t];
     for (let k = 0; k < i.length; k++) {
       const h = s.generals.nameChars.indexOf(i[k]);
@@ -276,7 +272,7 @@ export class DeckDialog extends Laya.Dialog {
       .to("scaleX", 1)
       .to("scaleY", 1)
       .duration(50);
-    const h = Na.instance().wU(t);
+    const h = SpawnQueueMgr.instance().wU(t);
     if (h) {
       this.skillName.text = h.skillName;
       this.skillDesc.text = h.description;
@@ -288,11 +284,11 @@ export class DeckDialog extends Laya.Dialog {
   }
 
   Uu(): void {
-    K.instance().closeDialog("DeckDialog");
+    SceneMgr.instance().closeDialog("DeckDialog");
     this.maskBg.visible = false;
   }
 
   onClosed(_t?: any): void {
-    Na.instance().pU = false;
+    SpawnQueueMgr.instance().pU = false;
   }
 }

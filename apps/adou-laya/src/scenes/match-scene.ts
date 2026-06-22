@@ -21,13 +21,7 @@ import { AudioMgr } from "../core/audio-mgr";
 import { SceneMgr } from "../core/scene-mgr";
 
 const X = LayerZ;
-const j = UpdateMgr;
-const In = AvatarMgr;
-const F = GameMgr;
-const Zi = BattlePropsMgr;
-const Cn = GameController;
 const $ = AudioMgr;
-const K = SceneMgr;
 const lo = Laya.Ease;
 
 @regClass("dxhrI-d-T2icEkklUGt-kQ")
@@ -92,17 +86,17 @@ export class MatchScene extends Laya.Scene {
     this.EQ = Math.min(t, this.EQ);
     this.init();
     this.reset();
-    j.instance().register("MatchScene", this, this.update);
+    UpdateMgr.instance().register("MatchScene", this, this.update);
   }
 
   onClosed(_t?: any): void {
-    j.instance().unregister("MatchScene");
+    UpdateMgr.instance().unregister("MatchScene");
   }
 
   init(): void {
     this.redAvatar.texture = null;
-    In.instance().GG(this.redAvatar);
-    const t = F.instance();
+    AvatarMgr.instance().GG(this.redAvatar);
+    const t = GameMgr.instance();
     this.redRank.text = t.rank.currentRank.rank;
     const s = t.player.roundDay - 1;
     this.redWinRate.text = s > 0 ? ((t.player.winDay / s) * 100).toFixed(1) + "%" : "0.0%";
@@ -172,9 +166,9 @@ export class MatchScene extends Laya.Scene {
     this.title.text = "匹配完成";
     this.blueRank.visible = true;
     this.blueWinRate.visible = true;
-    const t = F.instance().battleState.Pi;
+    const t = GameMgr.instance().battleState.Pi;
     this.blueRank.text = t.rank;
-    In.instance()
+    AvatarMgr.instance()
       .YG(t.rank)
       .then((tex: any) => {
         this.blueAvatar.texture = tex;
@@ -186,7 +180,7 @@ export class MatchScene extends Laya.Scene {
       this.TQ = true;
     });
     let s = true;
-    const i = Zi.instance();
+    const i = BattlePropsMgr.instance();
     i.xx.forEach((p, idx) => {
       if (idx < this.IQ) {
         this.GQ(p, true, false);
@@ -220,9 +214,9 @@ export class MatchScene extends Laya.Scene {
   OQ(): void {
     this.title.visible = false;
     this.xBtn.visible = false;
-    j.instance().pause(false);
+    UpdateMgr.instance().pause(false);
     // 去掉新手教程的刻意安排(必赢/必输局):所有对局(含首局)都走普通流程。
-    Cn.instance().startGame().then((t: any) => {
+    GameController.instance().startGame().then((t: any) => {
       t.addChild(this);
       t.scale(1.03, 1.03);
       Laya.Tween.create(t).to("scaleX", 1).to("scaleY", 1).duration(800).ease(lo.sineOut);
@@ -246,15 +240,15 @@ export class MatchScene extends Laya.Scene {
       this.WQ(this.flagRed, false);
       this.WQ(this.flagBlue).then(() => {
         this.Bu();
-        j.instance().resume();
+        UpdateMgr.instance().resume();
       });
     });
   }
 
   GQ(t: number, s: boolean, i: boolean): void {
     const h = s ? "resources/img/matchUI/propBoxRed.png" : "resources/img/matchUI/propBoxBlue.png";
-    const e = s ? Zi.instance().Nx(t) : Zi.instance().Qx(t);
-    const a = "resources/img/props/" + F.instance().props.Ue[t].name + "_" + e + ".png";
+    const e = s ? BattlePropsMgr.instance().Nx(t) : BattlePropsMgr.instance().Qx(t);
+    const a = "resources/img/props/" + GameMgr.instance().props.Ue[t].name + "_" + e + ".png";
     const n = new Laya.Image(h);
     n.size(this.EQ, this.EQ);
     const r = new Laya.Image(a);
@@ -404,8 +398,8 @@ export class MatchScene extends Laya.Scene {
   }
 
   Bu(): void {
-    j.instance().unregister("match");
+    UpdateMgr.instance().unregister("match");
     this.reset();
-    K.instance().closeScene("MatchScene");
+    SceneMgr.instance().closeScene("MatchScene");
   }
 }

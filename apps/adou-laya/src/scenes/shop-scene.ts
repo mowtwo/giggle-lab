@@ -28,19 +28,8 @@ import { GlowBorderEffect } from "../battle/glow-border-effect";
 import { SparkleConfig } from "./main-scene";
 import { yt, ft } from "../battle/analytics-mgr";
 
-const F = GameMgr;
-const H = PrefabPool;
-const z = PrefabFactory;
-const q = EffectMgr;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
-const Zi = BattlePropsMgr;
-const Mt = PlatformMgr;
-const tt = TipMgr;
 const $ = AudioMgr;
-const f = MathE;
-const K = SceneMgr;
 const xo = GlowBorderEffect;
 const so = SparkleConfig;
 
@@ -105,8 +94,8 @@ export class ShopScene extends Laya.Scene {
   static FK = 10;
 
   onAwake(): void {
-    this.Ue = F.instance().props;
-    this.$Z = H.instance().so("shopItem");
+    this.Ue = GameMgr.instance().props;
+    this.$Z = PrefabPool.instance().so("shopItem");
     this.initItems();
     this.NZ();
     this.qZ();
@@ -114,8 +103,8 @@ export class ShopScene extends Laya.Scene {
     this.QZ();
     this.ZZ();
     this._Z = this.shopBox.y;
-    y.instance.on(u.Kt, this, this.KZ);
-    y.instance.on(u.Vt, this, this.aW);
+    EventMgr.instance.on(u.Kt, this, this.KZ);
+    EventMgr.instance.on(u.Vt, this, this.aW);
   }
 
   onOpened(t: any): void {
@@ -132,9 +121,9 @@ export class ShopScene extends Laya.Scene {
     this.KZ();
     this.iK();
     this.hK();
-    y.instance.event(u.Qt);
+    EventMgr.instance.event(u.Qt);
     this.eK();
-    j.instance().register("ShopScene", this, this.update);
+    UpdateMgr.instance().register("ShopScene", this, this.update);
     this.aK();
     this.nK();
     this.rK();
@@ -157,7 +146,7 @@ export class ShopScene extends Laya.Scene {
     for (let s = 0; s < this.activePropsBox.numChildren; s++) {
       const i = this.activePropsBox.getChildAt(s);
       i.on(Laya.Event.CLICK, this, (e: any) => {
-        this.Qo(Zi.instance().xx[s], false, i, e);
+        this.Qo(BattlePropsMgr.instance().xx[s], false, i, e);
       });
       t.push(i.getChildByName("deleteBtn"));
       t.push(i);
@@ -165,13 +154,13 @@ export class ShopScene extends Laya.Scene {
     for (let s = 0; s < this.passivePropsBox.numChildren; s++) {
       const i = this.passivePropsBox.getChildAt(s);
       i.on(Laya.Event.CLICK, this, (e: any) => {
-        this.Qo(Zi.instance().Sx[s], false, i, e);
+        this.Qo(BattlePropsMgr.instance().Sx[s], false, i, e);
       });
       t.push(i.getChildByName("deleteBtn"));
       t.push(i);
     }
     for (let s = 0; s < this.luckyBox.numChildren; s++) t.push(this.luckyBox.getChildAt(s));
-    q.instance().bindButtons(t);
+    EffectMgr.instance().bindButtons(t);
   }
 
   QZ(): void {
@@ -180,7 +169,7 @@ export class ShopScene extends Laya.Scene {
   }
 
   tK(): void {
-    this.goldTxt.text = F.instance().player.gold.toString();
+    this.goldTxt.text = GameMgr.instance().player.gold.toString();
   }
 
   initItems(): void {
@@ -201,7 +190,7 @@ export class ShopScene extends Laya.Scene {
     for (let i = 0; i < s; i++) {
       let pick;
       do {
-        pick = this.JZ[f.range(0, this.JZ.length, true)];
+        pick = this.JZ[MathE.range(0, this.JZ.length, true)];
       } while (this.cK(pick, t));
       t.push(pick);
       this.uK(this.xZ[i], pick);
@@ -247,11 +236,11 @@ export class ShopScene extends Laya.Scene {
     const c = n.getChildByName("adBox");
     const u2 = this.Ue.Ue[s];
     const p = this.Vv(s, true);
-    const y2 = Zi.instance().Nx(s);
+    const y2 = BattlePropsMgr.instance().Nx(s);
     const ff = this.Ue.isUpgradeable(s) ? y2 + 1 : 1;
     const g = this.Ue.ra(s, ff);
     const d = Math.random() < this.Ue.ha[p];
-    const L = Zi.instance().Yx(s);
+    const L = BattlePropsMgr.instance().Yx(s);
     i.skin = "resources/img/shop/itemBg" + (L ? "0" : "1") + "_" + p + ".png";
     h.text = u2.txt;
     e.text = this.Ue.sa[p];
@@ -268,44 +257,44 @@ export class ShopScene extends Laya.Scene {
       c.visible = false;
       o.visible = true;
       l.text = g.toString();
-      n.skin = g > F.instance().player.gold ? "resources/img/shop/btn3.png" : "resources/img/shop/btn1.png";
+      n.skin = g > GameMgr.instance().player.gold ? "resources/img/shop/btn3.png" : "resources/img/shop/btn1.png";
     }
     n.offAll();
     this.gK(true);
     n.on(Laya.Event.CLICK, this, () => this.dK(s, h, d, g, r));
-    q.instance().bindButtons([n]);
+    EffectMgr.instance().bindButtons([n]);
   }
 
   dK(t: number, s: any, i: boolean, h: number, e: any): void {
-    if (this.IZ) tt.instance().showTip("已售完");
+    if (this.IZ) TipMgr.instance().showTip("已售完");
     else if (this.LK(t)) {
       if (i)
-        Mt.instance().uu(
+        PlatformMgr.instance().uu(
           () => this.mK(t, s, e),
-          () => tt.instance().showTip("观看完整广告才能获取奖励呦~"),
+          () => TipMgr.instance().showTip("观看完整广告才能获取奖励呦~"),
           yt,
         );
       else if (this.wK(h)) this.mK(t, s, e);
       else {
-        tt.instance().showTip("金币不足");
+        TipMgr.instance().showTip("金币不足");
         $.instance().playSound("popup_notification");
       }
-    } else tt.instance().showTip("当前可装备道具已达上限,\n请在下方删除道具后再购买");
+    } else TipMgr.instance().showTip("当前可装备道具已达上限,\n请在下方删除道具后再购买");
   }
 
   wK(t: number): boolean {
-    if (F.instance().player.gold < t) return false;
-    F.instance().player.gold -= t;
+    if (GameMgr.instance().player.gold < t) return false;
+    GameMgr.instance().player.gold -= t;
     this.tK();
     return true;
   }
 
   LK(t: number): boolean {
     if (t === 23) return true;
-    if (this.Ue.isUpgradeable(t) && Zi.instance().iS(true, t)) return true;
-    const s = Zi.instance().Yx(t);
-    const i = Zi.instance().xx.length;
-    const h = Zi.instance().Sx.length;
+    if (this.Ue.isUpgradeable(t) && BattlePropsMgr.instance().iS(true, t)) return true;
+    const s = BattlePropsMgr.instance().Yx(t);
+    const i = BattlePropsMgr.instance().xx.length;
+    const h = BattlePropsMgr.instance().Sx.length;
     return !(s && i >= this.Ue.Ze) && !(!s && h >= this.Ue.Ke);
   }
 
@@ -315,7 +304,7 @@ export class ShopScene extends Laya.Scene {
       const btn = i.parent.parent.getChildByName("btn");
       return void this.kK(btn);
     }
-    tt.instance().showTip("恭喜你，成功获得" + s.text);
+    TipMgr.instance().showTip("恭喜你，成功获得" + s.text);
     this.DZ = i;
     this._K(t);
   }
@@ -338,30 +327,30 @@ export class ShopScene extends Laya.Scene {
   }
 
   fK(t: any): void {
-    const s = q.instance().registerBtnSparkle(t, new so((q as any).nu));
+    const s = EffectMgr.instance().registerBtnSparkle(t, new so((EffectMgr as any).nu));
     this.SZ.push(s);
   }
 
   bK(): void {
-    for (let t = 0; t < this.SZ.length; t++) q.instance().removeEvent("btnSparkle", this.SZ[t]);
+    for (let t = 0; t < this.SZ.length; t++) EffectMgr.instance().removeEvent("btnSparkle", this.SZ[t]);
     this.SZ.length = 0;
   }
 
   eK(): void {
-    this.UZ = q
+    this.UZ = EffectMgr
       .instance()
       .registerImgLoop(this.shopMan, ["resources/img/shop/shopMan1.png", "resources/img/shop/shopMan2.png"], 200);
   }
 
   MK(): void {
     if (this.UZ !== 0) {
-      q.instance().removeEvent("imgLoop", this.UZ);
+      EffectMgr.instance().removeEvent("imgLoop", this.UZ);
       this.UZ = 0;
     }
   }
 
   rK(): void {
-    this.RZ = f.range(2000, 4000);
+    this.RZ = MathE.range(2000, 4000);
   }
 
   PK(): void {
@@ -372,11 +361,11 @@ export class ShopScene extends Laya.Scene {
     if (this.RZ <= 0) return;
     this.RZ -= t;
     if (this.RZ <= 0) {
-      const txt = this.CZ[f.range(0, this.CZ.length, true)];
+      const txt = this.CZ[MathE.range(0, this.CZ.length, true)];
       const s = new Laya.Point(this.shopMan.width, this.shopMan.height / 4);
       this.shopMan.localToGlobal(s);
-      q.instance().showTalkBox(s.x, s.y, txt, this.shopMan.parent, true, 1);
-      this.RZ = f.range(4000, 6000);
+      EffectMgr.instance().showTalkBox(s.x, s.y, txt, this.shopMan.parent, true, 1);
+      this.RZ = MathE.range(4000, 6000);
     }
   }
 
@@ -423,7 +412,7 @@ export class ShopScene extends Laya.Scene {
       [0, 1],
     ];
     for (let s = 0; s < t.length; s++) {
-      const i = z.instance().getItem("lotteryItem", this);
+      const i = PrefabFactory.instance().getItem("lotteryItem", this);
       this.luckyBox.addChild(i);
       i.pos(
         i.width * t[s][0] + t[s][0] * ((this.luckyBox.width - 3 * i.width) / 2) + i.width / 2,
@@ -445,16 +434,16 @@ export class ShopScene extends Laya.Scene {
     let t: any;
     const s: number[] = [];
     this.JZ.forEach((x: number) => {
-      const i = Zi.instance().Nx(x);
+      const i = BattlePropsMgr.instance().Nx(x);
       const h = this.Ue.isUpgradeable(x) ? i + 1 : 1;
       s.push(this.Ue.oa(x, h));
     });
     for (let i = 0; i < this.AZ; i++) {
-      const h = f.weightedIndex(s);
+      const h = MathE.weightedIndex(s);
       s[h] = 0;
       const e = this.JZ[h];
       this.EZ.push(e);
-      const a = Zi.instance().Nx(e);
+      const a = BattlePropsMgr.instance().Nx(e);
       const n = this.Ue.isUpgradeable(e) ? a + 1 : 1;
       this.BZ.push(this.Ue.la(e, n));
       t = this.luckyBox.getChildAt(i);
@@ -466,7 +455,7 @@ export class ShopScene extends Laya.Scene {
       t.on(Laya.Event.CLICK, this, this.Qo, [this.EZ[i], true, t]);
       this.DK(t);
     }
-    if (Mt.instance().canShare() && Math.random() < 0.2) {
+    if (PlatformMgr.instance().canShare() && Math.random() < 0.2) {
       this.luckyBtnShare.visible = true;
       this.luckyBtnAd.visible = false;
       this.TZ = false;
@@ -478,24 +467,24 @@ export class ShopScene extends Laya.Scene {
   }
 
   lK(): void {
-    if (this.JZ.length === 0) return void tt.instance().showTip("所有道具都已获得！");
-    if (this.IZ) return void tt.instance().showTip("活动已结束");
+    if (this.JZ.length === 0) return void TipMgr.instance().showTip("所有道具都已获得！");
+    if (this.IZ) return void TipMgr.instance().showTip("活动已结束");
     const t = () => {
       this.FZ = 1;
       this.vK();
     };
     const s = () => {
-      if (this.TZ) tt.instance().showTip("观看完整广告才可抽奖呦~");
-      else tt.instance().showTip("分享才能抽奖呦~");
+      if (this.TZ) TipMgr.instance().showTip("观看完整广告才可抽奖呦~");
+      else TipMgr.instance().showTip("分享才能抽奖呦~");
     };
-    if (this.TZ) Mt.instance().uu(t, s, ft);
-    else Mt.instance().share(t, s, ft);
+    if (this.TZ) PlatformMgr.instance().uu(t, s, ft);
+    else PlatformMgr.instance().share(t, s, ft);
   }
 
   xK(t: number): void {
     if (this.FZ === 1) {
       $.instance().playSound("lottery");
-      this.XZ = f.weightedIndex(this.BZ);
+      this.XZ = MathE.weightedIndex(this.BZ);
       this.GZ = this.EZ[this.XZ];
       this.zZ = 0;
       this.YZ = ShopScene.TK;
@@ -566,15 +555,15 @@ export class ShopScene extends Laya.Scene {
 
   YK(t: number, s: any): void {
     if (t === 23) return void this.kK(s);
-    const i = Zi.instance().xx.length;
-    const h = Zi.instance().Sx.length;
-    const e = Zi.instance().Yx(t);
+    const i = BattlePropsMgr.instance().xx.length;
+    const h = BattlePropsMgr.instance().Sx.length;
+    const e = BattlePropsMgr.instance().Yx(t);
     if (!this.Ue.isUpgradeable(t)) {
-      if (e && i >= this.Ue.Ze) return void K.instance().openDialog("ReplacePropsTipDialog", false, t);
-      if (!e && h >= this.Ue.Ke) return void K.instance().openDialog("ReplacePropsTipDialog", false, t);
+      if (e && i >= this.Ue.Ze) return void SceneMgr.instance().openDialog("ReplacePropsTipDialog", false, t);
+      if (!e && h >= this.Ue.Ke) return void SceneMgr.instance().openDialog("ReplacePropsTipDialog", false, t);
     }
     const a = this.Ue.Ue[t].txt;
-    tt.instance().showTip("恭喜你，抽中了" + a + "！");
+    TipMgr.instance().showTip("恭喜你，抽中了" + a + "！");
     this._K(t);
   }
 
@@ -598,11 +587,11 @@ export class ShopScene extends Laya.Scene {
   }
 
   KZ(): void {
-    let t = Zi.instance().xx;
+    let t = BattlePropsMgr.instance().xx;
     for (let s = 0; s < this.activePropsBox.numChildren; s++)
       if (s < t.length) this.GK(true, s, t[s]);
       else this.activePropsBox.getChildAt(s).visible = false;
-    t = Zi.instance().Sx;
+    t = BattlePropsMgr.instance().Sx;
     for (let s = 0; s < this.passivePropsBox.numChildren; s++)
       if (s < t.length) this.GK(false, s, t[s]);
       else this.passivePropsBox.getChildAt(s).visible = false;
@@ -612,14 +601,14 @@ export class ShopScene extends Laya.Scene {
     const h = t ? this.activePropsBox.getChildAt(s) : this.passivePropsBox.getChildAt(s);
     const e = h.getChildByName("img");
     const a = h.getChildByName("rarity");
-    a.skin = "resources/img/shop/itemBg" + (Zi.instance().Yx(i) ? "0" : "1") + "_" + this.Vv(i, false) + ".png";
+    a.skin = "resources/img/shop/itemBg" + (BattlePropsMgr.instance().Yx(i) ? "0" : "1") + "_" + this.Vv(i, false) + ".png";
     e.skin = this.yK(i, false);
     h.skin = t ? "resources/img/props/activePropsBg.png" : "resources/img/props/passivePropsBg.png";
     h.visible = true;
   }
 
   _K(t: number): void {
-    const s = Zi.instance().Yx(t);
+    const s = BattlePropsMgr.instance().Yx(t);
     const i = this.Ue.isUpgradeable(t);
     const h = this.HK(s, t);
     Laya.Point.TEMP.x = this.DZ.width / 2;
@@ -659,13 +648,13 @@ export class ShopScene extends Laya.Scene {
         e.destroy();
         h.parent.getChildByName("rarity").visible = true;
         h.parent.getChildByName("deleteBtn").visible = true;
-        const a2 = s ? Zi.instance().xx.length : Zi.instance().Sx.length;
-        Zi.instance().addProps(t);
+        const a2 = s ? BattlePropsMgr.instance().xx.length : BattlePropsMgr.instance().Sx.length;
+        BattlePropsMgr.instance().addProps(t);
         if (i) {
-          if (Zi.instance().Nx(t) === 1) this.GK(s, a2, t);
+          if (BattlePropsMgr.instance().Nx(t) === 1) this.GK(s, a2, t);
           else {
             h.parent.getChildByName("rarity").skin =
-              "resources/img/shop/itemBg" + (Zi.instance().Yx(t) ? "0" : "1") + "_" + this.Vv(t, false) + ".png";
+              "resources/img/shop/itemBg" + (BattlePropsMgr.instance().Yx(t) ? "0" : "1") + "_" + this.Vv(t, false) + ".png";
             h.skin = this.yK(t, false);
           }
         } else this.GK(s, a2, t);
@@ -676,9 +665,9 @@ export class ShopScene extends Laya.Scene {
     const i = t ? this.activePropsBox : this.passivePropsBox;
     let h: number;
     if (this.Ue.isUpgradeable(s)) {
-      h = (t ? Zi.instance().xx : Zi.instance().Sx).indexOf(s);
-      if (h === -1) h = (t ? Zi.instance().xx : Zi.instance().Sx).length;
-    } else h = t ? Zi.instance().xx.length : Zi.instance().Sx.length;
+      h = (t ? BattlePropsMgr.instance().xx : BattlePropsMgr.instance().Sx).indexOf(s);
+      if (h === -1) h = (t ? BattlePropsMgr.instance().xx : BattlePropsMgr.instance().Sx).length;
+    } else h = t ? BattlePropsMgr.instance().xx.length : BattlePropsMgr.instance().Sx.length;
     if (h < 0) h = 0;
     i.getChildAt(h).visible = true;
     return i.getChildAt(h).getChildByName("img");
@@ -690,14 +679,14 @@ export class ShopScene extends Laya.Scene {
       t = this.activePropsBox.getChildAt(s).getChildByName("deleteBtn");
       t.on(Laya.Event.CLICK, this, (e: any) => {
         e.stopPropagation();
-        K.instance().openDialog("DeletePropsTipDialog", false, Zi.instance().xx[s]);
+        SceneMgr.instance().openDialog("DeletePropsTipDialog", false, BattlePropsMgr.instance().xx[s]);
       });
     }
     for (let s = 0; s < this.passivePropsBox.numChildren; s++) {
       t = this.passivePropsBox.getChildAt(s).getChildByName("deleteBtn");
       t.on(Laya.Event.CLICK, this, (e: any) => {
         e.stopPropagation();
-        K.instance().openDialog("DeletePropsTipDialog", false, Zi.instance().Sx[s]);
+        SceneMgr.instance().openDialog("DeletePropsTipDialog", false, BattlePropsMgr.instance().Sx[s]);
       });
     }
   }
@@ -744,7 +733,7 @@ export class ShopScene extends Laya.Scene {
   }
 
   Qo(t: number, s: boolean, i: any, h: any): void {
-    if (!t || !i) return void q.instance().showUnitInfo(false);
+    if (!t || !i) return void EffectMgr.instance().showUnitInfo(false);
     h.stopPropagation();
     const e = this.Ue.Ue[t];
     const a = this.qv(t, s);
@@ -758,7 +747,7 @@ export class ShopScene extends Laya.Scene {
       width: i.width * i.globalScaleX,
       height: i.height * i.globalScaleY,
     };
-    q.instance().showUnitInfo(true, r, a, e.txt, n, i);
+    EffectMgr.instance().showUnitInfo(true, r, a, e.txt, n, i);
   }
 
   nK(): void {
@@ -834,7 +823,7 @@ export class ShopScene extends Laya.Scene {
   }
 
   zK(): void {
-    const t = f.range(2, 4, true);
+    const t = MathE.range(2, 4, true);
     for (let s = 0; s < t; s++) {
       const star = new Laya.Image(
         Math.random() < 0.5
@@ -846,7 +835,7 @@ export class ShopScene extends Laya.Scene {
       star.anchor(0.5, 0.5);
       star.scale(0, 0);
       star.alpha = 0.5;
-      star.pos(f.range(20, this.lotteryLabel.width - 20), f.range(20, this.lotteryLabel.height - 20));
+      star.pos(MathE.range(20, this.lotteryLabel.width - 20), MathE.range(20, this.lotteryLabel.height - 20));
       Laya.Tween.create(star)
         .to("scaleX", 1)
         .to("scaleY", 1)
@@ -921,7 +910,7 @@ export class ShopScene extends Laya.Scene {
     const i = new Laya.Point(this.staminaImg.width / 2, this.staminaImg.height / 2);
     this.staminaImg.localToGlobal(i);
     this.globalToLocal(i);
-    q.instance().explodeAndFlyReward(
+    EffectMgr.instance().explodeAndFlyReward(
       this,
       "resources/img/mainUI/stamina/stamina.png",
       this.staminaImg.width / 2,
@@ -932,7 +921,7 @@ export class ShopScene extends Laya.Scene {
       this.staminaImg.height / 2,
       null,
       () => {
-        F.instance().player.stamina = Math.min(F.instance().player.stamina + 1, F.instance().stamina.hn);
+        GameMgr.instance().player.stamina = Math.min(GameMgr.instance().player.stamina + 1, GameMgr.instance().stamina.hn);
       },
       null,
       1,
@@ -940,39 +929,39 @@ export class ShopScene extends Laya.Scene {
       60,
       10,
     );
-    tt.instance().showTip("恭喜你，获得行军丹，体力+10！");
+    TipMgr.instance().showTip("恭喜你，获得行军丹，体力+10！");
     $.instance().playSound("popup_notification");
   }
 
   aW(): void {
-    const t = F.instance().player.stamina;
+    const t = GameMgr.instance().player.stamina;
     this.staminaTxt.text = t.toString();
-    if (t < F.instance().stamina.an) this.staminaTxt.color = "#e95b55";
+    if (t < GameMgr.instance().stamina.an) this.staminaTxt.color = "#e95b55";
     else this.staminaTxt.color = "#f7de76";
   }
 
   yK(t: number, s = true): string {
     let i = 1;
     const h = this.Ue.Ue[t];
-    if (this.Ue.isUpgradeable(t) && Zi.instance().iS(true, t)) {
-      const lvl = Zi.instance().Nx(t);
+    if (this.Ue.isUpgradeable(t) && BattlePropsMgr.instance().iS(true, t)) {
+      const lvl = BattlePropsMgr.instance().Nx(t);
       i = s ? lvl + 1 : lvl;
     }
     return `resources/img/props/${h.name}_${i}.png`;
   }
 
   Vv(t: number, s: boolean): number {
-    const i = Zi.instance().Nx(t);
+    const i = BattlePropsMgr.instance().Nx(t);
     return this.Ue.aa(t, s ? i + 1 : i);
   }
 
   qv(t: number, s: boolean): string {
-    const i = Zi.instance().Nx(t);
+    const i = BattlePropsMgr.instance().Nx(t);
     return this.Ue.na(t, s ? i + 1 : i);
   }
 
   Bu(): void {
-    j.instance().unregister("ShopScene");
+    UpdateMgr.instance().unregister("ShopScene");
     this.shopLabel.visible = true;
     this.lotteryLabel.visible = true;
     this.lotteryLabelRect.visible = true;
@@ -992,13 +981,13 @@ export class ShopScene extends Laya.Scene {
       300,
       Laya.Ease.strongOut,
       Laya.Handler.create(this, () => {
-        K.instance().closeScene("ShopScene");
-        y.instance.event(u.Zt);
+        SceneMgr.instance().closeScene("ShopScene");
+        EventMgr.instance.event(u.Zt);
       }),
     );
     this.bK();
     this.XK();
-    q.instance().showUnitInfo(false);
+    EffectMgr.instance().showUnitInfo(false);
     this.oK("shop");
     this.BK();
     this.redPoint.visible = true;

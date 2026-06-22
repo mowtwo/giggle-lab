@@ -33,10 +33,7 @@ import { TargetDirectionLineMovement } from "./movements";
 
 const Kh = TargetDirectionLineMovement;
 
-const F = GameMgr;
 const $ = AudioMgr;
-const th = BuffMgr;
-const de = GeneralMergeFactory;
 
 /** 赵云 (0) — phantom dash skill. (`za`) */
 class ZhaoYun extends General {
@@ -79,7 +76,7 @@ class ZhaoYun extends General {
     super.gameOver();
   }
 }
-de.register(0, ZhaoYun);
+GeneralMergeFactory.register(0, ZhaoYun);
 
 /** 张飞 (1) — battle-shout + slow-on-hit. (`Ya`) */
 class ZhangFei extends General {
@@ -100,7 +97,7 @@ class ZhangFei extends General {
     });
   }
 }
-de.register(1, ZhangFei);
+GeneralMergeFactory.register(1, ZhangFei);
 
 /** 马超 (2) — chance stun + lightning. (`Ua`) */
 class MaChao extends General {
@@ -117,7 +114,7 @@ class MaChao extends General {
     this.QE.attack(this.uT());
   }
 }
-de.register(2, MaChao);
+GeneralMergeFactory.register(2, MaChao);
 
 /** 关羽 (3) — jump-slash; same-target attack speed ramp. (`Ma`) */
 class GuanYu extends General {
@@ -136,7 +133,7 @@ class GuanYu extends General {
   }
   init(t: any[], s: any, i: number): void {
     super.init(t, s, i);
-    this.hD = th.instance().applyBuff(this.id, 1, 0, true);
+    this.hD = BuffMgr.instance().applyBuff(this.id, 1, 0, true);
   }
   protected ov(): void {
     if (this.Ew.length <= 0) return;
@@ -144,9 +141,9 @@ class GuanYu extends General {
     this.QE.attack(this.nC);
     if (this.aC === this.nC.id) {
       this.aD = Math.min(this.aD + 0.05, this.nD);
-      th.instance().modify(this.id, 1, this.hD, this.aD, true, undefined);
+      BuffMgr.instance().modify(this.id, 1, this.hD, this.aD, true, undefined);
     } else {
-      th.instance().modify(this.id, 1, this.hD, 0, true, undefined);
+      BuffMgr.instance().modify(this.id, 1, this.hD, 0, true, undefined);
       this.aD = 0;
       this.aC = this.nC.id;
     }
@@ -158,7 +155,7 @@ class GuanYu extends General {
     super.gameOver();
   }
 }
-de.register(3, GuanYu);
+GeneralMergeFactory.register(3, GuanYu);
 
 /** 黄忠 (4) — fire-arrow-rain; custom level scaling. (`Ta`) */
 class HuangZhong extends General {
@@ -189,7 +186,7 @@ class HuangZhong extends General {
     if (this.level !== 3 && this.level !== 5) {
       let off = 0;
       if (this.level > 3) off = 1;
-      const g = F.instance().generals as any;
+      const g = GameMgr.instance().generals as any;
       (this as any).Wd = g.generalAttackConfigs[(this as any).type].Ra / g.multC[this.level - off - 1];
       (this as any).Gd = (g.generalAttackConfigs[(this as any).type].Ta + this.QE.aI) * g.multD[this.level - off - 1];
     }
@@ -199,7 +196,7 @@ class HuangZhong extends General {
     for (let k = 0; k < this.va.length; k++) this.va[k].cL(this.level - this.va[k].level);
     for (let k = 0; k < this.va.length; k++) {
       const sp = this.va[k].hL;
-      const idx = F.instance().generals.nameChars.indexOf(this.va[k].Qd);
+      const idx = GameMgr.instance().generals.nameChars.indexOf(this.va[k].Qd);
       sp.skin =
         this.level === 4 || this.level === 5
           ? "resources/img/gameObject/soldier/generalParts_" + idx + "_" + this.level + ".png"
@@ -208,7 +205,7 @@ class HuangZhong extends General {
     (this as any).ER();
   }
 }
-de.register(4, HuangZhong);
+GeneralMergeFactory.register(4, HuangZhong);
 
 /** 关平 (5) — battle-shout; knife switches to sweep mode. (`_a`) */
 class GuanPing extends General {
@@ -228,7 +225,7 @@ class GuanPing extends General {
     }
   }
 }
-de.register(5, GuanPing);
+GeneralMergeFactory.register(5, GuanPing);
 
 /** 关兴 (6) — chance stun. (`ba`) */
 class GuanXing extends General {
@@ -244,11 +241,11 @@ class GuanXing extends General {
     this.QE.attack(this.GR());
   }
 }
-de.register(6, GuanXing);
+GeneralMergeFactory.register(6, GuanXing);
 
 /** 张苞 (7) — same as 关兴. (`Fa`) */
 class ZhangBao extends GuanXing {}
-de.register(7, ZhangBao);
+GeneralMergeFactory.register(7, ZhangBao);
 
 /** 张翼 (8) — jump-slash (single). (`Xa`) */
 class ZhangYi extends General {
@@ -262,7 +259,7 @@ class ZhangYi extends General {
   }
   protected IR(_t: any): void {}
 }
-de.register(8, ZhangYi);
+GeneralMergeFactory.register(8, ZhangYi);
 
 /** 黄盖 (9) — bounce strategy. (`Pa`) */
 class HuangGai extends General {
@@ -275,7 +272,7 @@ class HuangGai extends General {
     this.QE.attack(this.uT());
   }
 }
-de.register(9, HuangGai);
+GeneralMergeFactory.register(9, HuangGai);
 
 /** 刘备 (10) — holy blade. (`Ba`) */
 class LiuBei extends General {
@@ -292,7 +289,7 @@ class LiuBei extends General {
     if (t === "圣剑") $.instance().playSound("holyBlade_skill");
   }
 }
-de.register(10, LiuBei);
+GeneralMergeFactory.register(10, LiuBei);
 
 /** 黄祖 (11) — arrow rain. (`Ca`) */
 class HuangZu extends General {
@@ -308,7 +305,7 @@ class HuangZu extends General {
     this.QE.attack(this.GR());
   }
 }
-de.register(11, HuangZu);
+GeneralMergeFactory.register(11, HuangZu);
 
 /** 平民 (-1) — civilian (no skill). (`ja`) */
 class Civilian extends General {
@@ -321,4 +318,4 @@ class Civilian extends General {
     this.QE.attack(this.uT());
   }
 }
-de.register(-1, Civilian);
+GeneralMergeFactory.register(-1, Civilian);

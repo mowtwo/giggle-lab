@@ -14,8 +14,6 @@ import { GameMgr } from "../core/game-mgr";
 import { MathE } from "../core/math-e";
 import { GeneralMergeFactory } from "./general-merge-factory";
 
-const F = GameMgr;
-const f = MathE;
 const $a = GeneralMergeFactory;
 
 export class SpawnQueueMgr extends Singleton {
@@ -25,11 +23,11 @@ export class SpawnQueueMgr extends Singleton {
   private gU!: string[] | null;
 
   init(): void {
-    this.fU = F.instance().soldierPool.eh;
-    this.gU = F.instance().soldierPool.ah;
+    this.fU = GameMgr.instance().soldierPool.eh;
+    this.gU = GameMgr.instance().soldierPool.ah;
   }
   startGame(): void {
-    const t = F.instance();
+    const t = GameMgr.instance();
     this.fU = t.soldierPool.eh.slice();
     this.gU = t.soldierPool.ah.slice();
     t.generals.generalNames.forEach((g: any, s: number) => {
@@ -43,11 +41,11 @@ export class SpawnQueueMgr extends Singleton {
   }
   /** Draw the next unit type for a side. (`LU`) */
   LU(t: boolean): string {
-    const bs = F.instance().battleState;
-    if ((bs.di as any).length >= 2) return (bs.di as any)[f.range(0, (bs.di as any).length, true) as number];
+    const bs = GameMgr.instance().battleState;
+    if ((bs.di as any).length >= 2) return (bs.di as any)[MathE.range(0, (bs.di as any).length, true) as number];
     const s = t ? this.fU! : this.gU!;
     if (!s || s.length === 0) return "刀";
-    const i = f.range(0, s.length, true) as number;
+    const i = MathE.range(0, s.length, true) as number;
     const h = s[i];
     if (s[i] !== "刀" && s[i] !== "枪" && s[i] !== "弓" && s[i] !== "骑" && s[i] !== "铲" && s[i] !== "农") {
       s.splice(i, 1);
@@ -56,7 +54,7 @@ export class SpawnQueueMgr extends Singleton {
     return h;
   }
   private dU(): void {
-    if (F.instance().player.roundDay > 3) return;
+    if (GameMgr.instance().player.roundDay > 3) return;
     let t = 0;
     for (let s = 0; s < this.fU!.length; s++) if (this.fU![s] === "铲") t++;
     t = Math.floor(t / 5);
@@ -79,8 +77,8 @@ export class SpawnQueueMgr extends Singleton {
         }
       if (e) i.push(i[k]);
     }
-    if (t) F.instance().battleState.Ui = true;
-    else F.instance().battleState.Fi = true;
+    if (t) GameMgr.instance().battleState.Ui = true;
+    else GameMgr.instance().battleState.Fi = true;
   }
   gameOver(): void {
     this.fU = null;
@@ -88,7 +86,7 @@ export class SpawnQueueMgr extends Singleton {
     this.yU = [];
   }
   mU(t: number): boolean {
-    return F.instance().player.mergedGenerals.indexOf(t) !== -1;
+    return GameMgr.instance().player.mergedGenerals.indexOf(t) !== -1;
   }
   /** Preview a general's skill name/description without spawning it. (`wU`) */
   wU(t: number): { skillName: string; description: string } | null {

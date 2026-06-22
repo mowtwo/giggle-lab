@@ -20,14 +20,7 @@ import { PlatformMgr } from "../platform/platform-mgr";
 import { ServerReportMgr } from "./server-report-mgr";
 import { AvatarMgr } from "./avatar-mgr";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const f = MathE;
-const En = RankScoreMgr;
-const Mt = PlatformMgr;
-const st = ServerReportMgr;
-const In = AvatarMgr;
 
 export class LeaderboardMgr extends Singleton {
   private isOpen = false;
@@ -42,14 +35,14 @@ export class LeaderboardMgr extends Singleton {
   private QG: any;
 
   init(): void {
-    this.da = F.instance().rank.table;
-    this.playerRank = F.instance().rank.currentRank;
-    this.QG = F.instance().rank.lastRank;
-    this.Pi = F.instance().battleState.Pi;
+    this.da = GameMgr.instance().rank.table;
+    this.playerRank = GameMgr.instance().rank.currentRank;
+    this.QG = GameMgr.instance().rank.lastRank;
+    this.Pi = GameMgr.instance().battleState.Pi;
     this.ZG();
     this.KG();
-    y.instance.off(u.xs, this, this.JG);
-    y.instance.on(u.xs, this, this.JG);
+    EventMgr.instance.off(u.xs, this, this.JG);
+    EventMgr.instance.on(u.xs, this, this.JG);
   }
 
   startGame(): void {}
@@ -57,10 +50,10 @@ export class LeaderboardMgr extends Singleton {
   gameOver(t: any): void {
     if (t) {
       this.tH(1);
-      F.instance().player.lastLoseDifficulty = -1;
+      GameMgr.instance().player.lastLoseDifficulty = -1;
     } else {
       this.tH(-1);
-      F.instance().player.lastLoseDifficulty = this.Pi.Ei;
+      GameMgr.instance().player.lastLoseDifficulty = this.Pi.Ei;
     }
     this.sH();
   }
@@ -79,7 +72,7 @@ export class LeaderboardMgr extends Singleton {
   }
 
   iH(): void {
-    const t = En.instance().SG(F.instance().player.curStar);
+    const t = RankScoreMgr.instance().SG(GameMgr.instance().player.curStar);
     this.playerRank.id = t.rank;
     this.playerRank.level = t.level;
     this.hH();
@@ -95,7 +88,7 @@ export class LeaderboardMgr extends Singleton {
     this.KG();
     this.playerRank.level += t;
     if (t > 0) {
-      if (this.playerRank.level > F.instance().rank.table.get(this.playerRank.id).level) {
+      if (this.playerRank.level > GameMgr.instance().rank.table.get(this.playerRank.id).level) {
         if (this.playerRank.id !== 53) {
           this.playerRank.id += 1;
           this.hH();
@@ -116,7 +109,7 @@ export class LeaderboardMgr extends Singleton {
         this.hH();
       }
     } else if (this.playerRank.level <= 0) this.playerRank.level = 1;
-    F.instance().player.curStar = En.instance().bG(this.playerRank.id, this.playerRank.level);
+    GameMgr.instance().player.curStar = RankScoreMgr.instance().bG(this.playerRank.id, this.playerRank.level);
   }
 
   hH(): void {
@@ -128,10 +121,10 @@ export class LeaderboardMgr extends Singleton {
     const t = this.playerRank.id;
     const s = this.playerRank.level;
     let i = 0;
-    for (let k = 0; k < F.instance().rank.ya.length && t >= F.instance().rank.ya[k]; k++) i = k;
-    const h = F.instance().rank.scoreRanges[f.weightedIndex(F.instance().rank.rewardTables[i])];
+    for (let k = 0; k < GameMgr.instance().rank.ya.length && t >= GameMgr.instance().rank.ya[k]; k++) i = k;
+    const h = GameMgr.instance().rank.scoreRanges[MathE.weightedIndex(GameMgr.instance().rank.rewardTables[i])];
     let e = t < 50 ? 5 * t + s : 250 + s;
-    const a = f.range(Math.max(e + h[0], 0), e + h[1] + 1, true);
+    const a = MathE.range(Math.max(e + h[0], 0), e + h[1] + 1, true);
     let n = 0;
     let r = 0;
     if (a > 250) {
@@ -150,21 +143,21 @@ export class LeaderboardMgr extends Singleton {
     this.aH(o.weapon0, o.weapon1, o.weapon2, o.weapon3, o.weapon4);
     // 难度随机(不依赖玩家数据):排除难度0(太简单),难度2、3权重更大。
     // 权重 难度1:难度2:难度3 = 1:3:3。
-    this.Pi.Ei = 1 + f.weightedIndex([1, 3, 3]);
+    this.Pi.Ei = 1 + MathE.weightedIndex([1, 3, 3]);
     console.error("本局对手强度预估", this.Pi.Ei);
-    this.Pi.Bi = f.range(30 + this.Pi.id + this.Pi.Ei, 40 + this.Pi.id + this.Pi.Ei);
-    this.Pi.win = f.range(10 * this.Pi.id + 10, 15 * this.Pi.id + 10, true);
+    this.Pi.Bi = MathE.range(30 + this.Pi.id + this.Pi.Ei, 40 + this.Pi.id + this.Pi.Ei);
+    this.Pi.win = MathE.range(10 * this.Pi.id + 10, 15 * this.Pi.id + 10, true);
     this.Pi.lose = Math.floor((this.Pi.win - this.Pi.Bi * this.Pi.win) / this.Pi.Bi);
-    F.instance().battleState.ki = this.Pi.Ei;
+    GameMgr.instance().battleState.ki = this.Pi.Ei;
   }
 
   aH(t: number, s: number, i: number, h: number, e: number): void {
     const a: any[] = [];
     const n = (rarity: number, count: number) => {
       for (let k = 0; k < count; k++) {
-        const idx = f.range(0, 5, true);
-        const list = F.instance().weaponData.byRarityType[rarity][idx];
-        const id = list[f.range(0, list.length, true)];
+        const idx = MathE.range(0, 5, true);
+        const list = GameMgr.instance().weaponData.byRarityType[rarity][idx];
+        const id = list[MathE.range(0, list.length, true)];
         if (id) a.push(id);
       }
     };
@@ -174,16 +167,16 @@ export class LeaderboardMgr extends Singleton {
     n(1, s);
     n(0, t);
     const r: any[] = [];
-    for (let k = 0; k < F.instance().generals.generalTypes.length; k++)
-      r.push({ general: F.instance().generals.generalTypes[k].general, type: F.instance().generals.generalTypes[k].type });
+    for (let k = 0; k < GameMgr.instance().generals.generalTypes.length; k++)
+      r.push({ general: GameMgr.instance().generals.generalTypes[k].general, type: GameMgr.instance().generals.generalTypes[k].type });
     const o: any[] = [];
     for (let k = 0; k < a.length; k++) {
       o.length = 0;
       for (let s2 = 0; s2 < r.length; s2++)
-        if (F.instance().weaponData.weapons.get(a[k]).type === r[s2].type)
+        if (GameMgr.instance().weaponData.weapons.get(a[k]).type === r[s2].type)
           o.push({ general: r[s2].general, index: s2 });
       if (o.length > 0) {
-        const pick = f.range(0, o.length, true);
+        const pick = MathE.range(0, o.length, true);
         this.Pi.Ai.push({ general: o[pick].general, Hn: a[k] });
         r.splice(o[pick].index, 1);
       }
@@ -191,38 +184,38 @@ export class LeaderboardMgr extends Singleton {
   }
 
   async nH(): Promise<void> {
-    const t = await Mt.instance().getUserInfo();
+    const t = await PlatformMgr.instance().getUserInfo();
     if (t) this.rH(t);
     else this.oH();
   }
 
   rH(t: any): void {
-    const s = F.instance().player;
+    const s = GameMgr.instance().player;
     const i = t.nickName.length > 0 ? t.nickName : "无名";
-    const h = In.instance().HG();
+    const h = AvatarMgr.instance().HG();
     const e = t.province.length > 0 ? t.province : s.province;
     const a = i !== s.nick || h !== s.avatarUrl || e !== s.province;
     s.nick = i;
     s.avatarUrl = h;
     s.province = e;
     if (!(!a && this.VG)) {
-      st.instance().mp({ nk: i, av: h });
+      ServerReportMgr.instance().mp({ nk: i, av: h });
       this.VG = true;
     }
   }
 
   oH(): void {
-    const t = F.instance().player;
+    const t = GameMgr.instance().player;
     if (t.nick.length === 0) t.nick = "无名";
-    if (t.avatarUrl.length === 0) t.avatarUrl = In.instance().HG();
+    if (t.avatarUrl.length === 0) t.avatarUrl = AvatarMgr.instance().HG();
   }
 
   lH(t: any): any {
-    const s = En.instance().SG(F.instance().player.curStar);
+    const s = RankScoreMgr.instance().SG(GameMgr.instance().player.curStar);
     return {
-      nick: F.instance().player.nick,
-      avatar: In.instance().HG(),
-      province: F.instance().player.province,
+      nick: GameMgr.instance().player.nick,
+      avatar: AvatarMgr.instance().HG(),
+      province: GameMgr.instance().player.province,
       ranking: t,
       rank: s.rank,
       level: s.level,
@@ -231,7 +224,7 @@ export class LeaderboardMgr extends Singleton {
 
   cH(t: any): any {
     const s = this.lH(t.uH);
-    const i = st.instance().cp();
+    const i = ServerReportMgr.instance().cp();
     const h = t.pH.map((x: any) => ({ ...x }));
     if (i)
       for (let k = 0; k < h.length; k++)
@@ -263,8 +256,8 @@ export class LeaderboardMgr extends Singleton {
     const h = t ? this.jG : this.$G;
     if (!i && h) return void (s.success && s.success(this.cH(h)));
     const fetch: (cb: any) => void = t
-      ? st.instance().fp.bind(st.instance())
-      : st.instance().gp.bind(st.instance());
+      ? ServerReportMgr.instance().fp.bind(ServerReportMgr.instance())
+      : ServerReportMgr.instance().gp.bind(ServerReportMgr.instance());
     fetch({
       success: (resp: any): void => {
         console.log(t ? "打印服务端全国榜数据" : "打印服务端省榜数据", resp);
@@ -301,11 +294,11 @@ export class LeaderboardMgr extends Singleton {
     for (let h = 0; h < t.rankList.length; h++) {
       const e = t.rankList[h];
       const a = typeof e.star !== "number" || isNaN(e.star) ? 0 : e.star;
-      const n = En.instance().SG(a);
+      const n = RankScoreMgr.instance().SG(a);
       const r = e.info;
       const o = r && r.nk ? r.nk : "无名";
-      const l = In.instance().WG(r && r.av ? r.av : "");
-      const c = s ? (e.p ? e.p : e.province ? e.province : "未知") : F.instance().player.province;
+      const l = AvatarMgr.instance().WG(r && r.av ? r.av : "");
+      const c = s ? (e.p ? e.p : e.province ? e.province : "未知") : GameMgr.instance().player.province;
       i.push({
         userId: e.userId,
         nick: o,

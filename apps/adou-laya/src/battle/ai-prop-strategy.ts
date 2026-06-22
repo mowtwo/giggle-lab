@@ -25,9 +25,6 @@ import { GeneralPart } from "./general-part";
 import { BowSoldier } from "./soldier-types";
 import { General } from "./general";
 
-const F = GameMgr;
-const f = MathE;
-const Ki = EntityRegistry;
 const Ws = Soldier;
 const zs = BaseSoldier;
 const gi = GeneralPart;
@@ -52,7 +49,7 @@ export class PropUseBase {
       console.error("PropUseBase.use: aiCtr == null");
       return PropUseBase.HF;
     }
-    const i = F.instance().map;
+    const i = GameMgr.instance().map;
     PropUseBase.yd = i.gridWid;
     PropUseBase.fd = i.gridHei;
     return (this as any).WF(s);
@@ -105,7 +102,7 @@ export class PropUseBase {
   static QF(s: (t: any) => any, i = Infinity, h = false, e = false): any[] {
     const a: any[] = [];
     const n = PropUseBase.GF.hS.mv;
-    const r = Ki.instance().Qk;
+    const r = EntityRegistry.instance().Qk;
     let o = -1;
     for (let t = 0; t < n.length; t++)
       for (let k = 0; k < n[t].length; k++) {
@@ -142,7 +139,7 @@ export class PropUseBase {
   }
 
   static KF(t: (s: any) => any, s = Infinity): any[] {
-    const i = F.instance().map.Le!.filter((x: any) => t(x) != null);
+    const i = GameMgr.instance().map.Le!.filter((x: any) => t(x) != null);
     i.sort((x: any, k: any) => t(k) - t(x));
     i.length = Math.min(i.length, s);
     return i;
@@ -161,7 +158,7 @@ export class PropUseBase {
     else if (s instanceof zs)
       PropUseBase.Mo.setTo(s.Yn.x + s.Yn.width / 2, s.Yn.y + s.Yn.height / 2);
     return (
-      f.distanceSq(
+      MathE.distanceSq(
         PropUseBase.Mo as any,
         PropUseBase.Po.setTo(
           i * PropUseBase.yd + PropUseBase.yd / 2,
@@ -205,11 +202,11 @@ export class PropUseStrongest extends PropUseBase {
         i = 0;
         break;
       case 1:
-        i = f.weightedRandom(s.map((x) => x.qa));
+        i = MathE.weightedRandom(s.map((x) => x.qa));
         break;
       case 0:
       default:
-        i = f.range(0, s.length, true);
+        i = MathE.range(0, s.length, true);
     }
     return this.sO(t, s, i, (x) => rn.NF(x));
   }
@@ -250,7 +247,7 @@ export class PropUseRanged extends PropUseBase {
       default:
         s = this.QF((x) => (this.eO(x) ? x.qa : null));
         if (!s.length) return this.HF;
-        i = f.range(0, s.length, true);
+        i = MathE.range(0, s.length, true);
     }
     return this.sO(t, s, i, (x) => rn.NF(x));
   }
@@ -268,11 +265,11 @@ export class PropUseWeakest extends PropUseBase {
         break;
       case 1:
         if (s.length != 1) s.length = Math.floor(s.length / 2);
-        i = f.weightedRandom(s.map((_x, k) => s.length - k));
+        i = MathE.weightedRandom(s.map((_x, k) => s.length - k));
         break;
       case 0:
       default:
-        i = f.weightedRandom(s.map((_x, k) => s.length - k));
+        i = MathE.weightedRandom(s.map((_x, k) => s.length - k));
     }
     return this.sO(t, s, i, (x) => rn.$F(x));
   }
@@ -281,7 +278,7 @@ export class PropUseWeakest extends PropUseBase {
 /** Target a point along the enemy path. (`un`) — prop types 8/9. */
 export class PropUsePath extends PropUseBase {
   static WF(t: any): any {
-    const s = F.instance().map.Le!;
+    const s = GameMgr.instance().map.Le!;
     let i: number;
     switch (this.iO) {
       case 2: {
@@ -315,12 +312,12 @@ export class PropUsePath extends PropUseBase {
           if (v != 0) n = true;
           else if (n) a.push(x);
         });
-        i = a.length == 0 ? f.range(0, s.length - 1, true) : f.range(0, a.length - 1, true);
+        i = a.length == 0 ? MathE.range(0, s.length - 1, true) : MathE.range(0, a.length - 1, true);
         break;
       }
       case 0:
       default:
-        i = f.range(0, s.length - 1, true);
+        i = MathE.range(0, s.length - 1, true);
     }
     return this.sO(t, s, i, (x: any) => this.zF(x.x, x.y));
   }

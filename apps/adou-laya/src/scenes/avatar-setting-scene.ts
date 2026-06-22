@@ -17,9 +17,6 @@ import { SceneMgr } from "../core/scene-mgr";
 import { AvatarMgr } from "../battle/avatar-mgr";
 import { AudioMgr } from "../core/audio-mgr";
 
-const q = EffectMgr;
-const K = SceneMgr;
-const In = AvatarMgr;
 const $ = AudioMgr;
 
 @regClass("B_zOi-00Tk29O7ykm753NA")
@@ -56,18 +53,18 @@ export class AvatarSettingScene extends Laya.Scene {
   private ej!: any;
 
   onAwake(): void {
-    q.instance().bindButtons([this.closeBtn, this.confirmBtn]);
+    EffectMgr.instance().bindButtons([this.closeBtn, this.confirmBtn]);
     this.closeBtn.on(Laya.Event.CLICK, this, () => {
-      if (!this.Zz) K.instance().closeScene("AvatarSettingScene");
+      if (!this.Zz) SceneMgr.instance().closeScene("AvatarSettingScene");
     });
     this.confirmBtn.on(Laya.Event.CLICK, this, () => {
-      if (!this.Zz && In.instance().isAvatarUnlocked(this.ij)) {
-        In.instance().OG(this.ij);
-        K.instance().closeScene("AvatarSettingScene");
+      if (!this.Zz && AvatarMgr.instance().isAvatarUnlocked(this.ij)) {
+        AvatarMgr.instance().OG(this.ij);
+        SceneMgr.instance().closeScene("AvatarSettingScene");
       }
     });
     this.bg.on(Laya.Event.CLICK, this, () => {
-      if (!this.Zz) K.instance().closeScene("AvatarSettingScene");
+      if (!this.Zz) SceneMgr.instance().closeScene("AvatarSettingScene");
     });
     this.hj();
     this.scroll3.mask = this.scroll3Mask;
@@ -78,7 +75,7 @@ export class AvatarSettingScene extends Laya.Scene {
   }
 
   onOpened(_t?: any): void {
-    const s = In.instance();
+    const s = AvatarMgr.instance();
     this.ij = s.PG;
     const i = s.BG.indexOf(this.ij);
     this.selectedIndex = i >= 0 ? i : 0;
@@ -159,7 +156,7 @@ export class AvatarSettingScene extends Laya.Scene {
   }
 
   hj(): void {
-    const t = In.instance();
+    const t = AvatarMgr.instance();
     const s = 16 * (this.zz + this.Wz);
     this.ej = new Laya.Box();
     this.ej.width = s;
@@ -220,7 +217,7 @@ export class AvatarSettingScene extends Laya.Scene {
   }
 
   nj(): void {
-    const t = In.instance().isAvatarUnlocked(this.ij);
+    const t = AvatarMgr.instance().isAvatarUnlocked(this.ij);
     this.confirmBtn.alpha = t ? 1 : 0.4;
   }
 

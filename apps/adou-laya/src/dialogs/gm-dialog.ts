@@ -31,11 +31,7 @@ import { GameController } from "../battle/game-controller";
 import { PlatformMgr } from "../platform/platform-mgr";
 
 const X = LayerZ;
-const K = SceneMgr;
-const q = EffectMgr;
-const y = EventMgr;
 const u = GameEvent;
-const f = MathE;
 // Gameplay managers — loosely typed; GMDialog is OH-gated debug code.
 const F = GameMgr as any;
 const Zi = BattlePropsMgr as any;
@@ -98,7 +94,7 @@ export class GMDialog extends Laya.Dialog {
     this.initPanel();
     this.initRefreshGeneral();
     this.xBtn.on(Laya.Event.CLICK, this, () => {
-      K.instance().closeDialog("GMDialog");
+      SceneMgr.instance().closeDialog("GMDialog");
     });
     this.yesBtn.on(Laya.Event.CLICK, this, this.yesBtnClick);
     this.zIndex = X.Zr;
@@ -146,9 +142,9 @@ export class GMDialog extends Laya.Dialog {
       i.addChild(h);
       i.on(Laya.Event.CLICK, this, t.execute);
       this.gmItem.push(i);
-      q.instance().bindButtons([i]);
+      EffectMgr.instance().bindButtons([i]);
     });
-    q.instance().bindButtons([this.yesBtn]);
+    EffectMgr.instance().bindButtons([this.yesBtn]);
     this.hideBkCheck.clickHandler = new Laya.Handler(this, () => {
       this.box.visible = !this.hideBkCheck.selected;
       if (this.hideBkCheck.selected) this.extraArea.pos(this.userCustomDragPos.x, this.userCustomDragPos.y);
@@ -181,7 +177,7 @@ export class GMDialog extends Laya.Dialog {
   }
 
   initInBattleGeneralPanel(): void {
-    q.instance().bindButtons([this.writeToConfig]);
+    EffectMgr.instance().bindButtons([this.writeToConfig]);
     this.writeToConfig.clickHandler = Laya.Handler.create(this, () => {
       if (this.currentPlayerGeneral)
         F.instance().player.setEquip(this.currentPlayerGeneral.type, this.currentPlayerGeneral.weaponId);
@@ -292,8 +288,8 @@ export class GMDialog extends Laya.Dialog {
 
   randomProps(): void {
     const h = F.instance().props;
-    const e = f.sample(h.$e, h.Ze);
-    const a = f.sample(h.Ne, h.Ke);
+    const e = MathE.sample(h.$e, h.Ze);
+    const a = MathE.sample(h.Ne, h.Ke);
     const n: any[] = [];
     const r: any[] = [];
     for (let s = 0; s < h.Ze; s++) n.push({ type: e[s] ?? null, level: 1 });
@@ -341,7 +337,7 @@ export class GMDialog extends Laya.Dialog {
   initBuffPanel(): void {
     this.removeBuff.visible = false;
     this.applyBuff.visible = false;
-    y.instance.on(u.ys, this, () => {
+    EventMgr.instance.on(u.ys, this, () => {
       this.removeBuff.visible = true;
       this.applyBuff.visible = true;
       const t = Tn.instance().kH;
@@ -358,7 +354,7 @@ export class GMDialog extends Laya.Dialog {
       const t = Tn.instance().kH;
       if (!t) return;
       const s = this.Lg[this.buffTypeComb.selectedIndex];
-      y.instance.event(u.hs, t, s);
+      EventMgr.instance.event(u.hs, t, s);
     });
     this.applyBuff.clickHandler = new Laya.Handler(this, () => {
       const t = Tn.instance().kH;

@@ -25,12 +25,7 @@ import { SimpleDynamicArrow } from "./bullet";
 import { LiHuaBullet, PikeSnakeBullet, FlyPike } from "./bullet-variants";
 import { TargetEnemyBezierMovement, TargetEnemyMovement } from "./movements";
 
-const de = WeaponFactory;
-const F = GameMgr;
 const $ = AudioMgr;
-const f = MathE;
-const th = BuffMgr;
-const q = EffectMgr;
 const ai = BulletEvent;
 const pi = PikeBullet;
 const ri = SimpleDynamicArrow;
@@ -177,7 +172,7 @@ export class PikeWeaponBase extends WeaponComponent {
 
   protected AI(t: any): void {
     this.II(this.CI(t.id), undefined);
-    f.distance(this.general.general, t);
+    MathE.distance(this.general.general, t);
     switch (this.Ca) {
       case 0:
         $.instance().playSound("cavalry_attack");
@@ -225,8 +220,8 @@ export class PikeWeaponBase extends WeaponComponent {
       Laya.Tween.create(this.Hn).to("rotation", this.eI).duration(200 / t);
     } else {
       a = 350 + Math.abs(i.centerY - h.y);
-      f.quadraticBezierPoint(h, e, i, h, 0.1);
-      const ang = f.angle(h, h);
+      MathE.quadraticBezierPoint(h, e, i, h, 0.1);
+      const ang = MathE.angle(h, h);
       Laya.Tween.create(this.Hn).to("rotation", ang).duration(200 / t);
     }
     s.Om = this.RI(oi.create(a));
@@ -239,7 +234,7 @@ export class PikeWeaponBase extends WeaponComponent {
       .duration(1000 / t)
       .onStart(() => {
         Laya.Point.TEMP.setTo(0, this.XT.height / 2);
-        n = this.xE.Tw(s, F.instance().Qn.globalToLocal(this.XT.localToGlobal(Laya.Point.TEMP)));
+        n = this.xE.Tw(s, GameMgr.instance().Qn.globalToLocal(this.XT.localToGlobal(Laya.Point.TEMP)));
         if (this.general.tD) this.general.tD.forEach((tc: any) => n.Tm(tc));
         if (this.zT) this.zT(n);
         this.Hn.visible = false;
@@ -305,7 +300,7 @@ export class PikeWeaponBase extends WeaponComponent {
         o.Am();
       })
       .chain()
-      .go("rotation", h - 360, h - 360 + f.deltaAngle(h - 360, i))
+      .go("rotation", h - 360, h - 360 + MathE.deltaAngle(h - 360, i))
       .duration(150 / t)
       .then(() => {
         this.Hn.rotation = i;
@@ -396,7 +391,7 @@ export class PikeWeaponBase extends WeaponComponent {
         .duration(200 / s / t)
         .onStart(() => {
           $.instance().playSound("general_pike_attack");
-          this.Hn.rotation = n + (f.range(-10, 10) as number);
+          this.Hn.rotation = n + (MathE.range(-10, 10) as number);
           const bullet = this.xE.Tw(this.YT);
           if (this.general.tD) this.general.tD.forEach((tc: any) => bullet.Tm(tc));
           this.FI(bullet);
@@ -443,7 +438,7 @@ class DefaultPike extends PikeWeaponBase {
     this.XT.y += this.rI;
   }
 }
-de.register(1, -1, () => Laya.Pool.createByClass(DefaultPike));
+WeaponFactory.register(1, -1, () => Laya.Pool.createByClass(DefaultPike));
 
 /** 短枪 (10). (`$e`) */
 class ShortPike extends PikeWeaponBase {
@@ -459,7 +454,7 @@ class ShortPike extends PikeWeaponBase {
     this.XT.y += this.rI;
   }
 }
-de.register(1, 10, () => Laya.Pool.createByClass(ShortPike));
+WeaponFactory.register(1, 10, () => Laya.Pool.createByClass(ShortPike));
 
 /** 长枪 (11) — +0.5 range. (`Ne`) */
 class LongPike extends PikeWeaponBase {
@@ -471,15 +466,15 @@ class LongPike extends PikeWeaponBase {
   }
   protected wI(): void {
     super.wI();
-    this.hD = th.instance().applyBuff(this.general.id, 2, 0.5);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 2, 0.5);
   }
   MI(): void {
     super.MI();
-    if (this.hD >= 0) th.instance().kg(this.general.id, 2, this.hD);
+    if (this.hD >= 0) BuffMgr.instance().kg(this.general.id, 2, this.hD);
     this.hD = -1;
   }
 }
-de.register(1, 11, () => Laya.Pool.createByClass(LongPike));
+WeaponFactory.register(1, 11, () => Laya.Pool.createByClass(LongPike));
 
 /** 铁枪 (12) — first hit: 20% ground-spike (3x dmg + stun). (`qe`) */
 class IronPike extends PikeWeaponBase {
@@ -498,7 +493,7 @@ class IronPike extends PikeWeaponBase {
       (id: any) => {
         if (!this.TD.has(id)) {
           if (Math.random() <= 0.2) {
-            th.instance().applyBuff(id, 10, 0, false, 500, { ed: this.ZI, hd: 1 });
+            BuffMgr.instance().applyBuff(id, 10, 0, false, 500, { ed: this.ZI, hd: 1 });
             s.sd(2 * this.Sm, [{ id }], this.general);
           }
           this.TD.add(id);
@@ -508,7 +503,7 @@ class IronPike extends PikeWeaponBase {
     );
   }
 }
-de.register(1, 12, () => Laya.Pool.createByClass(IronPike));
+WeaponFactory.register(1, 12, () => Laya.Pool.createByClass(IronPike));
 
 /** 大戟 (13) — +1 range. (`Ve`) */
 class GreatHalberd extends PikeWeaponBase {
@@ -520,15 +515,15 @@ class GreatHalberd extends PikeWeaponBase {
   }
   protected wI(): void {
     super.wI();
-    this.hD = th.instance().applyBuff(this.general.id, 2, 1);
+    this.hD = BuffMgr.instance().applyBuff(this.general.id, 2, 1);
   }
   MI(): void {
     super.MI();
-    if (this.hD >= 0) th.instance().kg(this.general.id, 2, this.hD);
+    if (this.hD >= 0) BuffMgr.instance().kg(this.general.id, 2, this.hD);
     this.hD = -1;
   }
 }
-de.register(1, 13, () => Laya.Pool.createByClass(GreatHalberd));
+WeaponFactory.register(1, 13, () => Laya.Pool.createByClass(GreatHalberd));
 
 /** 钩镰枪 (14) — first hit: 20% trip (2s). (`Qe`) */
 class HookSickle extends PikeWeaponBase {
@@ -543,13 +538,13 @@ class HookSickle extends PikeWeaponBase {
   protected zT(t: any): void {
     t.on(ai.im, (id: any) => {
       if (!this.TD.has(id)) {
-        if (Math.random() <= 0.2) th.instance().applyBuff(id, 9, 0, false, 2000);
+        if (Math.random() <= 0.2) BuffMgr.instance().applyBuff(id, 9, 0, false, 2000);
         this.TD.add(id);
       }
     });
   }
 }
-de.register(1, 14, () => Laya.Pool.createByClass(HookSickle));
+WeaponFactory.register(1, 14, () => Laya.Pool.createByClass(HookSickle));
 
 /** 点钢枪 (15) — kill grants +50% attack speed for 2s. (`Ze`) */
 class SteelPike extends PikeWeaponBase {
@@ -581,12 +576,12 @@ class SteelPike extends PikeWeaponBase {
       this.jT = id;
       s.once("onDead", () => {
         this.NT = true;
-        th.instance().applyBuff(this.general.id, 1, 0.5, true, 2000);
+        BuffMgr.instance().applyBuff(this.general.id, 1, 0.5, true, 2000);
       });
     });
   }
 }
-de.register(1, 15, () => Laya.Pool.createByClass(SteelPike));
+WeaponFactory.register(1, 15, () => Laya.Pool.createByClass(SteelPike));
 
 /** 梨花枪 (16) — kill looses 8 pear-blossoms at random enemies. (`Je`) */
 class PearBlossomPike extends PikeWeaponBase {
@@ -624,7 +619,7 @@ class PearBlossomPike extends PikeWeaponBase {
         const idx = list.indexOf(s);
         if (idx !== -1) list.splice(idx, 1);
         for (let k = 0; k < 8; k++) {
-          list[f.range(0, list.length, true) as number];
+          list[MathE.range(0, list.length, true) as number];
           this.xE
             .Tw(
               {
@@ -633,7 +628,7 @@ class PearBlossomPike extends PikeWeaponBase {
                 Um: this.dI(103, undefined),
                 Om: this.RI(Ke.create()),
                 bm: this.general,
-                Fm: f.range(0.5, 1.5),
+                Fm: MathE.range(0.5, 1.5),
               },
               { x: s.centerX, y: s.centerY },
             )
@@ -643,7 +638,7 @@ class PearBlossomPike extends PikeWeaponBase {
     });
   }
 }
-de.register(1, 16, () => Laya.Pool.createByClass(PearBlossomPike));
+WeaponFactory.register(1, 16, () => Laya.Pool.createByClass(PearBlossomPike));
 
 /** 虎头湛金枪 (17) — first hit: 20% multi ground-spike (马超: 5). (`ta`) */
 class TigerHeadPike extends PikeWeaponBase {
@@ -669,9 +664,9 @@ class TigerHeadPike extends PikeWeaponBase {
             const list = s.RA(this.general.qd);
             const count = this.general.SD === "马超" ? 5 : 3;
             for (let i = 0; i < count && !(list.length <= 0); i++) {
-              const k = f.range(0, list.length, true) as number;
+              const k = MathE.range(0, list.length, true) as number;
               const h = list[k];
-              th.instance().applyBuff(h.id, 10, 0, false, 500, { ed: this.ZI });
+              BuffMgr.instance().applyBuff(h.id, 10, 0, false, 500, { ed: this.ZI });
               s.sd(3 * this.Sm, [{ id: h.id }], this.general);
               list.splice(k, 1);
             }
@@ -683,7 +678,7 @@ class TigerHeadPike extends PikeWeaponBase {
     );
   }
 }
-de.register(1, 17, () => Laya.Pool.createByClass(TigerHeadPike));
+WeaponFactory.register(1, 17, () => Laya.Pool.createByClass(TigerHeadPike));
 
 /** 丈八蛇矛 (18) — spirit-snake roadblocks, one per general level. (`sa`) */
 class SerpentSpear extends PikeWeaponBase {
@@ -700,7 +695,7 @@ class SerpentSpear extends PikeWeaponBase {
   protected wI(): void {
     super.wI();
     this.general.on("onLevelChange", this.VT, this);
-    this.QT = q.instance();
+    this.QT = EffectMgr.instance();
     this.VT(0, true);
   }
   MI(): void {
@@ -711,7 +706,7 @@ class SerpentSpear extends PikeWeaponBase {
   }
   private VT(_t: any, s: boolean): void {
     if (!s) return;
-    const i = F.instance();
+    const i = GameMgr.instance();
     const h = i.map;
     const e = this.general.qd ? h.de : h.Le;
     if (!e || e.length < 2) return;
@@ -722,7 +717,7 @@ class SerpentSpear extends PikeWeaponBase {
       if (a.some((p: any) => p.x === seg.x && p.y === seg.y)) n.push({ ZT: seg, prev: e[t - 1] });
     }
     if (n.length === 0) return;
-    const r = n[f.range(0, n.length - 1, true) as number];
+    const r = n[MathE.range(0, n.length - 1, true) as number];
     const o = r.ZT;
     const l = r.prev;
     const c = Laya.Point.create();
@@ -752,7 +747,7 @@ class SerpentSpear extends PikeWeaponBase {
           return;
         }
         const snake = this.xE.Tw(
-          { type: oe, bm: this.general, Sm: this.Sm, Cw: { flip: f.angle(o, l) < 180 } },
+          { type: oe, bm: this.general, Sm: this.Sm, Cw: { flip: MathE.angle(o, l) < 180 } },
           c,
         );
         snake.level = this.general.level;
@@ -767,7 +762,7 @@ class SerpentSpear extends PikeWeaponBase {
     );
   }
 }
-de.register(1, 18, () => Laya.Pool.createByClass(SerpentSpear));
+WeaponFactory.register(1, 18, () => Laya.Pool.createByClass(SerpentSpear));
 
 /** 龙胆亮银枪 (19) — 10% (赵云 5%) summon fly-pikes at every enemy. (`ia`) */
 class DragonSilverPike extends PikeWeaponBase {
@@ -815,7 +810,7 @@ class DragonSilverPike extends PikeWeaponBase {
           .parallel()
           .duration(1000)
           .onUpdate(() => {
-            h.rotation = f.angle(h, s);
+            h.rotation = MathE.angle(h, s);
           })
           .then(() => {
             if (s.Bw) i.Xm();
@@ -825,4 +820,4 @@ class DragonSilverPike extends PikeWeaponBase {
     });
   }
 }
-de.register(1, 19, () => Laya.Pool.createByClass(DragonSilverPike));
+WeaponFactory.register(1, 19, () => Laya.Pool.createByClass(DragonSilverPike));

@@ -12,7 +12,6 @@
 import { Singleton } from "../core/singleton";
 import { BoardMgr } from "./board-mgr";
 
-const wi = BoardMgr;
 
 export class CellReservationMgr extends Singleton {
   private v_ = new Map<string, string>();
@@ -34,11 +33,11 @@ export class CellReservationMgr extends Singleton {
     return this.k_.has(this.x_(t, s, i, h));
   }
   M_(t: boolean, s: number): boolean {
-    const i = wi.instance().Mv(3, t)!;
+    const i = BoardMgr.instance().Mv(3, t)!;
     return !(s < 0 || s >= i.size) && !i.getItem(s, 0) && !this.b_(3, t, s, 0);
   }
   private P_(t: boolean, s: number, i: number): boolean {
-    return !wi.instance().Mv(1, t)!.getItem(s, i) && !this.b_(1, t, s, i);
+    return !BoardMgr.instance().Mv(1, t)!.getItem(s, i) && !this.b_(1, t, s, i);
   }
   A_(t: boolean, s: number): { index: number; token: string } | null {
     const reserve = (idx: number): string | null => {
@@ -53,7 +52,7 @@ export class CellReservationMgr extends Singleton {
       const tok = reserve(s);
       if (tok) return { index: s, token: tok };
     }
-    const h = wi.instance().Mv(3, t)!;
+    const h = BoardMgr.instance().Mv(3, t)!;
     for (let k = 0; k < h.size; k++) {
       const tok = reserve(k);
       if (tok) return { index: k, token: tok };

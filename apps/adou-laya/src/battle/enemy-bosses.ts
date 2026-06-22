@@ -25,17 +25,9 @@ import { BuffMgr } from "./buff-mgr";
 import { EnemyFactory } from "./enemy-factory";
 
 const sh = BossAnimSprite;
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
 const $ = AudioMgr;
-const f = MathE;
 const L = SpecialIndex;
-const q = EffectMgr;
-const Ki = EntityRegistry;
-const th = BuffMgr;
-const ss = EnemyFactory;
 
 /** 曹操 — seals the strongest soldier. (`lh`) */
 class CaoCao extends EnemyBoss {
@@ -61,10 +53,10 @@ class CaoCao extends EnemyBoss {
     this.ZM.onStop(() => {
       this.ZM.fb(Laya.Event.STOPPED);
       this.changeState(1);
-      const t = Ki.instance().NS(this.qd);
+      const t = EntityRegistry.instance().NS(this.qd);
       if (t) {
-        if (t.Xe < 5) th.instance().applyBuff(t.id, 16, 1, false, -1);
-        else th.instance().applyBuff(t.id, 16, 1, false, 10000);
+        if (t.Xe < 5) BuffMgr.instance().applyBuff(t.id, 16, 1, false, -1);
+        else BuffMgr.instance().applyBuff(t.id, 16, 1, false, 10000);
       }
     });
     this.ZM.play("attackcao", false);
@@ -76,7 +68,7 @@ class CaoCao extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("CaoCao", () => Laya.Pool.createByClass(CaoCao));
+EnemyFactory.instance().register("CaoCao", () => Laya.Pool.createByClass(CaoCao));
 
 /** 典韦 — dashes to a target + knocks it back. (`ch`) */
 class DianWei extends EnemyBoss {
@@ -99,9 +91,9 @@ class DianWei extends EnemyBoss {
     this.ZM.play("godian", true);
   }
   protected oP(): void {
-    const t = Ki.instance().GS(this.centerX, this.centerY, this.dh, this.qd);
-    for (let s = t.length - 1; s >= 0; s--) if (th.instance().qS(t[s].id, 17)) t.splice(s, 1);
-    const target = t[f.range(0, t.length, true) as number];
+    const t = EntityRegistry.instance().GS(this.centerX, this.centerY, this.dh, this.qd);
+    for (let s = t.length - 1; s >= 0; s--) if (BuffMgr.instance().qS(t[s].id, 17)) t.splice(s, 1);
+    const target = t[MathE.range(0, t.length, true) as number];
     if (!target) {
       this.changeState(1);
       return;
@@ -120,7 +112,7 @@ class DianWei extends EnemyBoss {
       i = target.x - a;
       h = target.y;
     }
-    let n = f.distance({ x: this.enemy.x, y: this.enemy.y }, { x: i, y: h });
+    let n = MathE.distance({ x: this.enemy.x, y: this.enemy.y }, { x: i, y: h });
     let r = 0;
     let o = 0;
     if (n < a) {
@@ -149,13 +141,13 @@ class DianWei extends EnemyBoss {
         const a0 = { x: r + (i - r) / 2, y: t0.y - 200 };
         const n0 = { x: i, y: h };
         let l = 0;
-        j.instance().register("dianWei" + this.id, this, (dt: number) => {
+        UpdateMgr.instance().register("dianWei" + this.id, this, (dt: number) => {
           l += dt / 100;
-          if (f.quadraticBezierPoint(t0, a0, n0, this.enemy, l)) {
+          if (MathE.quadraticBezierPoint(t0, a0, n0, this.enemy, l)) {
             this.enemy.x = i;
             this.enemy.y = h;
-            j.instance().unregister("dianWei" + this.id);
-            th.instance().applyBuff(target.id, 17, 0, false, L.Ji, -e);
+            UpdateMgr.instance().unregister("dianWei" + this.id);
+            BuffMgr.instance().applyBuff(target.id, 17, 0, false, L.Ji, -e);
           }
         });
       }),
@@ -171,7 +163,7 @@ class DianWei extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("DianWei", () => Laya.Pool.createByClass(DianWei));
+EnemyFactory.instance().register("DianWei", () => Laya.Pool.createByClass(DianWei));
 
 /** 貂蝉 — charms units + transforms them into mobs. (`uh`) */
 class DiaoChan extends EnemyBoss {
@@ -195,7 +187,7 @@ class DiaoChan extends EnemyBoss {
   }
   protected LP(): void {
     super.LP();
-    y.instance.event(u.yt, this.pk);
+    EventMgr.instance.event(u.yt, this.pk);
   }
   protected oP(): void {
     this.ZM.onStop(() => {
@@ -204,10 +196,10 @@ class DiaoChan extends EnemyBoss {
     });
     this.ZM.play("attackdiao", false);
     $.instance().playSound("diaoChan_skill_charm");
-    const t = Ki.instance().QS(this.qd);
+    const t = EntityRegistry.instance().QS(this.qd);
     for (let s = 0; s < t.length; s++) {
-      const i = Ki.instance().Dk(t[s].id);
-      if (i) th.instance().applyBuff(i.id, 19, 0, false, L.Ji);
+      const i = EntityRegistry.instance().Dk(t[s].id);
+      if (i) BuffMgr.instance().applyBuff(i.id, 19, 0, false, L.Ji);
       Laya.timer.once(1000 / t.length, this, () => {
         const target = t[s];
         this.Mo.x = this.enemy.width / 2;
@@ -216,10 +208,10 @@ class DiaoChan extends EnemyBoss {
         this.Po.x = target.x + this.dg.map.gridWid / 2;
         this.Po.y = target.y + this.dg.map.gridHei / 2;
         this.enemy.parent.localToGlobal(this.Po);
-        q.instance().playLoveHeart({ x: this.Mo.x, y: this.Mo.y }, { x: this.Po.x, y: this.Po.y }, () => {
+        EffectMgr.instance().playLoveHeart({ x: this.Mo.x, y: this.Mo.y }, { x: this.Po.x, y: this.Po.y }, () => {
           if (this.gM) return;
-          if (!Ki.instance().Dk(target.id)) return;
-          Ki.instance().Lx(target.id);
+          if (!EntityRegistry.instance().Dk(target.id)) return;
+          EntityRegistry.instance().Lx(target.id);
           const cell = this.XP();
           EnemySpatialMgr.instance().GP(
             this.qd,
@@ -238,7 +230,7 @@ class DiaoChan extends EnemyBoss {
   private XP(): { x: number; y: number; pk: number } {
     const t = Math.max(0, this.pk - 1);
     const s = Math.min(this.path.length - 1, this.pk + 1);
-    const i = f.range(t, s + 1, true) as number;
+    const i = MathE.range(t, s + 1, true) as number;
     return { x: this.path[i].x, y: this.path[i].y, pk: i };
   }
   gameOver(): void {
@@ -247,7 +239,7 @@ class DiaoChan extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("DiaoChan", () => Laya.Pool.createByClass(DiaoChan));
+EnemyFactory.instance().register("DiaoChan", () => Laya.Pool.createByClass(DiaoChan));
 
 /** 董卓 — absorbs nearby mobs to grow + heal. (`ph`) */
 class DongZhuo extends EnemyBoss {
@@ -328,7 +320,7 @@ class DongZhuo extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("DongZhuo", () => Laya.Pool.createByClass(DongZhuo));
+EnemyFactory.instance().register("DongZhuo", () => Laya.Pool.createByClass(DongZhuo));
 
 /** 华雄 — summons cavalry. (`yh`) */
 class HuaXiong extends EnemyBoss {
@@ -367,7 +359,7 @@ class HuaXiong extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("HuaXiong", () => Laya.Pool.createByClass(HuaXiong));
+EnemyFactory.instance().register("HuaXiong", () => Laya.Pool.createByClass(HuaXiong));
 
 /** 吕布 — AoE suppress. (`fh`) */
 class LvBu extends EnemyBoss {
@@ -395,9 +387,9 @@ class LvBu extends EnemyBoss {
       this.changeState(1);
     });
     this.ZM.play(this.CP, false);
-    const t = Ki.instance().GS(this.centerX, this.centerY, this.dh, this.qd);
+    const t = EntityRegistry.instance().GS(this.centerX, this.centerY, this.dh, this.qd);
     Laya.timer.once(650, this, () => {
-      for (let s = 0; s < t.length; s++) th.instance().applyBuff(t[s].id, 18, 0, false, 5000);
+      for (let s = 0; s < t.length; s++) BuffMgr.instance().applyBuff(t[s].id, 18, 0, false, 5000);
     });
     $.instance().playSound("boss_sweep_skill");
     $.instance().playSound("luBu_skill");
@@ -407,7 +399,7 @@ class LvBu extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("LvBu", () => Laya.Pool.createByClass(LvBu));
+EnemyFactory.instance().register("LvBu", () => Laya.Pool.createByClass(LvBu));
 
 /** 孙尚香 — drops a flower trap. (`gh`) */
 class SunShangXiang extends EnemyBoss {
@@ -441,7 +433,7 @@ class SunShangXiang extends EnemyBoss {
       t.anchor(0.5, 0.5);
       t.pos(this.enemy.x + this.enemy.width, this.enemy.y);
       this.enemy.parent.addChild(t);
-      y.instance.event(u.Bt, this.qd, t);
+      EventMgr.instance.event(u.Bt, this.qd, t);
     });
   }
   gameOver(): void {
@@ -450,7 +442,7 @@ class SunShangXiang extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("SunShangXiang", () => Laya.Pool.createByClass(SunShangXiang));
+EnemyFactory.instance().register("SunShangXiang", () => Laya.Pool.createByClass(SunShangXiang));
 
 /** 夏侯惇 — rolls in a darkness cloud. (`dh`) */
 class XiaHouDun extends EnemyBoss {
@@ -480,10 +472,10 @@ class XiaHouDun extends EnemyBoss {
     this.ZM.play("attackdun", false);
     $.instance().playSound("xiahouDun_skill_cloud");
     Laya.timer.once(1000, this, () => {
-      q.instance().showBlackCloud(this.qd);
+      EffectMgr.instance().showBlackCloud(this.qd);
       $.instance().playSound("xiahouDun_skill_lightning");
       Laya.timer.once(5000, this, () => {
-        q.instance().hideBlackCloud(this.qd);
+        EffectMgr.instance().hideBlackCloud(this.qd);
       });
     });
   }
@@ -491,10 +483,10 @@ class XiaHouDun extends EnemyBoss {
     super.gameOver();
     this.uP();
     Laya.timer.clearAll(this);
-    q.instance().hideBlackCloud(this.qd);
+    EffectMgr.instance().hideBlackCloud(this.qd);
   }
 }
-ss.instance().register("XiaHouDun", () => Laya.Pool.createByClass(XiaHouDun));
+EnemyFactory.instance().register("XiaHouDun", () => Laya.Pool.createByClass(XiaHouDun));
 
 /** 张苞 — raises a damage-reflect shield. (`Lh`) */
 class ZhangBao extends EnemyBoss {
@@ -520,15 +512,15 @@ class ZhangBao extends EnemyBoss {
     this.ZM.onStop(() => {
       this.ZM.fb(Laya.Event.STOPPED);
       this.changeState(1);
-      if (this.qd) F.instance().battleState.Ii.Di = false;
-      else F.instance().battleState.Ti.Di = false;
+      if (this.qd) GameMgr.instance().battleState.Ii.Di = false;
+      else GameMgr.instance().battleState.Ti.Di = false;
     });
     this.ZM.yb(1);
     this.ZM.play("attackbao", false);
-    const slot = this.qd ? F.instance().battleState.Ii : F.instance().battleState.Ti;
+    const slot = this.qd ? GameMgr.instance().battleState.Ii : GameMgr.instance().battleState.Ti;
     slot.Di = true;
     slot.num = 0;
-    slot.range = this.dh * F.instance().map.gridWid;
+    slot.range = this.dh * GameMgr.instance().map.gridWid;
     slot.pos.x = this.enemy.x + this.enemy.width / 2;
     slot.pos.y = this.enemy.y + this.enemy.height / 2;
   }
@@ -537,7 +529,7 @@ class ZhangBao extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("ZhangBao", () => Laya.Pool.createByClass(ZhangBao));
+EnemyFactory.instance().register("ZhangBao", () => Laya.Pool.createByClass(ZhangBao));
 
 /** 张角 — AoE multi-debuff horn. (`mh`) */
 class ZhangJiao extends EnemyBoss {
@@ -571,9 +563,9 @@ class ZhangJiao extends EnemyBoss {
     Laya.timer.once(500, this, () => {
       this.WP = EnemySpatialMgr.instance().lv(this.enemy.x, this.enemy.y, this.dh, this.qd);
       for (let t = 0; t < this.WP.length; t++) {
-        th.instance().applyBuff(this.WP[t].id, 6, 0.2, true, 5000);
-        th.instance().applyBuff(this.WP[t].id, 4, 0.5, true, 5000);
-        th.instance().applyBuff(this.WP[t].id, 3, 0.3, true, 5000);
+        BuffMgr.instance().applyBuff(this.WP[t].id, 6, 0.2, true, 5000);
+        BuffMgr.instance().applyBuff(this.WP[t].id, 4, 0.5, true, 5000);
+        BuffMgr.instance().applyBuff(this.WP[t].id, 3, 0.3, true, 5000);
       }
     });
     $.instance().playSound("zhangJiao_skill_horn");
@@ -583,7 +575,7 @@ class ZhangJiao extends EnemyBoss {
     this.uP();
   }
 }
-ss.instance().register("ZhangJiao", () => Laya.Pool.createByClass(ZhangJiao));
+EnemyFactory.instance().register("ZhangJiao", () => Laya.Pool.createByClass(ZhangJiao));
 
 /** 张梁 — expanding chaos wave. (`wh`) */
 class ZhangLiang extends EnemyBoss {
@@ -623,12 +615,12 @@ class ZhangLiang extends EnemyBoss {
     this.ZM.yb(1);
     this.ZM.play("attackliang", false);
     this.$P = 0;
-    j.instance().unregister(this.id + "_ZhangLiang");
-    j.instance().register(this.id + "_ZhangLiang", this, this.NP);
+    UpdateMgr.instance().unregister(this.id + "_ZhangLiang");
+    UpdateMgr.instance().register(this.id + "_ZhangLiang", this, this.NP);
     $.instance().playSound("boss_sweep_skill");
   }
   protected pP(): void {
-    j.instance().unregister(this.id + "_ZhangLiang");
+    UpdateMgr.instance().unregister(this.id + "_ZhangLiang");
   }
   NP(t: number): void {
     this.$P += t;
@@ -637,24 +629,24 @@ class ZhangLiang extends EnemyBoss {
     this.zP += t;
     if (this.zP < 100) return;
     this.zP = 0;
-    const s = Ki.instance().GS(this.enemy.x + this.enemy.width / 2, this.enemy.y + this.enemy.height / 2, this.jP / 2, this.qd);
+    const s = EntityRegistry.instance().GS(this.enemy.x + this.enemy.width / 2, this.enemy.y + this.enemy.height / 2, this.jP / 2, this.qd);
     for (let t2 = 0; t2 < s.length; t2++) {
       let i = 0;
       for (let h = 0; h < this.wa.length; h++) if (s[t2].id !== this.wa[h].id) i += 1;
       if (i === this.wa.length) {
-        th.instance().applyBuff(s[t2].id, 13, 0, false, 2000);
+        BuffMgr.instance().applyBuff(s[t2].id, 13, 0, false, 2000);
         this.wa.push({ id: s[t2].id, x: s[t2].x, y: s[t2].y });
       }
     }
   }
   gameOver(): void {
-    j.instance().unregister(this.id + "_ZhangLiang");
+    UpdateMgr.instance().unregister(this.id + "_ZhangLiang");
     super.gameOver();
     this.uP();
     this.wa.length = 0;
   }
 }
-ss.instance().register("ZhangLiang", () => Laya.Pool.createByClass(ZhangLiang));
+EnemyFactory.instance().register("ZhangLiang", () => Laya.Pool.createByClass(ZhangLiang));
 
 /** 甄宓 — calls down a healing/buff rain over allied enemies. (`vh`) */
 class ZhenFu extends EnemyBoss {
@@ -695,8 +687,8 @@ class ZhenFu extends EnemyBoss {
       this.Mo.x = t.x;
       this.Mo.y = t.y + t.height / 2;
       t.parent.localToGlobal(this.Mo);
-      q.instance().setRainArea(true, this.Mo.x, this.Mo.y, t.width, t.height / 2);
-      Ki.instance().F_(this.VP, this.qd, 1, -0.2, true, -1);
+      EffectMgr.instance().setRainArea(true, this.Mo.x, this.Mo.y, t.width, t.height / 2);
+      EntityRegistry.instance().F_(this.VP, this.qd, 1, -0.2, true, -1);
     });
     this.ZM.play("attackzhen", false);
     this.qP = true;
@@ -707,12 +699,12 @@ class ZhenFu extends EnemyBoss {
     super.gameOver();
     this.uP();
     this.qP = false;
-    q.instance().setRainArea(false, 0, 0, 0, 0);
-    Ki.instance().O_(this.VP);
+    EffectMgr.instance().setRainArea(false, 0, 0, 0, 0);
+    EntityRegistry.instance().O_(this.VP);
     if (this.QP) {
       $.instance().stopSound(this.QP);
       this.QP = null;
     }
   }
 }
-ss.instance().register("ZhenFu", () => Laya.Pool.createByClass(ZhenFu));
+EnemyFactory.instance().register("ZhenFu", () => Laya.Pool.createByClass(ZhenFu));

@@ -22,10 +22,7 @@ import { AudioMgr } from "../core/audio-mgr";
 import { MathE } from "../core/math-e";
 import { EnemySpatialMgr } from "./enemy-spatial-mgr";
 
-const q = EffectMgr;
-const z = PrefabFactory;
 const $ = AudioMgr;
-const f = MathE;
 
 /** Base for buffs that toggle "states" on the target + show art. (`ps`) */
 export class StateBuff extends Buff {
@@ -116,7 +113,7 @@ export class StunBuff extends StateBuff {
     this.Hg.anchorY = 0.5;
     this.target.pg().addChild(this.Hg);
     this.Hg.pos(41, -14);
-    this.Wg = q
+    this.Wg = EffectMgr
       .instance()
       .registerImgLoop(
         this.Hg,
@@ -131,7 +128,7 @@ export class StunBuff extends StateBuff {
   }
   protected Ag(): void {
     super.Ag();
-    q.instance().removeEvent("imgLoop", this.Wg);
+    EffectMgr.instance().removeEvent("imgLoop", this.Wg);
     this.Hg.destroy();
   }
 }
@@ -206,14 +203,14 @@ export class BurnBuff extends StateBuff {
   protected mg(t: BuffData): any {
     const s = super.mg(t);
     this.Fg = false;
-    this.Zg = z.instance().getItem("groundFireEff", this);
+    this.Zg = PrefabFactory.instance().getItem("groundFireEff", this);
     const i = this.target.pg();
     i.addChild(this.Zg);
     this.Zg.zIndex = -1;
     this.Zg.anchor(0.5, 1);
     this.Zg.pos(i.width / 2, i.height / 2 + this.Zg.height / 2);
     this.Zg.scale(0, 0);
-    this.$g = q
+    this.$g = EffectMgr
       .instance()
       .registerImgLoop(
         this.Zg,
@@ -224,7 +221,7 @@ export class BurnBuff extends StateBuff {
           "resources/img/effect/fireGround_04.png",
         ],
         70,
-        f.range(0, 4, true),
+        MathE.range(0, 4, true),
       );
     Laya.Tween.create(this.Zg).duration(500).to("scaleX", 1).to("scaleY", 1);
     return s;
@@ -245,9 +242,9 @@ export class BurnBuff extends StateBuff {
       .to("scaleX", 0)
       .to("scaleY", 0)
       .then(() => {
-        q.instance().removeEvent("imgLoop", this.$g);
+        EffectMgr.instance().removeEvent("imgLoop", this.$g);
         this.Zg.removeSelf();
-        z.instance().recover("groundFireEff", this.Zg);
+        PrefabFactory.instance().recover("groundFireEff", this.Zg);
       });
   }
 }
@@ -272,16 +269,16 @@ export class LockBuff extends StateBuff {
       img.anchorX = 0.5;
       if (i === 0) {
         img.pos(0, this.Jg.height);
-        img.rotation = f.range(30, 60);
+        img.rotation = MathE.range(30, 60);
       } else {
         img.pos(this.Jg.width, this.Jg.height);
-        img.rotation = f.range(-60, -30);
+        img.rotation = MathE.range(-60, -30);
       }
       this.Jg.addChild(img);
-      const dir = f.angleToDirection(img.rotation);
+      const dir = MathE.angleToDirection(img.rotation);
       dir.x *= img.height;
       dir.y *= img.height;
-      const h = q
+      const h = EffectMgr
         .instance()
         .registerImgLoop(
           img,
@@ -297,7 +294,7 @@ export class LockBuff extends StateBuff {
         1000,
         null,
         Laya.Handler.create(this, () => {
-          q.instance().removeEvent("imgLoop", h);
+          EffectMgr.instance().removeEvent("imgLoop", h);
         }),
       );
     }
@@ -309,7 +306,7 @@ export class LockBuff extends StateBuff {
     for (let t = 0; t < this.Jg.numChildren; t++) {
       const img = this.Jg.getChildAt(t);
       Laya.Tween.killAll(img);
-      q
+      EffectMgr
         .instance()
         .registerImgLoop(
           img,
@@ -375,7 +372,7 @@ export class FallBuff extends StateBuff {
       .to("y", this.originPos.y - 20)
       .duration(100);
     console.log(this.originPos.x + 40, h.x);
-    q.instance().playDiedaoEff(i, 0, h.height);
+    EffectMgr.instance().playDiedaoEff(i, 0, h.height);
     EnemySpatialMgr.instance().sd(t.num, [{ id: this.target.id }], t.fg);
     return s;
   }
@@ -451,12 +448,12 @@ export class PierceBuff extends StateBuff {
   }
   private ld(t: any, s: any, i: number): void {
     for (const img of this.ad) {
-      const y = f.range(this.fd - 20, this.fd);
+      const y = MathE.range(this.fd - 20, this.fd);
       img.anchor(0.5, 0.5);
       img.visible = true;
       img.alpha = 1;
-      img.pos(f.range(20, this.yd - 20), y);
-      img.rotation = f.range(-5, 5);
+      img.pos(MathE.range(20, this.yd - 20), y);
+      img.rotation = MathE.range(-5, 5);
       Laya.Tween.create(img)
         .go("scaleY", 0, 1)
         .duration(150)
@@ -465,7 +462,7 @@ export class PierceBuff extends StateBuff {
         .duration(150)
         .ease(Laya.Ease.cubicOut);
     }
-    q.instance().playCrackEffect(t, 40, 80, i);
+    EffectMgr.instance().playCrackEffect(t, 40, 80, i);
     this.gd = s.y;
     this.nd.setTo(s.scaleX, s.scaleY);
     Laya.Tween.create(s)
@@ -535,7 +532,7 @@ export class SpinFallBuff extends StateBuff {
       .to("y", this.originPos.y)
       .duration(100);
     console.log(this.originPos.x + 40, h.x);
-    q.instance().playDiedaoEff(i, 0, h.height);
+    EffectMgr.instance().playDiedaoEff(i, 0, h.height);
     return s;
   }
   protected Ag(): void {
@@ -574,12 +571,12 @@ export class SuppressBuff extends StateBuff {
     s.addChild(this.wd);
     const h: string[] = [];
     for (let t = this.dd; t > 0; t--) h.push("resources/img/gameObject/enemy/lvlDown" + t + ".png");
-    this.Ld = q.instance().registerImgLoop(this.wd, h, 100, 0, 1);
+    this.Ld = EffectMgr.instance().registerImgLoop(this.wd, h, 100, 0, 1);
     return i;
   }
   protected Ag(): void {
     super.Ag();
-    q.instance().removeEvent("imgLoop", this.Ld);
+    EffectMgr.instance().removeEvent("imgLoop", this.Ld);
     this.wd.removeSelf();
   }
 }
@@ -629,7 +626,7 @@ export class ShockBuff extends StateBuff {
     this.vd.anchorY = 0.5;
     this.target.pg().addChild(this.vd);
     this.vd.pos(41, -14);
-    this.kd = q
+    this.kd = EffectMgr
       .instance()
       .registerImgLoop(
         this.vd,
@@ -645,7 +642,7 @@ export class ShockBuff extends StateBuff {
   protected Ag(): void {
     super.Ag();
     if (this.vd != null) {
-      q.instance().removeEvent("imgLoop", this.kd);
+      EffectMgr.instance().removeEvent("imgLoop", this.kd);
       this.vd.destroy();
       this.vd = null;
     }

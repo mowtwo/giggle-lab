@@ -22,16 +22,7 @@ import { TipMgr } from "../core/tip-mgr";
 import { PrefabFactory } from "../battle/prefab-factory";
 import { AvatarMgr } from "../battle/avatar-mgr";
 
-const q = EffectMgr;
-const Dn = LeaderboardMgr;
-const En = RankScoreMgr;
-const K = SceneMgr;
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const tt = TipMgr;
-const z = PrefabFactory;
-const In = AvatarMgr;
 const fo = "resources/img/rank/countryBtn.png";
 const go = "resources/img/rank/provinceBtn.png";
 
@@ -53,21 +44,21 @@ export class RankScene extends Laya.Scene {
     this.xBtn.on(Laya.Event.CLICK, this.Bu);
     this.countryBtn.on(Laya.Event.CLICK, this, this.jQ, [0]);
     this.provinceBtn.on(Laya.Event.CLICK, this, this.jQ, [1]);
-    q.instance().bindButtons([this.xBtn, this.countryBtn, this.provinceBtn]);
+    EffectMgr.instance().bindButtons([this.xBtn, this.countryBtn, this.provinceBtn]);
     this.countryBtn.skin = fo;
     this.provinceBtn.skin = go;
   }
 
   $Q(t: any): void {
     if (this.lp < 0) return;
-    Dn.instance().rH(t);
+    LeaderboardMgr.instance().rH(t);
     Laya.timer.callLater(this, this.NQ);
   }
 
   NQ(): void {
     if (this.lp < 0) return;
     const t = this.lp === 0;
-    const s = Dn.instance().dH(t);
+    const s = LeaderboardMgr.instance().dH(t);
     if (s) {
       this.pH = s.pH;
       this.yH = s.yH;
@@ -78,19 +69,19 @@ export class RankScene extends Laya.Scene {
   }
 
   onOpened(_t?: any): void {
-    y.instance.off(u._s, this, this.$Q);
-    y.instance.on(u._s, this, this.$Q);
+    EventMgr.instance.off(u._s, this, this.$Q);
+    EventMgr.instance.on(u._s, this, this.$Q);
     this.lp = -1;
     this.jQ(0);
-    if (F.instance().player.isGetLastRankReward === 0) {
+    if (GameMgr.instance().player.isGetLastRankReward === 0) {
       this.TW();
-      F.instance().player.isGetLastRankReward = 1;
+      GameMgr.instance().player.isGetLastRankReward = 1;
     }
   }
 
   TW(): void {
-    const t = En.instance().SG(F.instance().player.lastStar);
-    K.instance().openDialog("RankRewardDialog", false, { bestRank: t.rank, bestLevel: t.level });
+    const t = RankScoreMgr.instance().SG(GameMgr.instance().player.lastStar);
+    SceneMgr.instance().openDialog("RankRewardDialog", false, { bestRank: t.rank, bestLevel: t.level });
   }
 
   async jQ(t: number): Promise<void> {
@@ -98,7 +89,7 @@ export class RankScene extends Laya.Scene {
       this.lp = t;
       this.countryBtn.skin = t === 0 ? fo : go;
       this.provinceBtn.skin = t === 1 ? fo : go;
-      await Dn.instance().nH();
+      await LeaderboardMgr.instance().nH();
       this.getData();
     }
   }
@@ -106,35 +97,35 @@ export class RankScene extends Laya.Scene {
   getData(): void {
     const t = ++this.zQ;
     const s = this.lp === 0;
-    const i = s ? Dn.instance().fH() : Dn.instance().gH();
-    if (i) tt.instance().showLoadingMask();
-    Dn.instance().LH(s, {
+    const i = s ? LeaderboardMgr.instance().fH() : LeaderboardMgr.instance().gH();
+    if (i) TipMgr.instance().showLoadingMask();
+    LeaderboardMgr.instance().LH(s, {
       success: (resp: any) => {
         if (t === this.zQ) {
           this.pH = resp.pH;
           this.yH = resp.yH;
           this.qQ();
-          if (i) tt.instance().hideLoadingMask();
-        } else if (i) tt.instance().hideLoadingMask();
+          if (i) TipMgr.instance().hideLoadingMask();
+        } else if (i) TipMgr.instance().hideLoadingMask();
       },
       fail: () => {
         if (t === this.zQ) {
-          if (i) tt.instance().hideLoadingMask();
+          if (i) TipMgr.instance().hideLoadingMask();
           this.pH = [];
-          this.yH = Dn.instance().lH(0);
+          this.yH = LeaderboardMgr.instance().lH(0);
           this.qQ();
-          tt.instance().showTip("获取最新排行榜数据失败");
-        } else if (i) tt.instance().hideLoadingMask();
+          TipMgr.instance().showTip("获取最新排行榜数据失败");
+        } else if (i) TipMgr.instance().hideLoadingMask();
       },
     });
   }
 
   qQ(): void {
     for (let t = this.list.numChildren - 1; t >= 0; t--)
-      z.instance().recover("rankItem", this.list.getChildAt(t));
+      PrefabFactory.instance().recover("rankItem", this.list.getChildAt(t));
     this.list.removeChildren();
     for (let t = 0; t < this.pH.length; t++) {
-      const s = z.instance().getItem("rankItem", this);
+      const s = PrefabFactory.instance().getItem("rankItem", this);
       s.pos((this.list.width - s.width) / 2, t * s.height);
       this.list.addChild(s);
       this.VQ(s, this.pH[t], false);
@@ -171,8 +162,8 @@ export class RankScene extends Laya.Scene {
     e.text = u2 === -1 ? "未上榜" : u2.toString();
     if (i) t.skin = "resources/img/rank/rankItem.png";
     a.text = s.nick;
-    n.text = this.lp === 0 ? s.province : F.instance().player.province;
-    r.text = F.instance().rank.table.get(s.rank).rank;
+    n.text = this.lp === 0 ? s.province : GameMgr.instance().player.province;
+    r.text = GameMgr.instance().rank.table.get(s.rank).rank;
     this.QQ(o, l, r.text, s.level);
     this.ZQ(c, s.avatar, i);
   }
@@ -192,16 +183,16 @@ export class RankScene extends Laya.Scene {
   }
 
   ZQ(t: any, s: any, i: boolean): void {
-    In.instance().zG(t, s, i);
+    AvatarMgr.instance().zG(t, s, i);
   }
 
   Bu(): void {
-    K.instance().closeScene("RankScene");
+    SceneMgr.instance().closeScene("RankScene");
   }
 
   onClosed(): void {
     Laya.timer.clear(this, this.getData);
     Laya.timer.clear(this, this.NQ);
-    y.instance.off(u._s, this, this.$Q);
+    EventMgr.instance.off(u._s, this, this.$Q);
   }
 }

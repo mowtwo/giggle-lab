@@ -25,16 +25,9 @@ import { MathE } from "../core/math-e";
 import { EnemyFactory, EnemyTypes } from "./enemy-factory";
 import { BuffMgr } from "./buff-mgr";
 
-const F = GameMgr;
-const y = EventMgr;
 const u = GameEvent;
-const j = UpdateMgr;
-const K = SceneMgr;
 const $ = AudioMgr;
-const f = MathE;
-const ss = EnemyFactory;
 const is = EnemyTypes;
-const th = BuffMgr;
 
 export class EnemySpatialMgr extends Singleton {
   private ma: any[] = [];
@@ -53,19 +46,19 @@ export class EnemySpatialMgr extends Singleton {
   private rS: any[] = [];
 
   init(): void {
-    const t = F.instance().map;
+    const t = GameMgr.instance().map;
     this.gridSize = t.gridWid;
-    j.instance().register("enemyMgr", this, this.update);
+    UpdateMgr.instance().register("enemyMgr", this, this.update);
     this.addEvent();
   }
 
   startGame(): void {}
 
   addEvent(): void {
-    y.instance.on(u.nt, this, this._A);
-    y.instance.on(u.ot, this, this.xA);
-    y.instance.on(u.ut, this, this.iA);
-    y.instance.on(u.ft, this, this.SA);
+    EventMgr.instance.on(u.nt, this, this._A);
+    EventMgr.instance.on(u.ot, this, this.xA);
+    EventMgr.instance.on(u.ut, this, this.iA);
+    EventMgr.instance.on(u.ft, this, this.SA);
   }
 
   update(t: number): void {
@@ -141,23 +134,23 @@ export class EnemySpatialMgr extends Singleton {
   /** Spawn a mob of type `t` at spec `s`. (`rg`) */
   rg(t: number, s: any, i = false): any {
     const h = is.lg[t];
-    const e = ss.instance().ng(h);
+    const e = EnemyFactory.instance().ng(h);
     e.type = t;
     e.YM = i;
     e.init(s);
     this.MS(e);
-    y.instance.event(u.Ht, s);
+    EventMgr.instance.event(u.Ht, s);
     return e;
   }
 
   /** Spawn a boss of type `t`. (`TA`) */
   TA(t: number, s: any): any {
     const i = is.ug[t];
-    const h = ss.instance().ng(i);
+    const h = EnemyFactory.instance().ng(i);
     h.type = t;
     h.init(s);
     this.MS(h);
-    y.instance.event(u.Ht, s, true);
+    EventMgr.instance.event(u.Ht, s, true);
     return h;
   }
 
@@ -173,7 +166,7 @@ export class EnemySpatialMgr extends Singleton {
   /** Enemies overlapping a circle (t,s,r=i), matching `h`. (`lv`) */
   lv(t: number, s: number, i: number, h: any): any[] {
     const e: any[] = [];
-    const a = F.instance().map;
+    const a = GameMgr.instance().map;
     const n = Math.floor((t - i) / this.gridSize);
     const r = Math.floor((t + i) / this.gridSize);
     const o = Math.floor((s - i) / this.gridSize);
@@ -191,7 +184,7 @@ export class EnemySpatialMgr extends Singleton {
             if (
               rEnemy &&
               rEnemy.aP(h) &&
-              f.circleRectOverlap(i, t, s, rEnemy.enemy.x, rEnemy.enemy.y, a.gridWid, a.gridHei)
+              MathE.circleRectOverlap(i, t, s, rEnemy.enemy.x, rEnemy.enemy.y, a.gridWid, a.gridHei)
             )
               e.push({ id: nid, x: rEnemy.enemy.x, y: rEnemy.enemy.y, Aw: rEnemy.Aw });
           }
@@ -201,11 +194,11 @@ export class EnemySpatialMgr extends Singleton {
 
   /** Push enemies overlapping a circle into `e`. (`CA`) */
   CA(t: number, s: number, i: number, h: any, e: any[]): void {
-    const a = F.instance().map;
+    const a = GameMgr.instance().map;
     const n = this.DA(t, s, i);
     for (const r of n) {
       const enemy = this.kw.get(r);
-      if (enemy && enemy.aP(h) && f.circleRectOverlap(i, t, s, enemy.enemy.x, enemy.enemy.y, a.gridWid, a.gridHei))
+      if (enemy && enemy.aP(h) && MathE.circleRectOverlap(i, t, s, enemy.enemy.x, enemy.enemy.y, a.gridWid, a.gridHei))
         e.push(enemy);
     }
   }
@@ -219,12 +212,12 @@ export class EnemySpatialMgr extends Singleton {
   /** Enemies near point `t` within radius `s`, matching `i`, excluding `t.id`. (`FA`) */
   FA(t: any, s: number, i: any): any[] {
     const h: any[] = [];
-    const e = F.instance().map;
+    const e = GameMgr.instance().map;
     const a = this.DA(t.x, t.y, s);
     for (const n of a) {
       if (n === t.id) continue;
       const enemy = this.kw.get(n);
-      if (enemy && enemy.aP(i) && f.circleRectOverlap(s, t.x, t.y, enemy.enemy.x, enemy.enemy.y, e.gridWid, e.gridHei))
+      if (enemy && enemy.aP(i) && MathE.circleRectOverlap(s, t.x, t.y, enemy.enemy.x, enemy.enemy.y, e.gridWid, e.gridHei))
         h.push({ id: n, x: enemy.enemy.x, y: enemy.enemy.y, Aw: enemy.Aw });
     }
     return h;
@@ -300,7 +293,7 @@ export class EnemySpatialMgr extends Singleton {
     this.ma.length = 0;
     for (const e of this.kw) if (e[1].aP(t)) this.ma.push(e[1]);
     if (this.ma.length <= 0) return s;
-    const i = this.ma[f.range(0, this.ma.length, true)!];
+    const i = this.ma[MathE.range(0, this.ma.length, true)!];
     return i.id === -1 ? s : { id: i.id, x: i.enemy.x, y: i.enemy.y, Aw: i.Aw };
   }
 
@@ -327,7 +320,7 @@ export class EnemySpatialMgr extends Singleton {
 
   /** Boss-wave gate check. (`WA`) */
   WA(): void {
-    const t = F.instance().battleState;
+    const t = GameMgr.instance().battleState;
     const s = t.oi;
     if (t.gi) {
       t.Ni[s] = true;
@@ -337,10 +330,10 @@ export class EnemySpatialMgr extends Singleton {
       t.gi = false;
       return;
     }
-    const i = F.instance().enemy.yh.indexOf(s);
+    const i = GameMgr.instance().enemy.yh.indexOf(s);
     if (i < 0) return;
     if (void 0 !== t.Ni[s]) return;
-    const h = Math.random() < F.instance().enemy.fh[i];
+    const h = Math.random() < GameMgr.instance().enemy.fh[i];
     t.Ni[s] = h;
     if (h) {
       t.$i.push(s);
@@ -351,7 +344,7 @@ export class EnemySpatialMgr extends Singleton {
 
   /** Boss spawn for one side. (`zA`) */
   zA(t: boolean, s: number, i: boolean): void {
-    const h = F.instance();
+    const h = GameMgr.instance();
     let e: number;
     if (i) {
       e = 3 * h.map.mapIndex + h.enemy.ph;
@@ -359,7 +352,7 @@ export class EnemySpatialMgr extends Singleton {
       h.enemy.ph += 1;
       if (h.enemy.ph >= 3) h.enemy.ph = 0;
       if (t) {
-        K.instance().openDialog("BossTipDialog", true, e);
+        SceneMgr.instance().openDialog("BossTipDialog", true, e);
         $.instance().playSound("boss_entrance");
       }
     } else {
@@ -374,23 +367,23 @@ export class EnemySpatialMgr extends Singleton {
     this.kA += t;
     if (this.kA < 500) return;
     this.kA = 0;
-    const s = F.instance().map.de!.length;
+    const s = GameMgr.instance().map.de!.length;
     let i = false;
     let h = false;
     for (const entry of this.kw)
       if (!((i && entry[1].qd) || (h && !entry[1].qd)) && s - entry[1].pk <= 5) {
-        y.instance.event(u.Gt, entry[1].qd);
+        EventMgr.instance.event(u.Gt, entry[1].qd);
         if (entry[1].qd) i = true;
         else h = true;
       }
-    if (!i && F.instance().map.ke) y.instance.event(u.Ot, false, 1);
+    if (!i && GameMgr.instance().map.ke) EventMgr.instance.event(u.Ot, false, 1);
   }
 
   /** Spawn a special (type 4) enemy. (`iA`) */
   iA(t: boolean, s: number, i: number, h: number): void {
-    (t ? F.instance().battleState.Ii : F.instance().battleState.Ti).num += 1;
+    (t ? GameMgr.instance().battleState.Ii : GameMgr.instance().battleState.Ti).num += 1;
     const e = is.lg[4];
-    const a = ss.instance().ng(e);
+    const a = EnemyFactory.instance().ng(e);
     a.uA.x = s;
     a.uA.y = i;
     a.uA.index = h;
@@ -400,9 +393,9 @@ export class EnemySpatialMgr extends Singleton {
   /** Spawn a type-6 enemy along a path. (`GP`) */
   GP(t: any, s: any, i: any, h: number, e: number, a: number, n: number, r: number): void {
     const o = is.lg[6];
-    const l = ss.instance().ng(o);
-    l.Hv = new Laya.Point(h * F.instance().map.gridWid, e * F.instance().map.gridHei);
-    l.eP = new Laya.Point(a * F.instance().map.gridWid, n * F.instance().map.gridHei);
+    const l = EnemyFactory.instance().ng(o);
+    l.Hv = new Laya.Point(h * GameMgr.instance().map.gridWid, e * GameMgr.instance().map.gridHei);
+    l.eP = new Laya.Point(a * GameMgr.instance().map.gridWid, n * GameMgr.instance().map.gridHei);
     l.Aa = s;
     l.eA = i;
     l.pk = r;
@@ -412,7 +405,7 @@ export class EnemySpatialMgr extends Singleton {
   /** Knock back enemies on side `t` near (s,i). (`mk`) */
   mk(t: any, s: number, i: number, h: any, e: any): void {
     let a = false;
-    const n = F.instance().map.gridWid / 2;
+    const n = GameMgr.instance().map.gridWid / 2;
     const r = this.DA(s, i, n);
     for (const o of r) {
       const enemy = this.kw.get(o);
@@ -421,13 +414,13 @@ export class EnemySpatialMgr extends Singleton {
         this.Mo.y = i;
         this.Po.x = enemy.enemy.x + enemy.enemy.width / 2;
         this.Po.y = enemy.enemy.y + enemy.enemy.height / 2;
-        if (f.distance(this.Mo, this.Po) < n) {
+        if (MathE.distance(this.Mo, this.Po) < n) {
           enemy.back(h, e);
           a = true;
         }
       }
     }
-    if (a) y.instance.event(u.gs, t);
+    if (a) EventMgr.instance.event(u.gs, t);
   }
 
   /** Trigger EP on enemies within 60px of (t,s). (`y_`) */
@@ -436,7 +429,7 @@ export class EnemySpatialMgr extends Singleton {
     for (const h of i) {
       const enemy = this.kw.get(h);
       if (!enemy) continue;
-      const e = f.distance(
+      const e = MathE.distance(
         { x: t, y: s },
         { x: enemy.enemy.x + enemy.enemy.width / 2, y: enemy.enemy.y + enemy.enemy.height / 2 },
       );
@@ -449,7 +442,7 @@ export class EnemySpatialMgr extends Singleton {
     const i = this.kw.get(t);
     if (i) {
       i.PP();
-      th.instance().applyBuff(t, 15, 0, false, s);
+      BuffMgr.instance().applyBuff(t, 15, 0, false, s);
     }
   }
 
@@ -459,7 +452,7 @@ export class EnemySpatialMgr extends Singleton {
     this.rS.push(n);
     for (const entry of this.kw) {
       if (entry[1].qd !== s) continue;
-      const r = th.instance().applyBuff(entry[1].id, i, h, e, a);
+      const r = BuffMgr.instance().applyBuff(entry[1].id, i, h, e, a);
       n.map.set(entry[1].id, r);
     }
   }
@@ -469,7 +462,7 @@ export class EnemySpatialMgr extends Singleton {
     const s = this.rS.findIndex((s2) => s2.sign === t);
     if (s < 0) return;
     const i = this.rS[s];
-    for (const entry of i.map) if (entry[1] >= 0) th.instance().kg(entry[0], i.Lg, entry[1]);
+    for (const entry of i.map) if (entry[1] >= 0) BuffMgr.instance().kg(entry[0], i.Lg, entry[1]);
     this.rS.splice(s, 1);
   }
 
@@ -477,7 +470,7 @@ export class EnemySpatialMgr extends Singleton {
   MS(t: any): void {
     for (let s = 0; s < this.rS.length; s++) {
       if (t.qd !== this.rS[s].qd) continue;
-      const i = th
+      const i = BuffMgr
         .instance()
         .applyBuff(t.id, this.rS[s].Lg, this.rS[s].num, this.rS[s].CS, this.rS[s].time);
       this.rS[s].map.set(t.id, i);

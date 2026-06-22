@@ -5,7 +5,7 @@
 // ~28758-28879. A per-frame tick (`AH`) accrues stamina by the recover interval;
 // `DH` watches an ad and `CH` shares (or watches an ad if sharing is unavailable)
 // to refill, both gated by daily caps and a share cooldown. The actual ad/share
-// calls go through the platform mgr (`Mt`). Opaque method / field names kept
+// calls go through the platform mgr (`PlatformMgr`). Opaque method / field names kept
 // verbatim.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -19,22 +19,17 @@ import { GameEvent } from "../core/game-event";
 import { PlatformMgr } from "../platform/platform-mgr";
 import { ut } from "./analytics-mgr";
 
-const F = GameMgr;
-const j = UpdateMgr;
-const tt = TipMgr;
-const y = EventMgr;
 const u = GameEvent;
-const Mt = PlatformMgr;
 
 export class StaminaCtrl extends Singleton {
   private yH!: any;
   private PH!: any;
 
   init(): void {
-    this.yH = F.instance().player;
-    this.PH = F.instance().stamina;
+    this.yH = GameMgr.instance().player;
+    this.PH = GameMgr.instance().stamina;
     this.AH();
-    j.instance().register("StaminaMgr", this, this.update);
+    UpdateMgr.instance().register("StaminaMgr", this, this.update);
   }
 
   update(_t: number): void {
@@ -75,20 +70,20 @@ export class StaminaCtrl extends Singleton {
 
   /** Watch an ad to refill stamina. (`DH`) */
   DH(t?: () => void): void {
-    if (this.yH.stamina >= this.PH.hn) tt.instance().showTip("当前体力已满~");
+    if (this.yH.stamina >= this.PH.hn) TipMgr.instance().showTip("当前体力已满~");
     else if (this.IH())
-      Mt.instance().uu(
+      PlatformMgr.instance().uu(
         () => {
           this.yH.stamina = Math.min(this.yH.stamina + this.PH.nn, this.PH.hn);
           this.yH.videoCountToday += 1;
           if (t) t();
         },
         () => {
-          tt.instance().showTip("观看完整广告才能获得体力呦~");
+          TipMgr.instance().showTip("观看完整广告才能获得体力呦~");
         },
         ut,
       );
-    else tt.instance().showTip("今天已经看过视频了，明天再来吧~");
+    else TipMgr.instance().showTip("今天已经看过视频了，明天再来吧~");
   }
 
   /** Whether a share refill is available (cap + cooldown). (`TH`) */
@@ -106,40 +101,40 @@ export class StaminaCtrl extends Singleton {
   /** Share (or watch an ad) to refill stamina. (`CH`) */
   CH(t?: () => void): void {
     const s = Date.now();
-    if (this.yH.stamina >= this.PH.hn) return void tt.instance().showTip("当前体力已满~");
+    if (this.yH.stamina >= this.PH.hn) return void TipMgr.instance().showTip("当前体力已满~");
     if (this.yH.staminaShareCountToday >= this.PH.cn) {
-      const msg = Mt.instance().canShare()
+      const msg = PlatformMgr.instance().canShare()
         ? "今天已经分享3次了，明天再来吧~"
         : "今天已通过该方式领取3次，明天再来吧~";
-      return void tt.instance().showTip(msg);
+      return void TipMgr.instance().showTip(msg);
     }
     const i = this.RH();
     if (i > 0) {
-      const msg = Mt.instance().canShare()
+      const msg = PlatformMgr.instance().canShare()
         ? "分享冷却中，还需等待" + Math.floor(i / 60) + "分" + (i % 60) + "秒"
         : "冷却中，还需等待" + Math.floor(i / 60) + "分" + (i % 60) + "秒";
-      return void tt.instance().showTip(msg);
+      return void TipMgr.instance().showTip(msg);
     }
     const h = () => {
       this.yH.stamina = Math.min(this.yH.stamina + this.PH.ln, this.PH.hn);
       this.yH.staminaShareCountToday += 1;
       this.yH.lastShareStaminaTime = s;
-      const msg = Mt.instance().canShare()
+      const msg = PlatformMgr.instance().canShare()
         ? `分享成功！获得${this.PH.ln}点体力`
         : `观看成功！获得${this.PH.ln}点体力`;
-      tt.instance().showTip(msg);
+      TipMgr.instance().showTip(msg);
       if (t) t();
-      y.instance.event(u.Vt);
+      EventMgr.instance.event(u.Vt);
     };
-    if (Mt.instance().canShare())
-      Mt.instance().share(h, () => {
-        tt.instance().showTip("分享失败，请重试~");
+    if (PlatformMgr.instance().canShare())
+      PlatformMgr.instance().share(h, () => {
+        TipMgr.instance().showTip("分享失败，请重试~");
       });
     else
-      Mt.instance().uu(
+      PlatformMgr.instance().uu(
         h,
         () => {
-          tt.instance().showTip("观看完整广告才能获得体力呦~");
+          TipMgr.instance().showTip("观看完整广告才能获得体力呦~");
         },
         ut,
       );
@@ -148,7 +143,7 @@ export class StaminaCtrl extends Singleton {
   /** Add stamina directly. (`UH`) */
   UH(t: number): void {
     this.yH.stamina = Math.min(this.yH.stamina + t, this.PH.hn);
-    y.instance.event(u.Vt);
+    EventMgr.instance.event(u.Vt);
   }
 
   /** Seconds until the next stamina point. (`FH`) */

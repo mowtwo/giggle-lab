@@ -12,7 +12,6 @@
 import { GameMgr } from "../core/game-mgr";
 import { AnimPlayer } from "./anim-player";
 
-const F = GameMgr;
 const Zt = AnimPlayer;
 
 export class BossAnimSprite extends Laya.Sprite {
@@ -27,16 +26,16 @@ export class BossAnimSprite extends Laya.Sprite {
     this.skin = null;
     this.cb = t;
     this.skin = s;
-    this.size(F.instance().map.gridWid, F.instance().map.gridHei);
+    this.size(GameMgr.instance().map.gridWid, GameMgr.instance().map.gridHei);
     if (t) {
       this.sk = Zt.instance().pf(s);
       this.sk.scale(1, 1);
       this.sk.setAutoAdjust(true);
-      this.sk.pos(F.instance().map.gridWid / 2, F.instance().map.gridHei - 15);
+      this.sk.pos(GameMgr.instance().map.gridWid / 2, GameMgr.instance().map.gridHei - 15);
       this.addChild(this.sk);
     } else {
       this.img = new Laya.Image(s);
-      this.img.size(F.instance().map.gridWid, F.instance().map.gridHei);
+      this.img.size(GameMgr.instance().map.gridWid, GameMgr.instance().map.gridHei);
       this.img.anchorX = 0.5;
       this.img.anchorY = 1;
       this.img.scale(1, 1);

@@ -47,39 +47,9 @@ import { TutorialMgr } from "./tutorial-mgr";
 import { BulletTrailPool } from "./bullet-trail";
 import { MathE } from "../core/math-e";
 
-const F = GameMgr;
-const K = SceneMgr;
-const y = EventMgr;
 const u = GameEvent;
 const $ = AudioMgr;
-const tt = TipMgr;
-const _n = PreloadMgr;
-const H = PrefabPool;
-const z = PrefabFactory;
 const Zt = AnimPlayer;
-const En = RankScoreMgr;
-const Tn = FocusMgr;
-const In = AvatarMgr;
-const Mt = PlatformMgr;
-const st = ServerReportMgr;
-const St = AnalyticsMgr;
-const Rn = StaminaCtrl;
-const Dn = LeaderboardMgr;
-const Na = SpawnQueueMgr;
-const wi = BoardMgr;
-const Ki = EntityRegistry;
-const Pn = BoardInputMgr;
-const mn = GeneralAIController;
-const en = PlacementMgr;
-const An = DragVisualMgr;
-const th = BuffMgr;
-const vn = BattleMgr;
-const Zi = BattlePropsMgr;
-const ma = WeaponMgr;
-const eh = WeaponFragmentMgr;
-const fe = BulletSpawnMgr;
-const q = EffectMgr;
-const wn = TutorialMgr;
 const Fh = BulletTrailPool;
 
 export class GameController extends Singleton {
@@ -88,33 +58,33 @@ export class GameController extends Singleton {
   init(): void {
     Laya.InputManager.multiTouchEnabled = false;
     this.addEventListener();
-    En.instance().init();
-    _n.instance().init();
-    tt.instance().init();
-    st.instance().init(Mt.instance().jy());
-    Tn.instance().init();
+    RankScoreMgr.instance().init();
+    PreloadMgr.instance().init();
+    TipMgr.instance().init();
+    ServerReportMgr.instance().init(PlatformMgr.instance().jy());
+    FocusMgr.instance().init();
     Zt.instance().init();
-    In.instance().init();
-    H.instance().init();
-    z.instance().init();
-    Na.instance().init();
-    wi.instance().init();
+    AvatarMgr.instance().init();
+    PrefabPool.instance().init();
+    PrefabFactory.instance().init();
+    SpawnQueueMgr.instance().init();
+    BoardMgr.instance().init();
     EnemySpatialMgr.instance().init();
-    Ki.instance().init();
-    Pn.instance().init();
-    mn.instance().init();
-    en.instance().init();
-    An.instance().init();
-    th.instance().init();
-    vn.instance().init();
-    Dn.instance().init();
-    Zi.instance().init();
-    ma.instance().init();
-    eh.instance().init();
-    fe.instance().init();
-    Rn.instance().init();
-    $.instance().init(F.instance().settingData().musicVolume, F.instance().settingData().soundVolume);
-    wn.instance().init();
+    EntityRegistry.instance().init();
+    BoardInputMgr.instance().init();
+    GeneralAIController.instance().init();
+    PlacementMgr.instance().init();
+    DragVisualMgr.instance().init();
+    BuffMgr.instance().init();
+    BattleMgr.instance().init();
+    LeaderboardMgr.instance().init();
+    BattlePropsMgr.instance().init();
+    WeaponMgr.instance().init();
+    WeaponFragmentMgr.instance().init();
+    BulletSpawnMgr.instance().init();
+    StaminaCtrl.instance().init();
+    $.instance().init(GameMgr.instance().settingData().musicVolume, GameMgr.instance().settingData().soundVolume);
+    TutorialMgr.instance().init();
     if (this.OH) {
       const t: any = new Laya.Image("resources/img/commonUI/tipBg.png");
       t.size(50, 50);
@@ -124,102 +94,102 @@ export class GameController extends Singleton {
       t.on(Laya.Event.CLICK, this, () => {
         if (t.opened) {
           t.opened = false;
-          K.instance().closeDialog("GMDialog");
+          SceneMgr.instance().closeDialog("GMDialog");
         } else {
           t.opened = true;
-          K.instance().openDialog("GMDialog", false);
+          SceneMgr.instance().openDialog("GMDialog", false);
         }
       });
     }
-    console.log("当前玩家天数", MathE.daysBetween(F.instance().player.registerTime, Date.now()) + 1);
+    console.log("当前玩家天数", MathE.daysBetween(GameMgr.instance().player.registerTime, Date.now()) + 1);
   }
 
   addEventListener(): void {
-    y.instance.on(u.l, this, this.gameOver);
-    y.instance.on(u.ks, this, this.YH);
-    y.instance.on(u._s, this, this.XH);
+    EventMgr.instance.on(u.l, this, this.gameOver);
+    EventMgr.instance.on(u.ks, this, this.YH);
+    EventMgr.instance.on(u._s, this, this.XH);
   }
 
   YH(): void {
-    K.instance().openDialog("AuthorizeDialog");
+    SceneMgr.instance().openDialog("AuthorizeDialog");
   }
 
   XH(t: any): void {
-    Mt.instance().wu();
-    K.instance().closeDialog("AuthorizeDialog");
-    Dn.instance().rH(t);
+    PlatformMgr.instance().wu();
+    SceneMgr.instance().closeDialog("AuthorizeDialog");
+    LeaderboardMgr.instance().rH(t);
   }
 
   startGame(): Promise<any> {
-    st.instance().pp({
+    ServerReportMgr.instance().pp({
       fail: (t: any) => {
         console.warn("[Server] start game report failed", t);
       },
     });
-    F.instance().startGame();
-    St.instance().Fy();
-    Na.instance().startGame();
-    Dn.instance().startGame();
-    vn.instance().startGame();
+    GameMgr.instance().startGame();
+    AnalyticsMgr.instance().Fy();
+    SpawnQueueMgr.instance().startGame();
+    LeaderboardMgr.instance().startGame();
+    BattleMgr.instance().startGame();
     EnemySpatialMgr.instance().startGame();
-    Ki.instance().startGame();
-    q.instance().startGame();
-    th.instance().startGame();
-    Mt.instance().startGame();
+    EntityRegistry.instance().startGame();
+    EffectMgr.instance().startGame();
+    BuffMgr.instance().startGame();
+    PlatformMgr.instance().startGame();
     return new Promise((resolve) => {
-      K.instance().openScene("BattleScene", false, null, (s: any) => {
-        mn.instance().startGame();
-        An.instance().startGame();
-        Tn.instance().startGame();
+      SceneMgr.instance().openScene("BattleScene", false, null, (s: any) => {
+        GeneralAIController.instance().startGame();
+        DragVisualMgr.instance().startGame();
+        FocusMgr.instance().startGame();
         resolve(s);
       });
     });
   }
 
   GH(): Promise<any> {
-    wn.instance().jY();
+    TutorialMgr.instance().jY();
     return this.startGame().then((t) => {
-      wn.instance().$Y();
+      TutorialMgr.instance().$Y();
       return t;
     });
   }
 
   gameOver(t: any, s = false, i = false): void {
-    F.instance().battleState.Vi = true;
-    const h = F.instance().battleState.oi;
-    const e = St.instance();
+    GameMgr.instance().battleState.Vi = true;
+    const h = GameMgr.instance().battleState.oi;
+    const e = AnalyticsMgr.instance();
     if (t) e.Oy(h);
     else if (s) e.Xy(h);
     else e.Yy(h);
-    wn.instance().gameOver();
-    const a = F.instance().battleState.oi;
-    F.instance().gameOver(t);
-    vn.instance().gameOver();
-    mn.instance().gameOver();
-    An.instance().gameOver();
-    Pn.instance().gameOver();
-    y.instance.event(u.Dt);
-    Na.instance().gameOver();
+    TutorialMgr.instance().gameOver();
+    const a = GameMgr.instance().battleState.oi;
+    GameMgr.instance().gameOver(t);
+    BattleMgr.instance().gameOver();
+    GeneralAIController.instance().gameOver();
+    DragVisualMgr.instance().gameOver();
+    BoardInputMgr.instance().gameOver();
+    EventMgr.instance.event(u.Dt);
+    SpawnQueueMgr.instance().gameOver();
     EnemySpatialMgr.instance().gameOver();
-    Ki.instance().gameOver();
-    q.instance().gameOver();
-    Dn.instance().gameOver(t);
-    st.instance().yp(t, {
+    EntityRegistry.instance().gameOver();
+    EffectMgr.instance().gameOver();
+    LeaderboardMgr.instance().gameOver(t);
+    ServerReportMgr.instance().yp(t, {
       fail: (err: any) => {
         console.warn("[Server] end game report failed", err);
       },
     });
-    y.instance.event(u.o, t);
-    eh.instance().gameOver(t);
-    K.instance().openScene("GameOverScene", false, { isWin: t, HH: s, round: a, WH: i });
-    Zi.instance().gameOver(t);
-    en.instance().gameOver();
-    ma.instance().gameOver();
-    fe.instance().gameOver();
+    EventMgr.instance.event(u.o, t);
+    WeaponFragmentMgr.instance().gameOver(t);
+    SceneMgr.instance().openScene("GameOverScene", false, { isWin: t, HH: s, round: a, WH: i });
+    BattlePropsMgr.instance().gameOver(t);
+    PlacementMgr.instance().gameOver();
+    WeaponMgr.instance().gameOver();
+    BulletSpawnMgr.instance().gameOver();
     Fh.clearAllDeferredTrails();
-    th.instance().gameOver();
-    In.instance().CG();
-    Mt.instance().fu();
+    BuffMgr.instance().gameOver();
+    AvatarMgr.instance().CG();
+    PlatformMgr.instance().fu();
   }
 
   test(): void {

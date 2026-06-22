@@ -4,7 +4,7 @@
 //
 // Faithful reconstruction of reconstruction/reference/bundle.pretty.js lines
 // ~8185-8299. Game-flow and ad events are enqueued into a localStorage-backed
-// queue and flushed to the server reporter (`st.track`) opportunistically. Each
+// queue and flushed to the server reporter (`ServerReportMgr.track`) opportunistically. Each
 // event has an `old`/`new` id pair, chosen by whether the player is past their
 // first day (`Dy`). Opaque method / field names kept verbatim.
 
@@ -14,8 +14,6 @@ import { Singleton } from "../core/singleton";
 import { UpdateMgr } from "../core/update-mgr";
 import { ServerReportMgr } from "./server-report-mgr";
 
-const j = UpdateMgr;
-const st = ServerReportMgr;
 
 /** Ad-scene keys (passed to PlatformMgr.uu / share). (`ut`..`dt`) */
 export const ut = "stamina_video";
@@ -82,7 +80,7 @@ export class AnalyticsMgr extends Singleton {
 
   /** Whether the player is on day 1 (uses `old` ids). (`Iy`) */
   Iy(): boolean {
-    return j.instance().daysSinceRegister() === 1;
+    return UpdateMgr.instance().daysSinceRegister() === 1;
   }
 
   /** Pick the old/new id for an event by day. (`Dy`) */
@@ -97,7 +95,7 @@ export class AnalyticsMgr extends Singleton {
     if (s.length === 0) return;
     const i = s.slice();
     this.By = true;
-    st.instance().track(i, {
+    ServerReportMgr.instance().track(i, {
       success: () => {
         Laya.LocalStorage.removeItem(AnalyticsMgr.Cy);
         this.By = false;

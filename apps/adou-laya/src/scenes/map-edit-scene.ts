@@ -12,7 +12,6 @@
 import { regClass } from "../laya/engine";
 import { GameMgr } from "../core/game-mgr";
 
-const F = GameMgr;
 
 @regClass("yS9mPSRtQhKucXkb9gwQjQ")
 export class MapEditScene extends Laya.Scene {
@@ -29,8 +28,8 @@ export class MapEditScene extends Laya.Scene {
   }
 
   _Q(): void {
-    const t = F.instance().map.gridWid;
-    const s = F.instance().map.gridHei;
+    const t = GameMgr.instance().map.gridWid;
+    const s = GameMgr.instance().map.gridHei;
     const i = this.map.width / t;
     const h = this.map.height / s;
     for (let e = 0; e < i; e++) {

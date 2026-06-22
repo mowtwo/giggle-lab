@@ -13,18 +13,16 @@
 import { GameMgr } from "../core/game-mgr";
 import { MathE } from "../core/math-e";
 
-const F = GameMgr;
-const f = MathE;
 
 /** Per-character per-cell coverage-score tables. (`pn`) */
 export class PlacementTables {
   /** Group/closest-end weighted coverage map (used for AoE / piercing). (`aO`) */
   static aO(s: number): Map<any, number[][]> {
-    const i = F.instance().map;
+    const i = GameMgr.instance().map;
     const h = i.Me(s);
     const { nO: e, rO: a, oO: n } = PlacementTables.lO(s);
     const r = PlacementTables.cO(a, n);
-    const o: any = F.instance().generals;
+    const o: any = GameMgr.instance().generals;
     const l = o.Aa.concat(o.generalNames);
     if (o.Xa) l.push("平民");
     const c = new Map<any, number[][]>();
@@ -63,10 +61,10 @@ export class PlacementTables {
 
   /** Plain per-cell coverage map (single-target nearest). (`fO`) */
   static fO(s: number): Map<any, number[][]> {
-    const i = F.instance().map;
+    const i = GameMgr.instance().map;
     const h = i.Me(s);
     const { nO: e, rO: a } = PlacementTables.lO(s);
-    const n: any = F.instance().generals;
+    const n: any = GameMgr.instance().generals;
     const r = n.Aa.concat(n.generalNames);
     if (n.Xa) r.push("平民");
     const o = new Map<any, number[][]>();
@@ -99,7 +97,7 @@ export class PlacementTables {
           const o2 = r2 * c + c / 2;
           let count = 0;
           for (let t = 0; t < a; t++)
-            if (f.circleRectOverlap(g, n2, o2, e[t].x, e[t].y, e[t].bB, e[t].MB)) count += 1;
+            if (MathE.circleRectOverlap(g, n2, o2, e[t].x, e[t].y, e[t].bB, e[t].MB)) count += 1;
           d[s3].push(count);
         }
       }
@@ -110,7 +108,7 @@ export class PlacementTables {
 
   /** Expansion cells (`2_1`/`1_1`) adjacent to the enemy road. (`dO`) */
   static dO(t: number): Array<{ x: number; y: number }> {
-    const s = F.instance().map.Me(t);
+    const s = GameMgr.instance().map.Me(t);
     const i = s[0].length / 2;
     const h: Array<{ x: number; y: number }> = [];
     for (let t2 = s.length - 1; t2 >= 0; t2--)
@@ -131,7 +129,7 @@ export class PlacementTables {
 
   /** Enemy-path rectangles + their count + end index. (`lO`) */
   static lO(t: number): { nO: any[]; rO: number; oO: number } {
-    const s = F.instance().map;
+    const s = GameMgr.instance().map;
     const i = s.Be(t, false);
     const h: any[] = [];
     for (let t2 = 0; t2 < i.length; t2++) {
@@ -196,7 +194,7 @@ export class PlacementTables {
         let d = 0;
         for (let t = 0; t < l; t++) {
           const w = c[t];
-          if (w !== 0 && f.circleRectOverlap(a, y, g, o[t].x, o[t].y, o[t].bB, o[t].MB)) d += w;
+          if (w !== 0 && MathE.circleRectOverlap(a, y, g, o[t].x, o[t].y, o[t].bB, o[t].MB)) d += w;
         }
         u[p].push(d);
       }
@@ -257,10 +255,10 @@ export class CellPicker {
 
   /** Pick up to `s` expansion cells, ranked by difficulty heuristics. (`vO`) */
   static vO(s: number, i: any): Array<{ x: number; y: number }> {
-    const h = F.instance().map;
+    const h = GameMgr.instance().map;
     const e = h.ue;
     const a = h.Le;
-    const n = Math.min(3, Math.max(0, F.instance().battleState.ki));
+    const n = Math.min(3, Math.max(0, GameMgr.instance().battleState.ki));
     const r = CellPicker.kO(e);
     if (r.length === 0 || s <= 0) return [];
     if (n <= 1) return CellPicker._O(r, s);
@@ -326,7 +324,7 @@ export class CellPicker {
   /** Random sample of cells. (`_O`) */
   static _O(t: any[], s: number): any[] {
     const i = t.slice();
-    f.shuffle(i);
+    MathE.shuffle(i);
     return i.slice(0, Math.min(s, i.length));
   }
 
