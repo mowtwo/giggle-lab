@@ -66,6 +66,8 @@ import { WeaponFactory, WeaponMgr } from "./battle/weapon-factory";
 import { GameController } from "./battle/game-controller";
 import { BattleMgr } from "./battle/battle-mgr";
 import { EnemySpatialMgr } from "./battle/enemy-spatial-mgr";
+import { BattlePropsMgr } from "./battle/battle-props-mgr";
+import { SkillBagDialog } from "./dialogs/skill-bag-dialog";
 
 // --- Cutover: register every @regClass scene / dialog / component ---
 // Importing each module runs its @regClass side-effect, binding the original
@@ -187,6 +189,8 @@ const ported = {
   GameController,
   BattleMgr,
   EnemySpatialMgr,
+  BattlePropsMgr,
+  SkillBagDialog,
 };
 
 // Expose ported modules for in-browser verification during reconstruction.

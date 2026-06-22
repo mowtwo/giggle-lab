@@ -1,43 +1,76 @@
 // SkillBagDialog — 自定义"技能背包"界面(改造新增,非原版还原)。
 //
-// 基于 Laya.Sprite 自建遮罩 + 居中面板(刻意不继承 Laya.Dialog,避免其内置
-// 的点击/遮罩自动关闭行为干扰技能选择)。用可滚动的**列表**展示所有技能
-// (props),每行含图标 + 名称 + 描述;点击任意一行即可选中/取消,没有数量
-// 限制,自由分配,选择直接写入存档(SaveMgr 的 _props)。
+// 基于 Laya.Sprite 自建遮罩 + 居中面板(刻意不继承 Laya.Dialog)。技能按
+// 主动 / 被动分区,用可滚动列表展示(图标 + 名称 + 描述)。战斗技能栏仅
+// 2 个主动槽、6 个被动槽,所以这里主动最多选 2、被动最多选 6,与之一致。
+// 选择写入存档 _props;关闭时调用 BattlePropsMgr.reloadFromSave() 把玩家
+// 主动/被动技能列表(xx/Sx)同步过去,使选择在下一场战斗真正生效。
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { GameMgr } from "../core/game-mgr";
+import { BattlePropsMgr } from "../battle/battle-props-mgr";
+import { TipMgr } from "../core/tip-mgr";
 
 const F = GameMgr;
+const Zi = BattlePropsMgr;
+const tt = TipMgr;
 
 // props 稀有度配色(稀有/卓越/史诗/传说)。
 const RARITY_COLORS = ["#95e45a", "#2dddff", "#D955FF", "#E99431"];
+const MAX_ACTIVE = 2;
+const MAX_PASSIVE = 6;
 
 export class SkillBagDialog extends Laya.Sprite {
   private _moved = false;
+  private activeHeader: any = null;
+  private passiveHeader: any = null;
 
   constructor() {
     super();
     this.initUI();
   }
 
+  /** 该技能是否为主动技能(cd !== -1)。 */
+  private isActive(i: number): boolean {
+    return F.instance().props.Ue[i].cd !== -1;
+  }
+
+  /** 当前已选的主动 / 被动技能数量。 */
+  private countSelected(active: boolean): number {
+    let n = 0;
+    for (const x of F.instance().player.getPropsData()) {
+      const type = Array.isArray(x) ? x[0] : x;
+      if (this.isActive(type) === active) n++;
+    }
+    return n;
+  }
+
+  private updateHeaders(): void {
+    if (this.activeHeader)
+      this.activeHeader.text = `主动技能（${this.countSelected(true)}/${MAX_ACTIVE}）`;
+    if (this.passiveHeader)
+      this.passiveHeader.text = `被动技能（${this.countSelected(false)}/${MAX_PASSIVE}）`;
+  }
+
   private initUI(): void {
+    // 清理脏数据:铲子(0)/推土车(1)/行军丹(23)不是技能背包技能,不该留在 _props。
+    const player = F.instance().player;
+    for (const bad of [0, 1, 23]) if (player.hasProps(bad)) player.removeProps(bad);
+
     const SW = Laya.stage.width || 640;
     const SH = Laya.stage.height || 1386;
     this.size(SW, SH);
     this.mouseEnabled = true;
 
-    // 全屏遮罩(点击空白处关闭)。
     const mask = new Laya.Sprite();
     mask.graphics.drawRect(0, 0, SW, SH, "#000000");
     mask.alpha = 0.6;
     mask.size(SW, SH);
     mask.mouseEnabled = true;
-    mask.on(Laya.Event.CLICK, this, () => this.removeSelf());
+    mask.on(Laya.Event.CLICK, this, () => this.doClose());
     this.addChild(mask);
 
-    // 居中面板。
     const W = 600;
     const H = 980;
     const px = Math.floor((SW - W) / 2);
@@ -50,7 +83,6 @@ export class SkillBagDialog extends Laya.Sprite {
     panel.graphics.drawRect(0, 0, W, H, null as any, "#a3702a", 4);
     this.addChild(panel);
 
-    // 标题。
     const title = new Laya.Label("技能背包");
     title.fontSize = 40;
     title.color = "#f7de76";
@@ -59,66 +91,84 @@ export class SkillBagDialog extends Laya.Sprite {
     (title as any).strokeColor = "#5a3a12";
     title.width = W;
     title.align = "center";
-    title.y = 26;
+    title.y = 22;
     panel.addChild(title);
 
-    // 提示。
-    const hint = new Laya.Label("点击技能即可选择 / 取消，数量不限");
-    hint.fontSize = 22;
+    const hint = new Laya.Label("主动技能最多 2 个，被动技能最多 6 个");
+    hint.fontSize = 21;
     hint.color = "#cbb892";
     hint.width = W;
     hint.align = "center";
-    hint.y = 86;
+    hint.y = 80;
     panel.addChild(hint);
 
-    // 关闭按钮。
     const closeBtn = new Laya.Label("✕");
     closeBtn.fontSize = 44;
     closeBtn.color = "#f7de76";
-    closeBtn.pos(W - 60, 18);
+    closeBtn.pos(W - 58, 16);
     closeBtn.mouseEnabled = true;
-    closeBtn.on(Laya.Event.CLICK, this, () => this.removeSelf());
+    closeBtn.on(Laya.Event.CLICK, this, () => this.doClose());
     panel.addChild(closeBtn);
 
-    // 可滚动视口 + 内容层。
     const vx = 20;
-    const vy = 130;
+    const vy = 120;
     const vw = W - 40;
-    const vh = H - 150;
+    const vh = H - 140;
     const viewport = new Laya.Sprite();
     viewport.pos(vx, vy);
     viewport.size(vw, vh);
     viewport.mouseEnabled = true;
     panel.addChild(viewport);
-
     const content = new Laya.Sprite();
     viewport.addChild(content);
 
-    const rowH = 112;
-    const gap = 6;
     const props = F.instance().props.Ue;
-    let idx = 0;
+    const actives: number[] = [];
+    const passives: number[] = [];
     for (let i = 0; i < props.length; i++) {
       const def = props[i];
       if (!def || !def.name) continue;
-      // 铲子(0)/推土车(1)是 shovelAd 看广告救场道具,不兼容常规技能栏;
-      // 行军丹(23)加体力,无限体力下无用。三者都不在技能背包展示。
       if (i === 0 || i === 1 || i === 23) continue;
-      const row = this.makeRow(i, def, vw, rowH);
-      row.pos(0, idx * (rowH + gap));
-      content.addChild(row);
-      idx++;
+      (this.isActive(i) ? actives : passives).push(i);
     }
-    const contentH = idx * (rowH + gap);
 
-    // 透明底,保证空隙处也能拖动滚动。
+    const rowH = 110;
+    const hdrH = 48;
+    const gap = 6;
+    let y = 0;
+
+    const ah = this.makeHeader("#2dddff");
+    ah.pos(0, y);
+    content.addChild(ah);
+    this.activeHeader = ah.getChildByName("lbl");
+    y += hdrH;
+    for (const i of actives) {
+      const r = this.makeRow(i, props[i], vw, rowH);
+      r.pos(0, y);
+      content.addChild(r);
+      y += rowH + gap;
+    }
+
+    y += 14;
+    const ph = this.makeHeader("#D955FF");
+    ph.pos(0, y);
+    content.addChild(ph);
+    this.passiveHeader = ph.getChildByName("lbl");
+    y += hdrH;
+    for (const i of passives) {
+      const r = this.makeRow(i, props[i], vw, rowH);
+      r.pos(0, y);
+      content.addChild(r);
+      y += rowH + gap;
+    }
+    const contentH = y;
+
+    this.updateHeaders();
     content.graphics.drawRect(0, 0, vw, Math.max(contentH, vh), "#ffffff01");
 
-    // 用 scrollRect 实现裁剪 + 垂直滚动(手动拖动)。
     const rect = new Laya.Rectangle(0, 0, vw, vh);
     viewport.scrollRect = rect;
     const maxScroll = Math.max(0, contentH - vh);
-
     let dragging = false;
     let startY = 0;
     let startScroll = 0;
@@ -138,14 +188,32 @@ export class SkillBagDialog extends Laya.Sprite {
       rect.y = ny;
       viewport.scrollRect = rect;
     });
-    const endDrag = (): void => {
+    const end = (): void => {
       dragging = false;
     };
-    viewport.on(Laya.Event.MOUSE_UP, this, endDrag);
-    viewport.on(Laya.Event.MOUSE_OUT, this, endDrag);
+    viewport.on(Laya.Event.MOUSE_UP, this, end);
+    viewport.on(Laya.Event.MOUSE_OUT, this, end);
   }
 
-  private makeRow(propIndex: number, def: any, w: number, h: number): any {
+  private makeHeader(color: string): any {
+    const h = new Laya.Sprite();
+    h.size(560, 48);
+    const line = new Laya.Sprite();
+    line.graphics.drawRect(6, 38, 548, 2, color);
+    h.addChild(line);
+    const lbl = new Laya.Label("");
+    lbl.name = "lbl";
+    lbl.fontSize = 26;
+    lbl.color = color;
+    lbl.bold = true;
+    (lbl as any).stroke = 3;
+    (lbl as any).strokeColor = "#000000";
+    lbl.pos(6, 6);
+    h.addChild(lbl);
+    return h;
+  }
+
+  private makeRow(i: number, def: any, w: number, h: number): any {
     const player = F.instance().player;
     const row = new Laya.Sprite();
     row.size(w, h);
@@ -155,45 +223,45 @@ export class SkillBagDialog extends Laya.Sprite {
     row.addChild(border);
 
     const icon = new Laya.Image("resources/img/props/" + def.name + "_1.png");
-    icon.size(78, 78);
-    icon.pos(16, (h - 78) / 2);
+    icon.size(72, 72);
+    icon.pos(14, (h - 72) / 2);
     row.addChild(icon);
 
     const name = new Laya.Label(def.txt || def.name);
-    name.fontSize = 28;
+    name.fontSize = 26;
     name.color = RARITY_COLORS[def.rarity] || "#ffffff";
     name.bold = true;
     (name as any).stroke = 3;
     (name as any).strokeColor = "#000000";
-    name.pos(110, 14);
+    name.pos(100, 12);
     row.addChild(name);
 
     let intro = def.intro || "";
     try {
-      intro = F.instance().props.introAtLevel(propIndex, 1);
+      intro = F.instance().props.introAtLevel(i, 1);
     } catch {
       /* keep base intro */
     }
     const desc = new Laya.Label(intro);
-    desc.fontSize = 19;
+    desc.fontSize = 18;
     desc.color = "#cbb892";
-    desc.pos(110, 52);
+    desc.pos(100, 48);
     desc.width = w - 150;
-    desc.height = h - 56;
+    desc.height = h - 52;
     (desc as any).wordWrap = true;
     desc.leading = 3;
     row.addChild(desc);
 
     const check = new Laya.Label("✓");
-    check.fontSize = 36;
+    check.fontSize = 34;
     check.color = "#5bd85b";
     (check as any).stroke = 3;
     (check as any).strokeColor = "#000000";
-    check.pos(w - 46, (h - 40) / 2);
+    check.pos(w - 44, (h - 40) / 2);
     row.addChild(check);
 
     const redraw = (): void => {
-      const has = player.hasProps(propIndex);
+      const has = player.hasProps(i);
       border.graphics.clear();
       border.graphics.drawRect(
         0,
@@ -211,10 +279,26 @@ export class SkillBagDialog extends Laya.Sprite {
 
     row.on(Laya.Event.CLICK, this, () => {
       if (this._moved) return;
-      if (player.hasProps(propIndex)) player.removeProps(propIndex);
-      else player.addProps(propIndex, 1, !!def.Xe);
+      const active = this.isActive(i);
+      if (player.hasProps(i)) {
+        player.removeProps(i);
+      } else {
+        const max = active ? MAX_ACTIVE : MAX_PASSIVE;
+        if (this.countSelected(active) >= max) {
+          tt.instance().showTip(active ? "主动技能最多 2 个" : "被动技能最多 6 个");
+          return;
+        }
+        player.addProps(i, 1, !!def.Xe);
+      }
       redraw();
+      this.updateHeaders();
     });
     return row;
+  }
+
+  private doClose(): void {
+    // 把技能背包的选择同步到战斗用的主动/被动技能列表,使其在下一场战斗生效。
+    Zi.instance().reloadFromSave();
+    this.removeSelf();
   }
 }

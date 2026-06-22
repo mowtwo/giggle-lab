@@ -68,6 +68,16 @@ export class BattlePropsMgr extends C {
     y.instance.on(u._t, this, this.zx);
   }
 
+  /** 改造:技能背包修改 _props 后,重新从存档同步玩家主动/被动技能列表,使选择在下一场战斗生效。 */
+  reloadFromSave(): void {
+    this.xx.length = 0;
+    this.Sx.length = 0;
+    for (const s of F.instance().player.getPropsData()) {
+      const type = this.getPropsType(s);
+      (this.Yx(type) ? this.xx : this.Sx).push(type);
+    }
+  }
+
   Ox(): void {
     if (F.instance().rank.currentRank.id >= this.Ue.Re) F.instance().player.openProps = true;
   }
