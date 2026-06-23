@@ -652,7 +652,7 @@ export class Enemy extends GameObject {
     }
   }
   protected Rv(): void {
-    if (((this.dg.battleState.Ri && this.qd) || (this.dg.battleState.Ci && !this.qd)) && Math.random() < 0.01) {
+    if (((this.dg.battleState.Ri && this.qd) || (this.dg.battleState.Ci && !this.qd)) && MathE.rand() < 0.01) {
       const t = this.enemy.x < this.enemy.parent.width / 2 ? this.enemy.width : 0;
       Laya.Point.TEMP.x = t;
       Laya.Point.TEMP.y = 0;

@@ -399,7 +399,7 @@ class WolfMace extends KnifeWeaponBase {
   }
   protected AI(t: any): void {
     super.AI(t);
-    if (Math.random() < 0.1) {
+    if (MathE.rand() < 0.1) {
       EffectMgr.instance().playWolfRoars(
         this.general.general,
         this.general.general.width / 4,
@@ -573,7 +573,7 @@ class MorningStar extends KnifeWeaponBase {
     super.AI(t);
     const s = this.xw.kw.get(t.id);
     s.once("onHit", () => {
-      if (Math.random() < 0.1) BuffMgr.instance().applyBuff(s.id, 8, 0, false, 500);
+      if (MathE.rand() < 0.1) BuffMgr.instance().applyBuff(s.id, 8, 0, false, 500);
     });
   }
   protected bI(): void {
@@ -657,7 +657,7 @@ class TigerKnife extends KnifeWeaponBase {
   }
   protected AI(t: any): void {
     super.AI(t);
-    if (Math.random() < 0.1) {
+    if (MathE.rand() < 0.1) {
       EffectMgr.instance().playTigerRoars(
         this.general.general,
         this.general.general.width / 4,
@@ -706,7 +706,7 @@ class SevenStarKnife extends KnifeWeaponBase {
     const s = this.general.level;
     const i = [0, 70, 140];
     const h = this.CI(t.id);
-    if (Math.random() < 0.1) {
+    if (MathE.rand() < 0.1) {
       const baseY = this._D.y;
       const e = EnemySpatialMgr.instance().RA(this.general.qd);
       const a = this.UD(e, s);
@@ -769,7 +769,7 @@ class SevenStarKnife extends KnifeWeaponBase {
     const h = [...t];
     let e = h.length;
     while (e > 0) {
-      const k = Math.floor(Math.random() * e);
+      const k = Math.floor(MathE.rand() * e);
       e--;
       [h[e], h[k]] = [h[k], h[e]];
     }

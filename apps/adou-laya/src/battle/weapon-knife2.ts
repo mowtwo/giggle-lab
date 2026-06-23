@@ -234,7 +234,7 @@ class FangTianHalberd extends KnifeWeaponBase {
   protected AI(t: any): void {
     const s = this.CI(t.id);
     this.MT = this.bT[this.general.level - 1];
-    if (Math.random() <= this.MT)
+    if (MathE.rand() <= this.MT)
       this.NP(
         {
           type: ee,

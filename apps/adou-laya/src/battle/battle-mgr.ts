@@ -40,6 +40,10 @@ export class BattleMgr extends Singleton {
   private lX: any;
   private hS!: Map<number, any>;
   private Qk!: Map<number, any>;
+  // 确定性:战斗逻辑时钟(替代 pX 里的 Date.now())。从一个大基数起步并按 dt 累加,
+  // 使 gL=0(初始/技能后重置,表示"可立即攻击")依旧立即触发(clock-0 远大于冷却),
+  // 行为与原 Date.now() 一致;但只随逻辑步进 ⇒ 联机 lockstep 下喂固定 dt 即确定。见 NETPLAY.md §2。
+  private battleClock = 1_000_000;
   // 性能:非攻击单位的"找目标"扫描降频(累计 delta,达到间隔才扫描一次)。
   private scanAccum = 0;
   private static SCAN_INTERVAL = 120; // ms
@@ -124,7 +128,8 @@ export class BattleMgr extends Singleton {
     this.Qk = EntityRegistry.instance().Qk;
   }
   private pX(dt: number): void {
-    const s = Date.now();
+    this.battleClock += dt;
+    const s = this.battleClock;
     // 性能:非攻击单位的找目标扫描降频到每 SCAN_INTERVAL 毫秒一次(而非每帧),
     // 大幅减少 lv() 空间查询次数;攻击中的查询已受攻击冷却控制,保持原样。
     this.scanAccum += dt;

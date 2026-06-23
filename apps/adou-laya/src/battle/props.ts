@@ -506,7 +506,7 @@ export class TrainingSpellProp extends PropBase {
   protected Ik(): number {
     const t = EntityRegistry.instance().Dk(this.xk);
     let s = 0;
-    s = t.level < 3 ? 1 : t.level === 3 ? (Math.random() <= 0.7 ? 1 : -1) : Math.random() <= 0.6 ? 1 : -1;
+    s = t.level < 3 ? 1 : t.level === 3 ? (MathE.rand() <= 0.7 ? 1 : -1) : MathE.rand() <= 0.6 ? 1 : -1;
     return s;
   }
   reset(): void {
@@ -584,7 +584,7 @@ export class LifePillProp extends PropBase {
   protected Nv(_t: any, _s: any = null): void {
     const i = ++this.Ck;
     this.Uk = false;
-    const h = Math.random() < 0.55;
+    const h = MathE.rand() < 0.55;
     const e = h ? 1 : -1;
     const a = h ? "resources/img/props/lifePill_1.png" : "resources/img/props/lifePill_2.png";
     this.Yk();
@@ -1136,7 +1136,7 @@ export class ExorcismSpellProp extends InstantProp {
   }
   private L_(t: any, s: any, i: number, h: number): void {
     if (s === this.qd) {
-      if (Math.random() > 0.5) EnemySpatialMgr.instance().m_(t, true);
+      if (MathE.rand() > 0.5) EnemySpatialMgr.instance().m_(t, true);
       else {
         Laya.Point.TEMP.x = i;
         Laya.Point.TEMP.y = h;

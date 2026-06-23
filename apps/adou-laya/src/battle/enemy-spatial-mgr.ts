@@ -280,7 +280,7 @@ export class EnemySpatialMgr extends Singleton {
     let h = 0.8;
     if (this.kw.size < t) h = 1;
     for (const e of this.kw)
-      if (e[1].aP(s) && Math.random() < h) {
+      if (e[1].aP(s) && MathE.rand() < h) {
         i.push({ id: e[1].id, x: e[1].enemy.x, y: e[1].enemy.y, Aw: e[1].Aw });
         if (i.length >= t) break;
       }
@@ -333,7 +333,7 @@ export class EnemySpatialMgr extends Singleton {
     const i = GameMgr.instance().enemy.yh.indexOf(s);
     if (i < 0) return;
     if (void 0 !== t.Ni[s]) return;
-    const h = Math.random() < GameMgr.instance().enemy.fh[i];
+    const h = MathE.rand() < GameMgr.instance().enemy.fh[i];
     t.Ni[s] = h;
     if (h) {
       t.$i.push(s);

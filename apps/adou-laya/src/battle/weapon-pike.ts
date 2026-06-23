@@ -143,7 +143,7 @@ export class PikeWeaponBase extends WeaponComponent {
     if (this.general.SD === "赵云" && this.nI) this.nI.y = 0.6 * this.XT.height - this.rI;
   }
   protected bI(): void {
-    if (Math.random() < 0.1)
+    if (MathE.rand() < 0.1)
       Laya.Tween.create(this.Hn)
         .to("rotation", this.oI + 3)
         .duration(150)
@@ -492,7 +492,7 @@ class IronPike extends PikeWeaponBase {
       ai.im,
       (id: any) => {
         if (!this.TD.has(id)) {
-          if (Math.random() <= 0.2) {
+          if (MathE.rand() <= 0.2) {
             BuffMgr.instance().applyBuff(id, 10, 0, false, 500, { ed: this.ZI, hd: 1 });
             s.sd(2 * this.Sm, [{ id }], this.general);
           }
@@ -538,7 +538,7 @@ class HookSickle extends PikeWeaponBase {
   protected zT(t: any): void {
     t.on(ai.im, (id: any) => {
       if (!this.TD.has(id)) {
-        if (Math.random() <= 0.2) BuffMgr.instance().applyBuff(id, 9, 0, false, 2000);
+        if (MathE.rand() <= 0.2) BuffMgr.instance().applyBuff(id, 9, 0, false, 2000);
         this.TD.add(id);
       }
     });
@@ -660,7 +660,7 @@ class TigerHeadPike extends PikeWeaponBase {
       ai.im,
       (id: any) => {
         if (!this.TD.has(id)) {
-          if (Math.random() <= 0.2) {
+          if (MathE.rand() <= 0.2) {
             const list = s.RA(this.general.qd);
             const count = this.general.SD === "马超" ? 5 : 3;
             for (let i = 0; i < count && !(list.length <= 0); i++) {
@@ -779,8 +779,8 @@ class DragonSilverPike extends PikeWeaponBase {
   }
   protected zT(_t: any): void {
     if (this.general.SD === "赵云") {
-      if (Math.random() <= 0.05) this.KT();
-    } else if (Math.random() <= 0.1) this.KT();
+      if (MathE.rand() <= 0.05) this.KT();
+    } else if (MathE.rand() <= 0.1) this.KT();
   }
   private KT(): void {
     let t = 0;

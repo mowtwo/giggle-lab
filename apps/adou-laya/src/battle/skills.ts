@@ -61,7 +61,7 @@ export class StunOnHitBehavior extends BulletBehavior {
     this.tC = h;
   }
   $m(t: any, s: any): void {
-    if (Math.random() <= (t.yM ? this.tC : this.JR)) {
+    if (MathE.rand() <= (t.yM ? this.tC : this.JR)) {
       BuffMgr.instance().applyBuff(t.id, 8, 0, false, t.yM ? this.KR : this.ZR);
       if (this.QR) {
         EffectMgr.instance().playElectricEffect(t.enemy.parent, t.enemy.x + t.enemy.width / 2, t.enemy.y + t.enemy.height / 2);
@@ -86,7 +86,7 @@ export class TripOnHitBehavior extends BulletBehavior {
     this.tC = h;
   }
   $m(t: any, _s: any): void {
-    if (Math.random() <= (t.yM ? this.tC : this.JR)) BuffMgr.instance().applyBuff(t.id, 17, 0, false, t.yM ? this.oC : this.rC);
+    if (MathE.rand() <= (t.yM ? this.tC : this.JR)) BuffMgr.instance().applyBuff(t.id, 17, 0, false, t.yM ? this.oC : this.rC);
   }
 }
 

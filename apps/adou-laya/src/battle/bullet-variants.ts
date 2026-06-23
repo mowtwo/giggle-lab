@@ -534,7 +534,7 @@ export class FireDragonArrow extends Bullet {
   private bE(): void {
     const t = this.xE.Tw(
       { type: StaticFireBall, Um: Js.AL, bm: this.bm },
-      { x: this.Pm.x + 22 * (Math.random() - 0.5), y: this.Pm.y + 22 * (Math.random() - 0.5) },
+      { x: this.Pm.x + 22 * (MathE.rand() - 0.5), y: this.Pm.y + 22 * (MathE.rand() - 0.5) },
     );
     t.duration = this.dE;
     t.Xm();
@@ -868,7 +868,7 @@ export class LightningArrow extends Bullet {
   protected $m(t: any): void {
     const s = EnemySpatialMgr.instance();
     for (let i = 0; i < s.kw.size / 2; i++)
-      if (Math.random() < 0.5) {
+      if (MathE.rand() < 0.5) {
         this.config.Sm = this.Sm;
         this.config.bm = this.bm;
         const target = s.XA(this.bm.qd);

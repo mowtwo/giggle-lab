@@ -265,7 +265,7 @@ export class SwordWeaponBase extends WeaponComponent {
       this.gR(t, s, i);
       if (!this.oR && !this.rR) this.eR++;
     } else {
-      if (Math.random() < (this.aR !== 0 ? this.aR : h)) this.dR();
+      if (MathE.rand() < (this.aR !== 0 ? this.aR : h)) this.dR();
       else this.LR();
       this.eR = 0;
     }
@@ -297,7 +297,7 @@ export class SwordWeaponBase extends WeaponComponent {
     this.nR = this.cR.y;
   }
   protected bI(): void {
-    if (!this.rR && Math.random() > 0.9)
+    if (!this.rR && MathE.rand() > 0.9)
       Laya.Tween.create(this.Hn)
         .to("rotation", 90)
         .duration(250)

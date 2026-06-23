@@ -111,7 +111,7 @@ class AIPlaceStrategy {
       }
     if (e.value === 100) return void console.log("没有找到最小价值的  就很有趣");
     const a = e.Yn instanceof zs ? 2 : 3;
-    if (Math.random() < (s - e.value) * a * 0.1) i.FO(t, e.Yn.Cd.x, e.Yn.Cd.y);
+    if (MathE.rand() < (s - e.value) * a * 0.1) i.FO(t, e.Yn.Cd.x, e.Yn.Cd.y);
   }
 
   CO(t: any): boolean {
@@ -456,7 +456,7 @@ export class GeneralAIController extends AIControllerBase {
         this.TO = 0;
         this.step = 2;
       } else {
-        if (Math.random() <= GameMgr.instance().config.ai[GameMgr.instance().battleState.ki]) return void this.EY();
+        if (MathE.rand() <= GameMgr.instance().config.ai[GameMgr.instance().battleState.ki]) return void this.EY();
         this.IU();
       }
     } else if (this.step === 2) {

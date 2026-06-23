@@ -270,10 +270,10 @@ export class WeaponFragmentMgr extends Singleton {
     for (const [id, w] of t.weapons) if (w.rarity === a) n.push(id);
     return n.length === 0
       ? { weaponId: -1, fragmentNum: 0 }
-      : { weaponId: n[Math.floor(Math.random() * n.length)], fragmentNum: 1 };
+      : { weaponId: n[Math.floor(MathE.rand() * n.length)], fragmentNum: 1 };
   }
   iM(): boolean {
-    return !!this.Zb() && Math.random() < this.Eb;
+    return !!this.Zb() && MathE.rand() < this.Eb;
   }
   hM(): void {
     const t = GameMgr.instance().battleState.Wi;

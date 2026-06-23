@@ -318,7 +318,7 @@ class IronBow extends BowWeaponBase {
     this.config.Sm = this.Sm;
     if (this.config.VA) this.config.VA.length = 0;
     else this.config.VA = [];
-    if (Math.random() < 0.1) this.config.VA.push(new Th(1));
+    if (MathE.rand() < 0.1) this.config.VA.push(new Th(1));
     this.sD(this.config, s, 1);
   }
 }

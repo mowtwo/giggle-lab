@@ -49,7 +49,7 @@ export class EnemyBoss extends Enemy {
       this.changeState(1);
       this.KM.visible = true;
     });
-    if (Math.random() < 0.3) this.YM = true;
+    if (MathE.rand() < 0.3) this.YM = true;
   }
   changeState(t: number): void {
     super.changeState(t);

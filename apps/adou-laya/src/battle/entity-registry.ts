@@ -395,13 +395,13 @@ export class EntityRegistry extends Singleton {
       if (!BattlePropsMgr.instance().iS(t, 22)) return s;
       const i = BattlePropsMgr.instance().Nx(22);
       const h = 0.01 * GameMgr.instance().props.Ue[22].Ge[i - 1];
-      if (h > 0 && Math.random() < h) return 2;
+      if (h > 0 && MathE.rand() < h) return 2;
     } else {
       for (const [, p] of BattlePropsMgr.instance().kx)
         if (p.type === 22 && !p.qd) {
           const lv = p.level || 1;
           const i = 0.01 * GameMgr.instance().props.Ue[22].Ge[lv - 1];
-          if (i > 0 && Math.random() < i) return 2;
+          if (i > 0 && MathE.rand() < i) return 2;
           break;
         }
     }
