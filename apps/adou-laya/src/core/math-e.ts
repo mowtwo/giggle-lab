@@ -27,6 +27,37 @@ export class MathE {
   /** Radians-to-degrees constant (`Bs`). */
   static readonly RAD2DEG = 180 / Math.PI;
 
+  // --- 确定性随机(联机 lockstep 用,见 NETPLAY.md §2) ---------------------
+  // 默认 _rng=null ⇒ 沿用 Math.random(单机手感不变);注入种子后所有随机走可复现
+  // 的 PRNG(mulberry32),使"同种子 ⇒ 同随机序列",这是确定性模拟的地基。
+  private static _rng: (() => number) | null = null;
+
+  /** 注入种子,开启确定性随机(mulberry32)。 */
+  static seedRandom(seed: number): void {
+    let a = seed >>> 0;
+    this._rng = () => {
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /** 关闭确定性随机,恢复 Math.random(单机)。 */
+  static clearSeedRandom(): void {
+    this._rng = null;
+  }
+
+  /** 是否处于确定性随机模式。 */
+  static get isSeeded(): boolean {
+    return this._rng !== null;
+  }
+
+  /** 统一随机源:种子模式用 PRNG,否则 Math.random。所有随机方法都走这里。 */
+  static rand(): number {
+    return this._rng ? this._rng() : Math.random();
+  }
+
   // Formation lookup tables. formationGridCell(i) -> {x: col, y: row}; index 1..9
   // maps to a 3x3 grid using columns/rows 3..5. (`Js`/`ti`)
   private static readonly formationCol = [0, 3, 4, 5, 3, 4, 5, 3, 4, 5];
@@ -51,8 +82,8 @@ export class MathE {
       return null;
     }
     return asInt
-      ? Math.floor(min + (max - min) * Math.random())
-      : min + (max - min) * Math.random();
+      ? Math.floor(min + (max - min) * this.rand())
+      : min + (max - min) * this.rand();
   }
 
   /** Pick an index by weight, with validation. Returns -1 on invalid input. (`Ms`) */
@@ -75,7 +106,7 @@ export class MathE {
       console.error("[MathE.weightedRandom]: 所有权重值都为0或负数");
       return -1;
     }
-    const r = Math.random() * total;
+    const r = this.rand() * total;
     let acc = 0;
     for (let i = 0; i < weights.length; i++) {
       if (!(weights[i] < 0)) {
@@ -90,7 +121,7 @@ export class MathE {
   static weightedIndex(weights: number[]): number | undefined {
     let total = 0;
     for (let i = 0; i < weights.length; i++) total += weights[i];
-    const r = Math.random() * total;
+    const r = this.rand() * total;
     let acc = 0;
     for (let i = 0; i < weights.length; i++) {
       acc += weights[i];
@@ -256,7 +287,7 @@ export class MathE {
   static shuffle<T>(arr: T[]): T[] {
     let h = arr.length;
     while (h > 0) {
-      const s = Math.floor(Math.random() * h);
+      const s = Math.floor(this.rand() * h);
       const tmp = arr[h - 1];
       arr[h - 1] = arr[s];
       arr[s] = tmp;
@@ -406,18 +437,18 @@ export class MathE {
   static sample<T>(arr: T[], count: number, allowRepeat = false): T[] {
     if (!arr || arr.length === 0 || count <= 0) return [];
     if (count > arr.length && !allowRepeat) {
-      return [...arr].sort(() => Math.random() - 0.5);
+      return [...arr].sort(() => this.rand() - 0.5);
     }
     if (allowRepeat) {
       const out: T[] = [];
       for (let i = 0; i < count; i++) {
-        out.push(arr[Math.floor(Math.random() * arr.length)]);
+        out.push(arr[Math.floor(this.rand() * arr.length)]);
       }
       return out;
     }
     const pool = [...arr];
     for (let i = 0; i < count; i++) {
-      const j = Math.floor(Math.random() * (pool.length - i)) + i;
+      const j = Math.floor(this.rand() * (pool.length - i)) + i;
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
     return pool.slice(0, count);

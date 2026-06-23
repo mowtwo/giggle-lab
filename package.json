@@ -10,6 +10,7 @@
     "build:adou:rebuilt": "ADOU_MODE=rebuilt node scripts/build-adou.mjs",
     "build:adou:original": "node scripts/sync-adou-original.mjs",
     "typecheck:adou": "tsc --noEmit -p apps/adou-laya/tsconfig.json",
+    "probe:determinism": "node apps/adou-laya/sim-probe/run.mjs",
     "start": "next start",
     "lint": "eslint"
   },
