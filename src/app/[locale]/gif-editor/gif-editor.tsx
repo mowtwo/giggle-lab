@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Cursor, Divider, Footer, Icon } from "animal-island-ui";
+import { Button, Card, Cursor, Divider, Footer, Icon, Switch } from "animal-island-ui";
 import { motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import {
@@ -560,11 +560,10 @@ export function GifEditor() {
                       />
                     </label>
                     <label className="flex items-center gap-2 text-xs font-black text-[#7a6141]">
-                      <input
-                        type="checkbox"
+                      <Switch
+                        size="small"
                         checked={showOriginal}
-                        onChange={(e) => setShowOriginal(e.target.checked)}
-                        className="accent-[#ff8c00]"
+                        onChange={setShowOriginal}
                       />
                       {t("showOriginal")}
                     </label>
@@ -624,11 +623,10 @@ export function GifEditor() {
 
                 <div className="mt-5 flex flex-wrap items-center gap-3 border-t-2 border-dashed border-[#e3d6b8] pt-4">
                   <label className="flex items-center gap-2 text-xs font-black text-[#7a6141]">
-                    <input
-                      type="checkbox"
+                    <Switch
+                      size="small"
                       checked={transparentGif}
-                      onChange={(e) => setTransparentGif(e.target.checked)}
-                      className="accent-[#ff8c00]"
+                      onChange={setTransparentGif}
                     />
                     {t("transparentGif")}
                   </label>

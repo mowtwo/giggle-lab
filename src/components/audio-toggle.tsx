@@ -1,5 +1,6 @@
 "use client";
 
+import { Tooltip } from "animal-island-ui";
 import { AnimatePresence, motion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
@@ -262,25 +263,26 @@ export function AudioToggle() {
         ) : null}
       </AnimatePresence>
 
-      <button
-        type="button"
-        onClick={() => {
-          if (!introSeen) {
-            dismissIntro();
-            return;
-          }
-          setPanelOpen((v) => !v);
-        }}
-        aria-label={t("openPanel")}
-        title={t("openPanel")}
-        className={`pointer-events-auto grid h-11 w-11 place-items-center rounded-full border-2 transition active:translate-y-[1px] ${
-          enabled
-            ? "border-[#19c8b9] bg-white text-[#00766d] shadow-[0_3px_0_rgba(25,200,185,0.45)]"
-            : "border-[#d4c9b4] bg-white/90 text-[#a3927a] shadow-[0_3px_0_rgba(122,97,65,0.18)]"
-        }`}
-      >
-        {enabled ? SPEAKER_ON : SPEAKER_OFF}
-      </button>
+      <Tooltip title={t("openPanel")} placement="left">
+        <button
+          type="button"
+          onClick={() => {
+            if (!introSeen) {
+              dismissIntro();
+              return;
+            }
+            setPanelOpen((v) => !v);
+          }}
+          aria-label={t("openPanel")}
+          className={`pointer-events-auto grid h-11 w-11 place-items-center rounded-full border-2 transition active:translate-y-[1px] ${
+            enabled
+              ? "border-[#19c8b9] bg-white text-[#00766d] shadow-[0_3px_0_rgba(25,200,185,0.45)]"
+              : "border-[#d4c9b4] bg-white/90 text-[#a3927a] shadow-[0_3px_0_rgba(122,97,65,0.18)]"
+          }`}
+        >
+          {enabled ? SPEAKER_ON : SPEAKER_OFF}
+        </button>
+      </Tooltip>
     </div>
   );
 }

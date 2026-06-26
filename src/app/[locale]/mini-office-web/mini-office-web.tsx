@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Cursor, Divider, Icon } from "animal-island-ui";
+import { Button, Card, Cursor, Divider, Icon, Modal, Select, Switch } from "animal-island-ui";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import {
@@ -338,20 +338,20 @@ export function MiniOfficeWeb() {
                 <div className="mt-3 grid gap-3 border-t-2 border-[#eadfc9] pt-3 sm:grid-cols-3">
                   <label className="grid gap-1 text-sm font-black text-[#725d42]">
                     {t("quality")}
-                    <select
+                    <Select
                       value={options.quality}
-                      onChange={(event) =>
+                      onChange={(key) =>
                         setOptions((prev) => ({
                           ...prev,
-                          quality: event.target.value as PdfExportOptions["quality"],
+                          quality: key as PdfExportOptions["quality"],
                         }))
                       }
-                      className="rounded-lg border-2 border-[#d4c9b4] bg-white px-3 py-2"
-                    >
-                      <option value="screen">{t("qualityScreen")}</option>
-                      <option value="print">{t("qualityPrint")}</option>
-                      <option value="archive">{t("qualityArchive")}</option>
-                    </select>
+                      options={[
+                        { key: "screen", label: t("qualityScreen") },
+                        { key: "print", label: t("qualityPrint") },
+                        { key: "archive", label: t("qualityArchive") },
+                      ]}
+                    />
                   </label>
                   <label className="grid gap-1 text-sm font-black text-[#725d42]">
                     {t("pageRange")}
@@ -364,14 +364,13 @@ export function MiniOfficeWeb() {
                       placeholder="all, 1-3, 5"
                     />
                   </label>
-                  <label className="flex items-end gap-3 pb-2 text-sm font-black text-[#725d42]">
-                    <input
-                      type="checkbox"
+                  <label className="flex items-center gap-3 pb-2 text-sm font-black text-[#725d42]">
+                    <Switch
                       checked={options.includeGrid}
-                      onChange={(event) =>
+                      onChange={(checked) =>
                         setOptions((prev) => ({
                           ...prev,
-                          includeGrid: event.target.checked,
+                          includeGrid: checked,
                         }))
                       }
                     />
@@ -393,44 +392,36 @@ export function MiniOfficeWeb() {
           </section>
         )}
 
-        {mediaPreview ? (
-          <div
-            className="fixed inset-0 z-[1200] grid place-items-center bg-black/70 p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-label={mediaPreview.label}
-            onClick={() => setMediaPreview(null)}
-          >
-            <div
-              className="grid max-h-[92svh] w-full max-w-5xl gap-3 rounded-lg border-4 border-[#794f27] bg-[#fffaf0] p-3 shadow-[0_6px_0_rgba(122,97,65,0.28)]"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <p className="truncate text-sm font-black text-[#794f27]">
-                  {mediaPreview.label}
-                </p>
-                <Button type="default" onClick={() => setMediaPreview(null)}>
-                  {tCommon("close")}
-                </Button>
-              </div>
-              {mediaPreview.kind === "image" ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={mediaPreview.src}
-                  alt={mediaPreview.label}
-                  className="max-h-[78svh] w-full object-contain"
-                />
-              ) : (
-                <video
-                  src={mediaPreview.src}
-                  controls
-                  autoPlay
-                  className="max-h-[78svh] w-full bg-black"
-                />
-              )}
-            </div>
-          </div>
-        ) : null}
+        <Modal
+          open={Boolean(mediaPreview)}
+          title={mediaPreview?.label}
+          width="min(92vw, 64rem)"
+          typewriter={false}
+          onClose={() => setMediaPreview(null)}
+          footer={
+            <Button type="default" onClick={() => setMediaPreview(null)}>
+              {tCommon("close")}
+            </Button>
+          }
+        >
+          {mediaPreview ? (
+            mediaPreview.kind === "image" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={mediaPreview.src}
+                alt={mediaPreview.label}
+                className="max-h-[72svh] w-full object-contain"
+              />
+            ) : (
+              <video
+                src={mediaPreview.src}
+                controls
+                autoPlay
+                className="max-h-[72svh] w-full bg-black"
+              />
+            )
+          ) : null}
+        </Modal>
       </main>
     </Cursor>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Cursor, Icon } from "animal-island-ui";
+import { Button, Card, Cursor, Icon, Select } from "animal-island-ui";
 import { useTranslations } from "next-intl";
 import {
   useCallback,
@@ -513,37 +513,37 @@ export function GithubDanmaku() {
                   <div className="grid grid-cols-2 gap-2">
                     <label className="grid gap-1 text-xs font-black text-[#8a7b66]">
                       {t("fontSize")}
-                      <select
+                      <Select
                         value={messageStyle.size}
-                        onChange={(event) =>
+                        onChange={(key) =>
                           setMessageStyle((current) => ({
                             ...current,
-                            size: event.target.value as DanmakuStyle["size"],
+                            size: key as DanmakuStyle["size"],
                           }))
                         }
-                        className="rounded-md border-2 border-[#d4c9b4] bg-white px-2 py-1 text-[#473727]"
-                      >
-                        <option value="small">{t("small")}</option>
-                        <option value="medium">{t("medium")}</option>
-                        <option value="large">{t("large")}</option>
-                      </select>
+                        options={[
+                          { key: "small", label: t("small") },
+                          { key: "medium", label: t("medium") },
+                          { key: "large", label: t("large") },
+                        ]}
+                      />
                     </label>
                     <label className="grid gap-1 text-xs font-black text-[#8a7b66]">
                       {t("speed")}
-                      <select
+                      <Select
                         value={messageStyle.speed}
-                        onChange={(event) =>
+                        onChange={(key) =>
                           setMessageStyle((current) => ({
                             ...current,
-                            speed: event.target.value as DanmakuStyle["speed"],
+                            speed: key as DanmakuStyle["speed"],
                           }))
                         }
-                        className="rounded-md border-2 border-[#d4c9b4] bg-white px-2 py-1 text-[#473727]"
-                      >
-                        <option value="slow">{t("slow")}</option>
-                        <option value="normal">{t("normal")}</option>
-                        <option value="fast">{t("fast")}</option>
-                      </select>
+                        options={[
+                          { key: "slow", label: t("slow") },
+                          { key: "normal", label: t("normal") },
+                          { key: "fast", label: t("fast") },
+                        ]}
+                      />
                     </label>
                   </div>
                 </div>

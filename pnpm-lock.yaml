@@ -27,8 +27,8 @@ importers:
         specifier: ^1.5.6
         version: 1.5.6
       animal-island-ui:
-        specifier: 0.9.7
-        version: 0.9.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: 1.0.16
+        version: 1.0.16(classnames@2.5.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       docx-preview:
         specifier: ^0.3.7
         version: 0.3.7
@@ -1893,9 +1893,10 @@ packages:
   ajv@8.6.3:
     resolution: {integrity: sha512-SMJOdDP6LqTkD0Uq8qLi+gMwSt0imXLSV080qFVwJCpH9U6Mb+SUGHAXM0KNbcBPguytWyvFxcHgMLe2D2XSpw==}
 
-  animal-island-ui@0.9.7:
-    resolution: {integrity: sha512-1mlGSgSiA9+hI/o2UonbbkHsH1lg2zhBsB0FXwdNqInldIOK0IbLesPzWMeGDDpC+irjWD2rT/YusSvbSTJtUA==}
+  animal-island-ui@1.0.16:
+    resolution: {integrity: sha512-5rpF9yRX7pms/BYk5es2MFCVMrw7XcjPvoRJWq5YIdnbr0ovwpBvMOg92HFsG6W2dYlZfEBAF+M1SNUcn4XQvw==}
     peerDependencies:
+      classnames: ^2.5.1
       react: '>=17.0.0'
       react-dom: '>=17.0.0'
 
@@ -5743,7 +5744,7 @@ snapshots:
       require-from-string: 2.0.2
       uri-js: 4.4.1
 
-  animal-island-ui@0.9.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  animal-island-ui@1.0.16(classnames@2.5.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@fontsource/noto-sans-sc': 5.2.9
       '@fontsource/nunito': 5.2.7
