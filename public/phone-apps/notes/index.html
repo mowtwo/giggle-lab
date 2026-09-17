@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>便签</title>
+    <!-- 可信应用:SDK 由手机壳注入,这里同样没有 <script src>。 -->
+    <style>
+      :root {
+        --accent: #007aff;
+        --surface: #f2f2f7;
+        --elevated: #fff;
+        --text: #000;
+        --muted: rgba(60, 60, 67, 0.6);
+        --line: rgba(60, 60, 67, 0.28);
+        --radius: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        padding: 14px;
+        background: var(--surface);
+        color: var(--text);
+        font: 14px/1.5 system-ui, sans-serif;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 22px;
+      }
+
+      .composer {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 13px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--elevated);
+        color: var(--text);
+        font: inherit;
+      }
+
+      input:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: -1px;
+      }
+
+      button {
+        padding: 10px 15px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      ul {
+        flex: 1;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 8px;
+        padding: 11px 13px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--elevated);
+      }
+
+      li p {
+        flex: 1;
+        margin: 0;
+        word-break: break-word;
+      }
+
+      li time {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      li button {
+        padding: 4px 8px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      .empty {
+        margin-top: 40px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 13px;
+      }
+
+      footer {
+        padding-top: 8px;
+        color: var(--muted);
+        font-size: 11px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>便签</h1>
+    <form class="composer">
+      <input id="text" placeholder="写点什么…" autocomplete="off" />
+      <button type="submit">存</button>
+    </form>
+    <ul id="list"></ul>
+    <p class="empty" id="empty">还没有便签。写一条,然后杀掉这个 App 再打开——它还在。</p>
+    <footer>数据存在宿主的 storage 里,按 appId 隔离</footer>
+
+    <script>
+      (function () {
+        var listEl = document.getElementById("list");
+        var emptyEl = document.getElementById("empty");
+        var input = document.getElementById("text");
+        var form = document.querySelector(".composer");
+        var notes = [];
+        var api = null;
+
+        function paint(theme) {
+          if (!theme) return;
+          var root = document.documentElement.style;
+          root.setProperty("--accent", theme.accent);
+          root.setProperty("--surface", theme.surface);
+          root.setProperty("--elevated", theme.surfaceElevated);
+          root.setProperty("--text", theme.text);
+          root.setProperty("--muted", theme.textSecondary);
+          root.setProperty("--line", theme.separator);
+          root.setProperty("--radius", theme.radius + "px");
+          document.body.style.fontFamily = theme.fontFamily;
+        }
+
+        function render() {
+          emptyEl.style.display = notes.length ? "none" : "block";
+          listEl.innerHTML = "";
+          notes.forEach(function (note, index) {
+            var li = document.createElement("li");
+            var p = document.createElement("p");
+            p.textContent = note.text;
+            var time = document.createElement("time");
+            time.textContent = new Date(note.at).toLocaleString();
+            p.appendChild(time);
+            var remove = document.createElement("button");
+            remove.type = "button";
+            remove.textContent = "×";
+            remove.setAttribute("aria-label", "删除");
+            remove.addEventListener("click", function () {
+              notes.splice(index, 1);
+              save();
+              render();
+              api.haptic("light");
+            });
+            li.appendChild(p);
+            li.appendChild(remove);
+            listEl.appendChild(li);
+          });
+          api.notify.setBadge(notes.length);
+        }
+
+        function save() {
+          return api.storage.set("notes", JSON.stringify(notes));
+        }
+
+        function boot(phone) {
+          api = phone;
+          paint(phone.theme);
+          phone.on("theme.change", paint);
+
+          phone.storage.get("notes").then(function (raw) {
+            try {
+              notes = raw ? JSON.parse(raw) : [];
+            } catch (error) {
+              notes = [];
+            }
+            render();
+          });
+
+          form.addEventListener("submit", function (event) {
+            event.preventDefault();
+            var text = input.value.trim();
+            if (!text) {
+              phone.toast("先写点东西", { icon: "error" });
+              return;
+            }
+            notes.unshift({ text: text, at: Date.now() });
+            input.value = "";
+            save().then(function () {
+              render();
+              phone.haptic("medium");
+              phone.toast("已存下", { icon: "success" });
+            });
+          });
+        }
+
+        function withPhone(run) {
+          function start() {
+            window.phone.ready.then(
+              function () {
+                run(window.phone);
+              },
+              function (error) {
+                console.error("[notes]", error);
+              },
+            );
+          }
+          if (window.phone) {
+            start();
+            return;
+          }
+          window.addEventListener("phone:sdkready", start, { once: true });
+        }
+
+        withPhone(boot);
+      })();
+    </script>
+  </body>
+</html>

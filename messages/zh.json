@@ -82,6 +82,10 @@
     "gifEditor": {
       "title": "GIF 编辑器",
       "summary": "导入 GIF 或 WebM，用滴管抠掉背景色，裁剪后导回 GIF / WebM。"
+    },
+    "pocketPhone": {
+      "title": "口袋手机",
+      "summary": "一台能换主题的假手机,iframe 当应用容器,postMessage 当系统 API。"
     }
   },
   "HeartCard": {
@@ -536,5 +540,105 @@
     "exportWebm": "导出 WebM",
     "exporting": "导出中…",
     "readyDownload": "下载已就绪"
+  },
+  "PocketPhone": {
+    "metadataTitle": "口袋手机 - Giggle Lab",
+    "metadataDescription": "一台跑在浏览器里的手机:iframe 装应用,postMessage 当系统 API,四套主题随便换。",
+    "title": "口袋手机",
+    "hint": "触控板双指下滑可以拉下通知栏 / 控制中心,双指上滑回桌面;鼠标拖拽和触屏同样可用。锁屏界面上滑解锁。",
+    "appLoading": "正在载入应用…",
+    "home": {
+      "widgetHint": "点图标打开应用 · 从顶部下拉是通知栏"
+    },
+    "apps": {
+      "playground": "SDK 演示",
+      "notes": "便签",
+      "dice": "骰子",
+      "settings": "设置"
+    },
+    "themes": {
+      "ios": "灵动岛、超椭圆图标、上滑手势、左右分屏的通知与控制中心。",
+      "hyperos": "居中打孔、方圆图标、小米橙,三键导航可切。",
+      "harmonyos": "药丸刘海、圆形图标、鸿蒙蓝,折叠式开屏动效。",
+      "animalIsland": "本站自己的设计语言:木头机身、羊皮纸弹窗、贴纸图标、合并式下拉抽屉。"
+    },
+    "wallpapers": {
+      "sonoma": "日落",
+      "tide": "潮汐",
+      "canyon": "峡谷",
+      "aurora": "极光",
+      "petal": "花瓣",
+      "jade": "青玉",
+      "meadow": "草地",
+      "beach": "沙滩"
+    },
+    "settings": {
+      "themeSection": "系统主题",
+      "appearance": "外观",
+      "scheme": {
+        "light": "浅色",
+        "dark": "深色"
+      },
+      "wallpaper": "壁纸",
+      "navigation": "导航方式",
+      "navMode": {
+        "gesture": "全面屏手势",
+        "buttons": "三键导航"
+      },
+      "permissions": "应用权限",
+      "noPermissions": "还没有应用拿到权限",
+      "tapToRevoke": "点一下收回",
+      "granted": "已允许",
+      "about": "关于本机",
+      "model": "机型",
+      "resolution": "分辨率",
+      "bridgeVersion": "SDK 协议版本",
+      "installedApps": "已安装应用"
+    },
+    "permissions": {
+      "camera": "相机",
+      "microphone": "麦克风",
+      "location": "位置",
+      "contacts": "通讯录",
+      "notification": "通知",
+      "storage": "存储"
+    },
+    "permissionPrompt": {
+      "title": "允许「{app}」使用{permission}吗?",
+      "message": "这是纯模拟的权限申请,不会真的碰到你的设备。",
+      "allow": "允许",
+      "deny": "拒绝"
+    },
+    "nav": {
+      "back": "返回",
+      "home": "主屏幕",
+      "recents": "最近任务"
+    },
+    "shade": {
+      "notifications": "通知",
+      "controlCenter": "控制中心",
+      "empty": "没有新通知",
+      "clearAll": "全部清除",
+      "brightness": "亮度",
+      "volume": "音量"
+    },
+    "tiles": {
+      "wifi": "WLAN",
+      "cellular": "蜂窝",
+      "bluetooth": "蓝牙",
+      "airplane": "飞行模式",
+      "torch": "手电筒",
+      "rotate": "锁定方向"
+    },
+    "recents": {
+      "title": "最近任务",
+      "empty": "没有在运行的应用",
+      "closeAll": "全部关闭",
+      "hint": "点卡片切回去 · 向上甩一下关掉它"
+    },
+    "lock": {
+      "unlock": "上滑解锁",
+      "notifications": "通知"
+    }
   }
 }

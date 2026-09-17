@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>SDK 演示</title>
+    <!--
+      注意:这个 App 没有引入任何脚本。
+      它是"可信应用",手机壳会在 iframe 加载完后把 /phone-sdk.js 注入进来,
+      所以只能等 phone:sdkready 事件。沙箱应用(见 ../dice/)则相反,自己引。
+    -->
+    <style>
+      :root {
+        --accent: #007aff;
+        --surface: #f2f2f7;
+        --elevated: #ffffff;
+        --text: #000000;
+        --muted: rgba(60, 60, 67, 0.6);
+        --line: rgba(60, 60, 67, 0.28);
+        --radius: 18px;
+        --ease: cubic-bezier(0.32, 0.72, 0, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font: 14px/1.5 system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-y: auto;
+        padding: 14px 14px 20px;
+        transition:
+          background 260ms var(--ease),
+          color 260ms var(--ease);
+      }
+
+      h1 {
+        margin: 0 0 2px;
+        font-size: 22px;
+        letter-spacing: -0.01em;
+      }
+
+      .sub {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      section {
+        margin-bottom: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--elevated);
+      }
+
+      h2 {
+        margin: 0 0 9px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+
+      button {
+        flex: 1 1 auto;
+        min-width: 74px;
+        padding: 9px 11px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--accent);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        transition:
+          transform 120ms var(--ease),
+          background 160ms linear;
+      }
+
+      button:active {
+        transform: scale(0.95);
+        background: color-mix(in srgb, var(--accent) 14%, transparent);
+      }
+
+      button.primary {
+        background: var(--accent);
+        border-color: transparent;
+        color: #fff;
+        font-weight: 600;
+      }
+
+      #log {
+        margin: 0;
+        padding: 10px 11px;
+        max-height: 156px;
+        overflow-y: auto;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--text) 7%, transparent);
+        font: 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      .kv {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 5px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 12px;
+      }
+
+      .kv:last-child {
+        border-bottom: 0;
+      }
+
+      .kv span:last-child {
+        color: var(--muted);
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SDK 演示</h1>
+    <p class="sub" id="subtitle">正在等待手机壳注入 SDK…</p>
+
+    <section>
+      <h2>状态栏 system.setStatusBar</h2>
+      <div class="row">
+        <button data-act="bar-light">浅色</button>
+        <button data-act="bar-dark">深色</button>
+        <button data-act="bar-title">写标题</button>
+        <button data-act="bar-hide">隐藏 2 秒</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>反馈 ui.toast / ui.haptic</h2>
+      <div class="row">
+        <button data-act="toast">吐司</button>
+        <button data-act="toast-ok">成功</button>
+        <button data-act="toast-err">失败</button>
+        <button data-act="toast-load">加载中</button>
+      </div>
+      <div class="row" style="margin-top: 7px">
+        <button data-act="haptic-light">轻震</button>
+        <button data-act="haptic-medium">中震</button>
+        <button data-act="haptic-heavy">重震</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>系统弹窗 ui.dialog</h2>
+      <div class="row">
+        <button data-act="dialog2">两个按钮</button>
+        <button data-act="dialog3">三个按钮</button>
+        <button data-act="dialog-danger">危险操作</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>权限 ui.requestPermission</h2>
+      <div class="row">
+        <button data-act="perm-camera">相机</button>
+        <button data-act="perm-location">定位</button>
+        <button data-act="perm-notification">通知</button>
+        <button data-act="perm-check">查一遍</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>通知与角标 notify.*</h2>
+      <div class="row">
+        <button data-act="notify-now">立刻发一条</button>
+        <button data-act="notify-later" class="primary">3 秒后发(然后回桌面)</button>
+      </div>
+      <div class="row" style="margin-top: 7px">
+        <button data-act="badge">角标 +3</button>
+        <button data-act="notify-clear">清空本应用通知</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>导航 nav.*</h2>
+      <div class="row">
+        <button data-act="open-dice">打开骰子</button>
+        <button data-act="recents">多任务</button>
+        <button data-act="exit">回桌面</button>
+      </div>
+      <div class="row" style="margin-top: 7px">
+        <button data-act="back-handler">接管返回键:关</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>存储 storage.*(按应用隔离)</h2>
+      <div class="row">
+        <button data-act="store-write">写一条</button>
+        <button data-act="store-read">读出来</button>
+        <button data-act="store-keys">列出键</button>
+        <button data-act="store-clear">清除</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>运行环境 context</h2>
+      <div id="info"></div>
+    </section>
+
+    <section>
+      <h2>日志</h2>
+      <pre id="log">—</pre>
+    </section>
+
+    <script>
+      (function () {
+        var logEl = document.getElementById("log");
+        var infoEl = document.getElementById("info");
+        var subtitle = document.getElementById("subtitle");
+        var lines = [];
+        var backHandled = false;
+
+        function log(text) {
+          lines.unshift(
+            new Date().toLocaleTimeString([], { hour12: false }) + "  " + text,
+          );
+          lines = lines.slice(0, 40);
+          logEl.textContent = lines.join("\n");
+        }
+
+        function paint(theme) {
+          if (!theme) return;
+          var root = document.documentElement.style;
+          root.setProperty("--accent", theme.accent);
+          root.setProperty("--surface", theme.surface);
+          root.setProperty("--elevated", theme.surfaceElevated);
+          root.setProperty("--text", theme.text);
+          root.setProperty("--muted", theme.textSecondary);
+          root.setProperty("--line", theme.separator);
+          root.setProperty("--radius", theme.radius + "px");
+          root.setProperty("--ease", theme.easing);
+          document.body.style.fontFamily = theme.fontFamily;
+        }
+
+        function renderInfo(phone) {
+          var ctx = phone.context || {};
+          var rows = [
+            ["appId", ctx.appId],
+            ["主题", (phone.theme && phone.theme.label) + " / " + (phone.theme && phone.theme.scheme)],
+            ["语言", ctx.locale],
+            ["装载方式", ctx.trusted ? "可信 · 宿主注入 SDK" : "沙箱 · 自行引入 SDK"],
+            ["屏幕", ctx.screen ? ctx.screen.width + " × " + ctx.screen.height : "-"],
+            [
+              "安全区",
+              phone.safeArea
+                ? phone.safeArea.top + " / " + phone.safeArea.bottom
+                : "-",
+            ],
+            ["导航", ctx.device ? ctx.device.navMode : "-"],
+            ["电量", ctx.device ? ctx.device.battery + "%" : "-"],
+          ];
+          infoEl.innerHTML = rows
+            .map(function (row) {
+              return (
+                "<div class='kv'><span>" +
+                row[0] +
+                "</span><span>" +
+                String(row[1]) +
+                "</span></div>"
+              );
+            })
+            .join("");
+        }
+
+        function boot(phone) {
+          subtitle.textContent =
+            "手机壳已连上 · bridge v" + phone.context.bridgeVersion;
+          paint(phone.theme);
+          renderInfo(phone);
+          log("ready · appId=" + phone.appId);
+
+          phone.on("theme.change", function (theme) {
+            paint(theme);
+            renderInfo(phone);
+            log("theme.change → " + theme.label + " / " + theme.scheme);
+          });
+          phone.on("safearea.change", function () {
+            renderInfo(phone);
+            log("safearea.change");
+          });
+          phone.on("pause", function (payload) {
+            log("pause(" + payload.reason + ")");
+          });
+          phone.on("resume", function () {
+            log("resume");
+            renderInfo(phone);
+          });
+          phone.on("back", function () {
+            log("back 事件到了 —— 我接管了,没退出");
+            phone.toast("返回键被我吃掉了");
+          });
+
+          var actions = {
+            "bar-light": function () {
+              return phone.setStatusBar({ style: "light" });
+            },
+            "bar-dark": function () {
+              return phone.setStatusBar({ style: "dark" });
+            },
+            "bar-title": function () {
+              return phone.setStatusBar({ title: "SDK 演示中" });
+            },
+            "bar-hide": function () {
+              phone.setStatusBar({ hidden: true });
+              setTimeout(function () {
+                phone.setStatusBar({ hidden: false });
+              }, 2000);
+            },
+            toast: function () {
+              return phone.toast("这条吐司由 App 发起,由系统按主题渲染");
+            },
+            "toast-ok": function () {
+              return phone.toast("保存成功", { icon: "success" });
+            },
+            "toast-err": function () {
+              return phone.toast("网络开小差了", { icon: "error" });
+            },
+            "toast-load": function () {
+              return phone.toast("正在上传…", { icon: "loading", duration: 2600 });
+            },
+            "haptic-light": function () {
+              return phone.haptic("light");
+            },
+            "haptic-medium": function () {
+              return phone.haptic("medium");
+            },
+            "haptic-heavy": function () {
+              return phone.haptic("heavy");
+            },
+            dialog2: function () {
+              return phone
+                .dialog({
+                  title: "要继续吗?",
+                  message: "这个弹窗是系统画的,换主题它会跟着换长相。",
+                  buttons: ["取消", "继续"],
+                })
+                .then(function (index) {
+                  log("dialog → 选了第 " + index + " 个");
+                });
+            },
+            dialog3: function () {
+              return phone
+                .dialog({
+                  title: "保存这次修改?",
+                  buttons: ["丢弃", "取消", "保存"],
+                })
+                .then(function (index) {
+                  log("dialog3 → index=" + index);
+                });
+            },
+            "dialog-danger": function () {
+              return phone
+                .dialog({
+                  title: "删除全部记录?",
+                  message: "删了就找不回来了。",
+                  buttons: ["取消", "删除"],
+                  destructiveIndex: 1,
+                })
+                .then(function (index) {
+                  log("危险弹窗 → index=" + index);
+                });
+            },
+            "perm-camera": function () {
+              return phone.requestPermission("camera", "想拍一张照片当头像").then(function (s) {
+                log("camera → " + s);
+              });
+            },
+            "perm-location": function () {
+              return phone.requestPermission("location").then(function (s) {
+                log("location → " + s);
+              });
+            },
+            "perm-notification": function () {
+              return phone.requestPermission("notification").then(function (s) {
+                log("notification → " + s);
+              });
+            },
+            "perm-check": function () {
+              return Promise.all(
+                ["camera", "location", "notification"].map(function (kind) {
+                  return phone.getPermission(kind).then(function (state) {
+                    return kind + "=" + state;
+                  });
+                }),
+              ).then(function (all) {
+                log(all.join("  "));
+              });
+            },
+            "notify-now": function () {
+              return phone.notify
+                .post({ title: "一条系统通知", body: "从下拉通知栏能看到它。" })
+                .then(function (result) {
+                  log("notify → " + result.id);
+                });
+            },
+            "notify-later": function () {
+              return phone.notify
+                .post({
+                  title: "我在后台发的",
+                  body: "App 已经不在前台了,通知照样到。",
+                  delay: 3000,
+                  tag: "background",
+                })
+                .then(function () {
+                  return phone.exit();
+                });
+            },
+            badge: function () {
+              badgeCount += 3;
+              return phone.notify.setBadge(badgeCount).then(function () {
+                log("角标 = " + badgeCount + "(回桌面看图标右上角)");
+              });
+            },
+            "notify-clear": function () {
+              return phone.notify.clear().then(function () {
+                log("已清空本应用的通知");
+              });
+            },
+            "open-dice": function () {
+              return phone.openApp("dice");
+            },
+            recents: function () {
+              return phone.recents();
+            },
+            exit: function () {
+              return phone.exit();
+            },
+            "back-handler": function (button) {
+              backHandled = !backHandled;
+              button.textContent = "接管返回键:" + (backHandled ? "开" : "关");
+              button.classList.toggle("primary", backHandled);
+              return phone.setBackHandler(backHandled);
+            },
+            "store-write": function () {
+              var value = "第 " + ++writeCount + " 次写入 @ " + new Date().toLocaleTimeString();
+              return phone.storage.set("note", value).then(function () {
+                log("storage.set note = " + value);
+              });
+            },
+            "store-read": function () {
+              return phone.storage.get("note").then(function (value) {
+                log("storage.get note → " + value);
+              });
+            },
+            "store-keys": function () {
+              return phone.storage.keys().then(function (keys) {
+                log("storage.keys → [" + keys.join(", ") + "]");
+              });
+            },
+            "store-clear": function () {
+              return phone.storage.remove("note").then(function () {
+                log("storage.remove note");
+              });
+            },
+          };
+
+          var badgeCount = 0;
+          var writeCount = 0;
+
+          document.body.addEventListener("click", function (event) {
+            var button = event.target.closest("button[data-act]");
+            if (!button) return;
+            var run = actions[button.dataset.act];
+            if (!run) return;
+            try {
+              var result = run(button);
+              if (result && result.catch) {
+                result.catch(function (error) {
+                  log("✗ " + button.dataset.act + " → " + error.message);
+                });
+              }
+            } catch (error) {
+              log("✗ " + error.message);
+            }
+          });
+        }
+
+        function withPhone(run) {
+          function start() {
+            window.phone.ready.then(
+              function () {
+                run(window.phone);
+              },
+              function (error) {
+                subtitle.textContent = "连不上手机壳:" + error.message;
+              },
+            );
+          }
+          if (window.phone) {
+            start();
+            return;
+          }
+          window.addEventListener("phone:sdkready", start, { once: true });
+        }
+
+        withPhone(boot);
+      })();
+    </script>
+  </body>
+</html>

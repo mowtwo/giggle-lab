@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>骰子</title>
+    <!--
+      这个 App 是"沙箱应用":iframe 的 sandbox 去掉了 allow-same-origin,
+      它的 origin 是 "null",宿主够不着它的 document,注入不了脚本。
+      所以它必须自己引 SDK —— 引完之后拿到的能力和可信应用一模一样。
+      顺带一提:opaque origin 下 localStorage 是不可用的,存档只能走 SDK。
+    -->
+    <script src="/phone-sdk.js"></script>
+    <style>
+      :root {
+        --accent: #007aff;
+        --surface: #f2f2f7;
+        --elevated: #fff;
+        --text: #000;
+        --muted: rgba(60, 60, 67, 0.6);
+        --line: rgba(60, 60, 67, 0.28);
+        --radius: 18px;
+        --ease: cubic-bezier(0.32, 0.72, 0, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+        background: var(--surface);
+        color: var(--text);
+        font: 14px/1.5 system-ui, sans-serif;
+        text-align: center;
+      }
+
+      #die {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        width: 132px;
+        height: 132px;
+        padding: 16px;
+        border: 3px solid var(--line);
+        border-radius: 26px;
+        background: var(--elevated);
+        transition: transform 420ms var(--ease);
+      }
+
+      #die.rolling {
+        transform: rotate(540deg) scale(0.86);
+      }
+
+      .pip {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent);
+        place-self: center;
+      }
+
+      button {
+        padding: 11px 22px;
+        border: 0;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button.ghost {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--accent);
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        max-width: 260px;
+      }
+
+      #tally {
+        font-size: 13px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="die" aria-live="polite" aria-label="骰子"></div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center">
+      <button id="roll">掷一次</button>
+      <button id="brag" class="ghost">发条通知炫耀</button>
+    </div>
+    <div id="tally">还没掷过</div>
+    <p id="mode">连接中…</p>
+
+    <script>
+      (function () {
+        // 1 → 6 每个点数亮哪些格子(3×3 网格,下标 0-8)。
+        var LAYOUT = {
+          1: [4],
+          2: [0, 8],
+          3: [0, 4, 8],
+          4: [0, 2, 6, 8],
+          5: [0, 2, 4, 6, 8],
+          6: [0, 2, 3, 5, 6, 8],
+        };
+
+        var dieEl = document.getElementById("die");
+        var tallyEl = document.getElementById("tally");
+        var modeEl = document.getElementById("mode");
+        var rollBtn = document.getElementById("roll");
+        var bragBtn = document.getElementById("brag");
+        var last = 0;
+        var rolls = 0;
+
+        function draw(value) {
+          dieEl.innerHTML = "";
+          var cells = LAYOUT[value] || [];
+          for (var i = 0; i < 9; i += 1) {
+            var cell = document.createElement("span");
+            if (cells.indexOf(i) >= 0) {
+              cell.className = "pip";
+            }
+            dieEl.appendChild(cell);
+          }
+        }
+
+        function paint(theme) {
+          if (!theme) return;
+          var root = document.documentElement.style;
+          root.setProperty("--accent", theme.accent);
+          root.setProperty("--surface", theme.surface);
+          root.setProperty("--elevated", theme.surfaceElevated);
+          root.setProperty("--text", theme.text);
+          root.setProperty("--muted", theme.textSecondary);
+          root.setProperty("--line", theme.separator);
+          root.setProperty("--radius", theme.radius + "px");
+          root.setProperty("--ease", theme.easing);
+          document.body.style.fontFamily = theme.fontFamily;
+        }
+
+        function canUseLocalStorage() {
+          try {
+            window.localStorage.setItem("__probe", "1");
+            window.localStorage.removeItem("__probe");
+            return true;
+          } catch {
+            return false;
+          }
+        }
+
+        draw(1);
+
+        window.phone.ready.then(
+          function (context) {
+            var phone = window.phone;
+            paint(phone.theme);
+            phone.on("theme.change", paint);
+            // 注意:opaque origin 下 location.origin 按规范返回的仍是 URL 的 origin,
+            // 真正反映文档 origin 的是 window.origin —— 沙箱里它就是字符串 "null"。
+            modeEl.textContent =
+              "装载方式:" +
+              (context.trusted ? "可信(宿主注入)" : "沙箱(自行引入 SDK)") +
+              " · 文档 origin = " +
+              window.origin +
+              " · localStorage " +
+              (canUseLocalStorage() ? "可用" : "不可用(只能走 SDK 存储)");
+
+            rollBtn.addEventListener("click", function () {
+              dieEl.classList.add("rolling");
+              phone.haptic("medium");
+              window.setTimeout(function () {
+                last = 1 + Math.floor(Math.random() * 6);
+                rolls += 1;
+                draw(last);
+                dieEl.classList.remove("rolling");
+                tallyEl.textContent = "第 " + rolls + " 次 · 掷出 " + last;
+                if (last === 6) {
+                  phone.haptic("heavy");
+                  phone.toast("六点!", { icon: "success" });
+                }
+              }, 420);
+            });
+
+            bragBtn.addEventListener("click", function () {
+              if (!last) {
+                phone.toast("先掷一次", { icon: "error" });
+                return;
+              }
+              phone.notify
+                .post({
+                  title: "骰子掷出 " + last + " 点",
+                  body: "总共掷了 " + rolls + " 次。",
+                  tag: "brag",
+                })
+                .then(function () {
+                  phone.toast("通知已发,下拉看看");
+                });
+            });
+          },
+          function (error) {
+            modeEl.textContent = "连不上手机壳:" + error.message;
+          },
+        );
+      })();
+    </script>
+  </body>
+</html>

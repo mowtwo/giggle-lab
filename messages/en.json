@@ -82,6 +82,10 @@
     "gifEditor": {
       "title": "GIF Editor",
       "summary": "Import a GIF or WebM, key out the background with the eyedropper, trim, and export back to GIF or WebM."
+    },
+    "pocketPhone": {
+      "title": "Pocket Phone",
+      "summary": "A fake phone with swappable system themes; iframes are the app container and postMessage is the system API."
     }
   },
   "HeartCard": {
@@ -536,5 +540,105 @@
     "exportWebm": "Export WebM",
     "exporting": "Exporting…",
     "readyDownload": "Download is ready"
+  },
+  "PocketPhone": {
+    "metadataTitle": "Pocket Phone - Giggle Lab",
+    "metadataDescription": "A phone that runs in the browser: apps live in iframes, postMessage plays the role of system APIs, and four themes reskin the whole thing.",
+    "title": "Pocket Phone",
+    "hint": "Two-finger swipe down on the trackpad pulls the notification shade or control centre; two-finger swipe up goes home. Mouse dragging and touch work the same way. Swipe up on the lock screen to unlock.",
+    "appLoading": "Loading app…",
+    "home": {
+      "widgetHint": "Tap an icon to launch · pull down from the top for notifications"
+    },
+    "apps": {
+      "playground": "SDK Demo",
+      "notes": "Notes",
+      "dice": "Dice",
+      "settings": "Settings"
+    },
+    "themes": {
+      "ios": "Dynamic Island, superellipse icons, gesture bar, notifications and control centre on separate pulls.",
+      "hyperos": "Centre punch-hole, rounded-square icons, Xiaomi orange, switchable three-button nav.",
+      "harmonyos": "Pill notch, circular icons, Harmony blue, a folding launch transition.",
+      "animalIsland": "This site's own design language: wooden body, parchment dialogs, sticker icons, one combined drawer."
+    },
+    "wallpapers": {
+      "sonoma": "Sunset",
+      "tide": "Tide",
+      "canyon": "Canyon",
+      "aurora": "Aurora",
+      "petal": "Petal",
+      "jade": "Jade",
+      "meadow": "Meadow",
+      "beach": "Beach"
+    },
+    "settings": {
+      "themeSection": "System theme",
+      "appearance": "Appearance",
+      "scheme": {
+        "light": "Light",
+        "dark": "Dark"
+      },
+      "wallpaper": "Wallpaper",
+      "navigation": "Navigation",
+      "navMode": {
+        "gesture": "Gestures",
+        "buttons": "Three buttons"
+      },
+      "permissions": "App permissions",
+      "noPermissions": "No app has been granted anything yet",
+      "tapToRevoke": "Tap to revoke",
+      "granted": "Allowed",
+      "about": "About this phone",
+      "model": "Model",
+      "resolution": "Resolution",
+      "bridgeVersion": "SDK protocol",
+      "installedApps": "Installed apps"
+    },
+    "permissions": {
+      "camera": "Camera",
+      "microphone": "Microphone",
+      "location": "Location",
+      "contacts": "Contacts",
+      "notification": "Notifications",
+      "storage": "Storage"
+    },
+    "permissionPrompt": {
+      "title": "Allow “{app}” to use {permission}?",
+      "message": "This permission prompt is simulated; nothing on your real device is touched.",
+      "allow": "Allow",
+      "deny": "Deny"
+    },
+    "nav": {
+      "back": "Back",
+      "home": "Home",
+      "recents": "Recents"
+    },
+    "shade": {
+      "notifications": "Notifications",
+      "controlCenter": "Control Centre",
+      "empty": "Nothing new",
+      "clearAll": "Clear all",
+      "brightness": "Brightness",
+      "volume": "Volume"
+    },
+    "tiles": {
+      "wifi": "Wi-Fi",
+      "cellular": "Cellular",
+      "bluetooth": "Bluetooth",
+      "airplane": "Airplane",
+      "torch": "Torch",
+      "rotate": "Lock rotation"
+    },
+    "recents": {
+      "title": "Recents",
+      "empty": "Nothing is running",
+      "closeAll": "Close all",
+      "hint": "Tap a card to resume · flick it up to close"
+    },
+    "lock": {
+      "unlock": "Swipe up to unlock",
+      "notifications": "Notifications"
+    }
   }
 }

@@ -101,4 +101,13 @@ export const miniApps: MiniApp[] = [
     icon: "icon-camera",
     href: "/gif-editor",
   },
+  {
+    titleKey: "pocketPhone.title",
+    slug: "pocket-phone",
+    summaryKey: "pocketPhone.summary",
+    status: "ready",
+    color: "app-blue",
+    icon: "icon-variant",
+    href: "/pocket-phone",
+  },
 ];
