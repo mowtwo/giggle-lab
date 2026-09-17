@@ -546,6 +546,7 @@
     "metadataDescription": "A phone that runs in the browser: apps live in iframes, postMessage plays the role of system APIs, and four themes reskin the whole thing.",
     "title": "Pocket Phone",
     "hint": "Two-finger swipe down on the trackpad pulls the notification shade or control centre; two-finger swipe up goes home. Mouse dragging and touch work the same way. Swipe up on the lock screen to unlock.",
+    "hintTouch": "Pull down from the top for notifications · swipe up on the home bar · change themes in the phone's Settings app",
     "appLoading": "Loading app…",
     "home": {
       "widgetHint": "Tap an icon to launch · pull down from the top for notifications"

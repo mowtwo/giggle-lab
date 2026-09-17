@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../themes/tokens";
 import type { PhoneTheme } from "../themes/types";
@@ -34,17 +34,24 @@ export function DeviceFrame({
   const deviceWidth = SCREEN_WIDTH + frame.bezel * 2;
   const deviceHeight = SCREEN_HEIGHT + frame.bezel * 2;
 
-  useEffect(() => {
+  // useLayoutEffect + 先量一次:只等 ResizeObserver 的话,首帧会按 scale=1 画出来,
+  // 窄屏上就是一台顶出视口的整尺寸手机。
+  useLayoutEffect(() => {
     const host = hostRef.current;
     if (!host) {
       return undefined;
     }
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
+    const apply = (width: number, height: number) => {
       if (width === 0 || height === 0) {
         return;
       }
       setScale(Math.min(width / deviceWidth, height / deviceHeight, 1.1));
+    };
+    const rect = host.getBoundingClientRect();
+    apply(rect.width, rect.height);
+
+    const observer = new ResizeObserver(([entry]) => {
+      apply(entry.contentRect.width, entry.contentRect.height);
     });
     observer.observe(host);
     return () => observer.disconnect();
@@ -55,13 +62,22 @@ export function DeviceFrame({
 
   return (
     <div ref={hostRef} className="flex h-full w-full items-center justify-center">
+      {/* transform: scale 不改变布局尺寸,外面得套一层按缩放后尺寸占位的盒子,
+          否则窄屏上机身虽然画小了、却仍按原尺寸排版,把页面顶出去。 */}
+      <div
+        style={{
+          width: deviceWidth * scale,
+          height: deviceHeight * scale,
+          flex: "none",
+        }}
+      >
       <div
         key={`${theme.id}-${hapticPulse}`}
         style={{
           width: deviceWidth,
           height: deviceHeight,
           transform: `scale(${scale})`,
-          transformOrigin: "center",
+          transformOrigin: "top left",
           borderRadius: frame.bodyRadius,
           background: frame.bodyBackground,
           border: frame.bodyBorder,
@@ -107,6 +123,7 @@ export function DeviceFrame({
             }}
           />
         </div>
+      </div>
       </div>
     </div>
   );

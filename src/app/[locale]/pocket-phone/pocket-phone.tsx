@@ -283,12 +283,13 @@ export function PocketPhone() {
 
   return (
     // h-svh + overflow-hidden:机身靠 DeviceFrame 等比缩放塞进剩余空间,页面本身不滚。
-    <main className="flex h-svh flex-col overflow-hidden bg-[#101318] text-[#e9edf2]">
-      <header className="flex shrink-0 flex-wrap items-center gap-3 px-4 py-3">
+    // overscroll-none 挡掉移动端的橡皮筋回弹。
+    <main className="flex h-svh flex-col overflow-hidden overscroll-none bg-[#101318] text-[#e9edf2]">
+      <header className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 sm:px-4 sm:py-3">
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/16"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1.5 text-[13px] transition-colors hover:bg-white/16 sm:px-3 sm:text-sm"
         >
           <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
             <path
@@ -303,16 +304,19 @@ export function PocketPhone() {
           {common("backToShelf")}
         </button>
 
-        <h1 className="text-sm font-semibold tracking-wide">{t("title")}</h1>
+        <h1 className="shrink-0 text-[13px] font-semibold tracking-wide sm:text-sm">
+          {t("title")}
+        </h1>
 
-        <div className="ml-auto flex items-center gap-2">
-          <div className="flex items-center gap-1 rounded-full bg-white/8 p-1">
+        {/* 窄屏时这一组整体换到第二行,主题条自己横向滚动。 */}
+        <div className="ml-auto flex w-full items-center gap-2 sm:w-auto">
+          <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto rounded-full bg-white/8 p-1 [-ms-overflow-style:none] [scrollbar-width:none] sm:flex-none [&::-webkit-scrollbar]:hidden">
             {PHONE_THEMES.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => dispatch({ type: "setTheme", themeId: item.id })}
-                className="rounded-full px-2.5 py-1 text-[11px] transition-colors"
+                className="shrink-0 rounded-full px-2.5 py-1 text-[11px] whitespace-nowrap transition-colors"
                 style={{
                   background: item.id === state.themeId ? "#ffffff" : "transparent",
                   color: item.id === state.themeId ? "#101318" : "rgba(233,237,242,0.72)",
@@ -326,7 +330,7 @@ export function PocketPhone() {
         </div>
       </header>
 
-      <div className="min-h-0 flex-1 px-4 pb-3">
+      <div className="min-h-0 flex-1 px-2 pb-2 sm:px-4 sm:pb-3">
         <DeviceFrame
           theme={theme}
           hapticPulse={state.hapticPulse}
@@ -523,8 +527,10 @@ export function PocketPhone() {
         </DeviceFrame>
       </div>
 
-      <footer className="shrink-0 px-4 pb-4 text-center text-[11px] leading-relaxed text-white/45">
-        {t("hint")}
+      <footer className="shrink-0 px-14 pb-3 text-center text-[11px] leading-relaxed text-white/45 sm:px-4 sm:pb-4">
+        {/* 触控板那句在手机上是噪音,窄屏换成触屏版提示。 */}
+        <span className="hidden sm:inline">{t("hint")}</span>
+        <span className="sm:hidden">{t("hintTouch")}</span>
       </footer>
     </main>
   );

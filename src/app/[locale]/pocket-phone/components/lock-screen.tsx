@@ -66,7 +66,10 @@ export function LockScreen({
         <div style={{ fontSize: 14, marginTop: 6, opacity: 0.85 }}>{labels.dateFormat}</div>
       </div>
 
-      <div className="mt-8 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-5">
+      <div
+        className="mt-8 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-5"
+        style={{ touchAction: "pan-y" }}
+      >
         {notifications.slice(0, 4).map((item) => (
           <div
             key={item.id}

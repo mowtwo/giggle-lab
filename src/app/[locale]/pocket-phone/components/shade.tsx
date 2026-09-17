@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 
 import type { PhoneNotification, QuickTileId } from "../phone-state";
+import { SCREEN_HEIGHT } from "../themes/tokens";
 import type { PhoneTheme } from "../themes/types";
 import { isFlick, useSwipe } from "../use-gesture";
 
@@ -260,7 +261,10 @@ export function Shade({
           style={{
             // 顶部让出状态栏的高度,免得内容压在时间和电量上。
             padding: `${theme.statusBar.height + 6}px 16px 4px`,
-            maxHeight: "calc(86vh - 20px)",
+            // 用屏幕的逻辑高度,不能用 vh:机身是被 scale 过的,和浏览器视口无关。
+            maxHeight: SCREEN_HEIGHT * 0.86 - 22,
+            // 外层面板是 touch-action:none(要接下拉手势),这里得把纵向滚动还回去。
+            touchAction: "pan-y",
           }}
         >
           {showTiles && (
