@@ -7,7 +7,7 @@ import { SCREEN_HEIGHT } from "../themes/tokens";
 import type { PhoneTheme } from "../themes/types";
 import { isFlick, useSwipe } from "../use-gesture";
 
-export type ShadeLabels = {
+type ShadeLabels = {
   notifications: string;
   controlCenter: string;
   empty: string;

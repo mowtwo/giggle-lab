@@ -105,9 +105,13 @@ proxy configuration.
 
 ## Development
 
+Toolchain versions are declared in `mise.toml`. The floor is Node.js 22.13
+and pnpm 10.26 (the first release that understands `allowBuilds`); this repo
+installs Node.js 22 and pnpm 11.2.2.
+
 ```sh
-pnpm install
-pnpm dev
+mise install
+mise run dev
 ```
 
 Open `http://localhost:3000` or the port printed by Next.js.
@@ -115,12 +119,15 @@ Open `http://localhost:3000` or the port printed by Next.js.
 Useful scripts:
 
 ```sh
-pnpm dev
-pnpm lint
+mise run dev
+mise run lint
+mise run typecheck
+mise run check
 pnpm build
 pnpm start
 ```
 
+`mise run check` is the cleanup baseline: ESLint, `tsc --noEmit`, and knip.
 Use `pnpm` consistently; the repository includes `pnpm-lock.yaml` and
 `pnpm-workspace.yaml`.
 

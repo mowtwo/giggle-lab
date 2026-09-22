@@ -5,7 +5,7 @@ export type DeviceInfo = {
   renderer?: string;
 };
 
-export type DeviceKey =
+type DeviceKey =
   | "iphone"
   | "ipad"
   | "macbook"

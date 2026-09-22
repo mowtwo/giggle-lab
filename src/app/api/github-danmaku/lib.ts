@@ -137,18 +137,18 @@ export async function getSessionUser() {
   return parsed.exp > Date.now() ? parsed.user : null;
 }
 
-export function dayIssueTitle(day: string) {
+function dayIssueTitle(day: string) {
   return `[danmaku] ${day}`;
 }
 
-export function encodeMessage(message: DanmakuMessage) {
+function encodeMessage(message: DanmakuMessage) {
   return `${marker}
 \`\`\`json
 ${JSON.stringify(message)}
 \`\`\``;
 }
 
-export function parseMessage(comment: GithubComment) {
+function parseMessage(comment: GithubComment) {
   if (!comment.body?.startsWith(marker)) return null;
   const json = comment.body.match(/```json\s*([\s\S]*?)\s*```/)?.[1];
   if (!json) return null;
@@ -186,7 +186,7 @@ async function githubFetch<T>(path: string, init: RequestInit = {}) {
   return (await response.json()) as T;
 }
 
-export async function findDailyIssue(day: string) {
+async function findDailyIssue(day: string) {
   const config = danmakuConfig();
   const query = new URLSearchParams({
     state: "open",
@@ -198,7 +198,7 @@ export async function findDailyIssue(day: string) {
   return issues.find((issue) => issue.title === dayIssueTitle(day)) ?? null;
 }
 
-export async function ensureDailyIssue(day: string) {
+async function ensureDailyIssue(day: string) {
   const existing = await findDailyIssue(day);
   if (existing) return existing;
 

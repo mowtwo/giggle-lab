@@ -45,7 +45,7 @@ export type Cell = {
   triggeredMine?: boolean;
 };
 
-export type Block = {
+type Block = {
   bx: number;
   by: number;
   cells: Cell[]; // flat row-major: index = ly * blockWidth + lx
@@ -53,7 +53,7 @@ export type Block = {
   reservedSafe?: { lx: number; ly: number } | null;
 };
 
-export type GameStatus = "ready" | "playing" | "won" | "lost";
+type GameStatus = "ready" | "playing" | "won" | "lost";
 
 export type GameState = {
   difficulty: Difficulty;
@@ -115,11 +115,11 @@ function modFloor(n: number, m: number) {
   return ((n % m) + m) % m;
 }
 
-export function blockIdOf(bx: number, by: number) {
+function blockIdOf(bx: number, by: number) {
   return `${bx},${by}`;
 }
 
-export function worldToBlock(
+function worldToBlock(
   x: number,
   y: number,
   config: DifficultyConfig,
@@ -131,20 +131,7 @@ export function worldToBlock(
   return { bx, by, lx, ly };
 }
 
-export function blockToWorld(
-  bx: number,
-  by: number,
-  lx: number,
-  ly: number,
-  config: DifficultyConfig,
-) {
-  return {
-    x: bx * config.blockWidth + lx,
-    y: by * config.blockHeight + ly,
-  };
-}
-
-export function isInBounds(
+function isInBounds(
   bx: number,
   by: number,
   config: DifficultyConfig,
@@ -265,10 +252,6 @@ const NEIGHBOR_DELTAS: ReadonlyArray<readonly [number, number]> = [
   [-1, 0],           [1, 0],
   [-1, 1],  [0, 1],  [1, 1],
 ];
-
-export function neighbors(x: number, y: number) {
-  return NEIGHBOR_DELTAS.map(([dx, dy]) => ({ x: x + dx, y: y + dy }));
-}
 
 function computeAdjMines(state: GameState, x: number, y: number): number {
   let count = 0;

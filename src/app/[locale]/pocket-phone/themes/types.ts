@@ -17,30 +17,30 @@ export type ThemeId = "ios" | "hyperos" | "harmonyos" | "animal-island";
 export type ColorScheme = "light" | "dark";
 
 /** 状态栏顶部的挖孔形态。 */
-export type CutoutVariant = "island" | "notch" | "punch-hole" | "none";
+type CutoutVariant = "island" | "notch" | "punch-hole" | "none";
 
 /** 导航形态。`both` 表示这套系统两种都支持,用户可在设置里切。 */
 export type NavMode = "gesture" | "buttons";
 
 /** 应用图标外形。 */
-export type IconShape = "squircle" | "rounded" | "circle" | "sticker";
+type IconShape = "squircle" | "rounded" | "circle" | "sticker";
 
 /** 下拉面板的组织方式:合并成一张抽屉,还是左右分屏(左通知 / 右控制中心)。 */
-export type ShadeVariant = "unified" | "split";
+type ShadeVariant = "unified" | "split";
 
 /** 系统弹窗(alert / 权限申请)的视觉语言。 */
-export type DialogVariant = "ios-alert" | "material" | "harmony-card" | "parchment";
+type DialogVariant = "ios-alert" | "material" | "harmony-card" | "parchment";
 
 /** 吐司的位置与形状。 */
-export type ToastVariant = "pill-bottom" | "pill-center" | "capsule-top" | "parchment-bottom";
+type ToastVariant = "pill-bottom" | "pill-center" | "capsule-top" | "parchment-bottom";
 
 /** 打开应用的转场。 */
-export type LaunchVariant = "zoom-from-icon" | "scale-fade" | "fold-up" | "bounce-in";
+type LaunchVariant = "zoom-from-icon" | "scale-fade" | "fold-up" | "bounce-in";
 
 /** 电量图标画法。 */
-export type BatteryVariant = "pill" | "bar" | "leaf";
+type BatteryVariant = "pill" | "bar" | "leaf";
 
-export type ThemeFrame = {
+type ThemeFrame = {
   /** 机身圆角。 */
   bodyRadius: number;
   /** 边框(黑边)宽度。 */
@@ -57,7 +57,7 @@ export type ThemeFrame = {
   buttons: Array<{ side: "left" | "right"; top: number; length: number }>;
 };
 
-export type ThemeStatusBar = {
+type ThemeStatusBar = {
   height: number;
   cutout: CutoutVariant;
   /** 挖孔尺寸;`none` 时忽略。 */
@@ -73,7 +73,7 @@ export type ThemeStatusBar = {
   fontWeight: number;
 };
 
-export type ThemeNavigation = {
+type ThemeNavigation = {
   /** 这套系统默认用哪种导航。 */
   defaultMode: NavMode;
   /** 是否允许用户切换(设置里出现开关)。 */
@@ -88,7 +88,7 @@ export type ThemeNavigation = {
   buttonGlyph: "miui" | "harmony" | "classic";
 };
 
-export type ThemeIcons = {
+type ThemeIcons = {
   shape: IconShape;
   /** 图标边长。 */
   size: number;
@@ -120,7 +120,7 @@ export type ThemeIcons = {
   };
 };
 
-export type ThemeDock = {
+type ThemeDock = {
   show: boolean;
   /** dock 背板的圆角与模糊;show=false 时忽略。 */
   radius: number;
@@ -133,7 +133,7 @@ export type ThemeDock = {
   marginBottom: number;
 };
 
-export type ThemeMotion = {
+type ThemeMotion = {
   launch: LaunchVariant;
   /** 应用打开/关闭时长(ms)。 */
   launchDuration: number;
@@ -145,7 +145,7 @@ export type ThemeMotion = {
   dialogDuration: number;
 };
 
-export type ThemeSurfaces = {
+type ThemeSurfaces = {
   shade: ShadeVariant;
   dialog: DialogVariant;
   toast: ToastVariant;
@@ -156,7 +156,7 @@ export type ThemeSurfaces = {
 };
 
 /** 会被写成 CSS 变量的调色板。键名即 `--ph-<kebab(key)>`。 */
-export type ThemePalette = {
+type ThemePalette = {
   accent: string;
   accentSoft: string;
   surface: string;
@@ -172,7 +172,7 @@ export type ThemePalette = {
   glassBorder: string;
 };
 
-export type ThemeTypography = {
+type ThemeTypography = {
   /** UI 字体栈。 */
   ui: string;
   /** 大标题字体栈(锁屏时钟、设置大标题)。 */
@@ -181,7 +181,7 @@ export type ThemeTypography = {
   tracking: string;
 };
 
-export type ThemeWallpaper = {
+type ThemeWallpaper = {
   id: string;
   /** 直接作为 CSS background。 */
   light: string;

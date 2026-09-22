@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import type { ColorScheme, PhoneTheme } from "../themes/types";
 
-export const SQUIRCLE_CLIP_ID = "ph-squircle-clip";
+const SQUIRCLE_CLIP_ID = "ph-squircle-clip";
 
 /**
  * iOS 那种连续圆角是超椭圆 |x|^n + |y|^n = 1(n≈5),不是 border-radius 能画出来的。

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": [
+    "apps/adou-laya/**",
+    "public/**",
+    "scripts/**"
+  ],
+  "ignoreIssues": {
+    "src/i18n/navigation.ts": ["exports"],
+    "src/app/[locale]/pocket-phone/protocol.ts": ["types"]
+  }
+}

@@ -91,22 +91,6 @@ function notifyVoice() {
   for (const listener of state.voiceListeners) listener({ ...state.voice });
 }
 
-export function isAudioEnabled() {
-  return state.enabled;
-}
-
-export function isAudioUnlocked() {
-  return state.unlocked;
-}
-
-export function getVolumes(): Volumes {
-  return { ...state.volumes };
-}
-
-export function getVoiceConfig(): VoiceConfig {
-  return { ...state.voice };
-}
-
 export function subscribeAudio(listener: (enabled: boolean) => void) {
   state.listeners.add(listener);
   return () => {
@@ -174,18 +158,6 @@ export function setVoiceShorten(value: boolean) {
   if (typeof window !== "undefined") {
     window.localStorage.setItem("audio.voice.shorten", value ? "1" : "0");
   }
-}
-
-export function getVoicePitch() {
-  return state.voice.pitch;
-}
-
-export function getVoiceRate() {
-  return state.voice.rate;
-}
-
-export function getVoiceShorten() {
-  return state.voice.shorten;
 }
 
 export async function setAudioEnabled(next: boolean) {

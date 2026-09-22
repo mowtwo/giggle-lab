@@ -38,7 +38,7 @@ export type Chunk = {
   index: number;
   data: string;
 };
-export type BatchFinal = {
+type BatchFinal = {
   protocol: typeof PROTOCOL;
   type: "batch-final";
   id: string;

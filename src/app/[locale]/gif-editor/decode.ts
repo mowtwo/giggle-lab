@@ -25,7 +25,7 @@ const GIF_DEFAULT_DELAY_MS = 100;
 const WEBM_MAX_FRAMES = 240;
 const WEBM_SAMPLE_FPS = 15;
 
-export async function decodeGif(file: File): Promise<DecodedClip> {
+async function decodeGif(file: File): Promise<DecodedClip> {
   const [{ parseGIF, decompressFrames }, buffer] = await Promise.all([
     import(/* webpackChunkName: "gifuct" */ "gifuct-js"),
     file.arrayBuffer(),
@@ -92,7 +92,7 @@ export async function decodeGif(file: File): Promise<DecodedClip> {
   return { width, height, frames: out, source: "gif" };
 }
 
-export async function decodeWebm(file: File): Promise<DecodedClip> {
+async function decodeWebm(file: File): Promise<DecodedClip> {
   const url = URL.createObjectURL(file);
   const video = document.createElement("video");
   video.src = url;

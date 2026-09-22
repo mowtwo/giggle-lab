@@ -6,11 +6,11 @@ Giggle Lab is a Next.js App Router project for small web apps. Routes live in `s
 
 ## Build, Test, and Development Commands
 
-- `pnpm install`: install dependencies from `pnpm-lock.yaml`.
-- `pnpm dev`: start the local Next.js development server.
+- `mise install`: install Node.js 22 and pnpm 11.2.2 from `mise.toml`. The floor is Node.js `>=22.13` and pnpm `>=10.26`.
+- `mise run dev`: start the local Next.js development server.
 - `pnpm build`: create a production build and run Next.js type checks.
 - `pnpm start`: serve the production build locally after `pnpm build`.
-- `pnpm lint`: run ESLint with Next.js Core Web Vitals and TypeScript rules.
+- `mise run check`: run ESLint, `tsc --noEmit`, and knip.
 
 Use `pnpm` consistently; this repository includes `pnpm-workspace.yaml` and a pnpm lockfile.
 

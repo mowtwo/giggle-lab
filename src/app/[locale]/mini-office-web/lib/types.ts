@@ -7,7 +7,7 @@ export type OfficeFile = {
   objectUrl: string;
 };
 
-export type ExportQuality = "screen" | "print" | "archive";
+type ExportQuality = "screen" | "print" | "archive";
 
 export type PdfExportOptions = {
   quality: ExportQuality;

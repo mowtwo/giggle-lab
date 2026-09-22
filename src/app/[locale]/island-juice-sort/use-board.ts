@@ -13,8 +13,8 @@ import {
   type Move,
 } from "./game-logic";
 
-export const POUR_DELAY_MS = 220;
-export const POUR_RESET_MS = 460;
+const POUR_DELAY_MS = 220;
+const POUR_RESET_MS = 460;
 
 export type PourState = {
   from: number;
@@ -27,7 +27,7 @@ export type GameSnapshot = {
   moves: number;
 };
 
-export type PourCommitInfo = {
+type PourCommitInfo = {
   move: Move;
   before: Bottle[];
   after: Bottle[];

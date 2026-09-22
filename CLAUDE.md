@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `pnpm dev` — start the Next.js dev server (default `http://localhost:3000`).
+- `mise install` — install the Node.js 22 and pnpm 11.2.2 pins from `mise.toml`. Floor: Node.js `>=22.13` and pnpm `>=10.26`.
+- `mise run dev` — start the Next.js dev server (default `http://localhost:3000`).
 - `pnpm build` — production build; also runs Next.js type checks.
 - `pnpm start` — serve the production build (after `pnpm build`).
-- `pnpm lint` — ESLint (Next Core Web Vitals + TypeScript rules).
+- `mise run check` — ESLint, `tsc --noEmit`, and knip.
 
 Use `pnpm` only — the repo has `pnpm-workspace.yaml` and a pnpm lockfile. There is no test runner configured; rely on `pnpm lint` and `pnpm build` for verification, and document manual steps in PRs.
 

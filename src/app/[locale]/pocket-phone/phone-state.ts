@@ -2,7 +2,7 @@ import { DEFAULT_THEME_ID, getTheme, isThemeId } from "./themes";
 import type { ColorScheme, NavMode, ThemeId } from "./themes/types";
 import type { SdkPermissionKind, SdkPermissionState } from "./protocol";
 
-export type PhoneView = "home" | "app" | "recents";
+type PhoneView = "home" | "app" | "recents";
 
 export type PhoneNotification = {
   id: string;
@@ -344,17 +344,13 @@ export function phoneReducer(state: PhoneState, action: PhoneAction): PhoneState
   }
 }
 
-export function permissionKey(appId: string, kind: SdkPermissionKind) {
-  return `${appId}:${kind}`;
-}
-
 /** 只有这几项值得记进 localStorage;运行时状态每次都从头开始。 */
 export type PersistedPrefs = Pick<
   PhoneState,
   "themeId" | "scheme" | "wallpaperId" | "navMode"
 >;
 
-export const PREFS_STORAGE_KEY = "giggle-pocket-phone:prefs";
+const PREFS_STORAGE_KEY = "giggle-pocket-phone:prefs";
 export const APP_STORAGE_PREFIX = "giggle-pocket-phone:app:";
 
 export function readPrefs(): Partial<PersistedPrefs> {

@@ -77,17 +77,6 @@ export function canPour(
   return targetColor === null || targetColor === color;
 }
 
-export function pourAmount(
-  bottles: Bottle[],
-  move: Move,
-  capacity: number,
-): number {
-  if (!canPour(bottles, move.from, move.to, capacity)) return 0;
-  const source = bottles[move.from];
-  const target = bottles[move.to];
-  return Math.min(topRunLength(source), capacity - target.length);
-}
-
 export function applyMove(
   bottles: Bottle[],
   move: Move,

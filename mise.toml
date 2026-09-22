@@ -1,0 +1,37 @@
+# Node.js 22.13 is the floor: Next.js 16 needs >=20.9, Node.js 20 is end-of-life,
+# and pnpm 11.2.2 refuses anything older than 22.13.
+# pnpm 10.26.0 is the floor that understands `allowBuilds`; this repo pins 11.2.2.
+
+[tools]
+node = "22"
+pnpm = "11.2.2"
+
+[env]
+_.path = ["{{config_root}}/node_modules/.bin"]
+
+[tasks.install]
+description = "Install dependencies with pnpm"
+run = "pnpm install"
+sources = ["package.json", "pnpm-lock.yaml", "pnpm-workspace.yaml", "mise.toml"]
+outputs = ["node_modules/.modules.yaml"]
+
+[tasks.dev]
+description = "Start the Next.js dev server"
+run = "pnpm dev"
+depends = ["install"]
+
+[tasks.lint]
+description = "Run ESLint"
+run = "pnpm lint"
+
+[tasks.typecheck]
+description = "Typecheck the Next.js app"
+run = "pnpm typecheck"
+
+[tasks.knip]
+description = "Report unused files, exports, and dependencies"
+run = "pnpm knip"
+
+[tasks.check]
+description = "Lint, typecheck, and run the knip cleanup baseline"
+depends = ["lint", "typecheck", "knip"]
