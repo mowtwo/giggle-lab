@@ -6,6 +6,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -31,11 +32,12 @@
     ".next/dev/types/**/*.ts",
     "src/**/*.mts"
   ],
-  "exclude": [
+    "exclude": [
     "node_modules",
     "apps",
     ".layaair-cache",
     ".laya-build",
-    "public/adou-laya"
+    "public/adou-laya",
+    "src/**/*.test.ts"
   ]
 }

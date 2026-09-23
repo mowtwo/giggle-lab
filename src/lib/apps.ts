@@ -110,4 +110,13 @@ export const miniApps: MiniApp[] = [
     icon: "icon-variant",
     href: "/pocket-phone",
   },
+  {
+    titleKey: "screenRecorder.title",
+    slug: "screen-recorder",
+    summaryKey: "screenRecorder.summary",
+    status: "ready",
+    color: "app-red",
+    icon: "icon-camera",
+    href: "/screen-recorder",
+  },
 ];

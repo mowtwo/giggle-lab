@@ -24,6 +24,7 @@
 /.layaair-cache/
 /.laya-build/
 /public/adou-laya/
+/public/ffmpeg/
 
 # production
 /build

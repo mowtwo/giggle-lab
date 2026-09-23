@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     ".layaair-cache/**",
     ".laya-build/**",
     "public/adou-laya/**",
+    "public/ffmpeg/**",
     "apps/adou-laya/**",
     "apps/adou-laya/bin/**",
     "apps/adou-laya/engine/**",

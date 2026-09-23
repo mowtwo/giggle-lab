@@ -3,9 +3,12 @@
   "ignore": [
     "apps/adou-laya/**",
     "public/**",
-    "scripts/**"
+    "scripts/**",
+    "src/**/*.test.mts"
   ],
+  "ignoreDependencies": ["@ffmpeg/core", "@ffmpeg/core-mt"],
   "ignoreIssues": {
+    "src/app/[locale]/screen-recorder/ffmpeg-platform.ts": ["exports"],
     "src/i18n/navigation.ts": ["exports"],
     "src/app/[locale]/pocket-phone/protocol.ts": ["types"]
   }

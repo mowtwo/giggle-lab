@@ -33,7 +33,7 @@ function continueWithLocale(request: NextRequest, locale: string) {
     sameSite: "lax",
   });
 
-  return response;
+  return isolateScreenRecorder(response, request.nextUrl.pathname);
 }
 
 function redirectToDefaultLocale(request: NextRequest) {
@@ -65,7 +65,17 @@ export function proxy(request: NextRequest) {
     return redirectToDefaultLocale(request);
   }
 
-  return handleI18nRouting(request);
+  return isolateScreenRecorder(
+    handleI18nRouting(request),
+    request.nextUrl.pathname,
+  );
+}
+
+function isolateScreenRecorder(response: NextResponse, pathname: string) {
+  if (!pathname.includes("/screen-recorder")) return response;
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+  return response;
 }
 
 export const config = {
