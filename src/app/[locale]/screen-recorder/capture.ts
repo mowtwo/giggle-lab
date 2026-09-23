@@ -115,11 +115,11 @@ export class SegmentRecorder {
       });
       const index = this.index;
       this.index += 1;
-      if (blob.size > 0) this.onSegment(index, blob);
       const live = this.stream
         .getVideoTracks()
         .some((track) => track.readyState === "live");
       if (!this.stopped && live) this.openRecorder();
+      if (blob.size > 0) this.onSegment(index, blob);
     };
     recorder.start();
     this.timer = window.setTimeout(() => {

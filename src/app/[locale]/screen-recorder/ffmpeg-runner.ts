@@ -3,6 +3,7 @@ import type { FFmpeg } from "@ffmpeg/ffmpeg";
 let ffmpegPromise: Promise<FFmpeg> | null = null;
 let multiThread = false;
 let queue: Promise<unknown> = Promise.resolve();
+let generation = 0;
 let lastLog = "";
 let activeController: AbortController | null = null;
 let activeInstance: FFmpeg | null = null;
@@ -17,6 +18,7 @@ export function setFfmpegProgressListener(listener: ((ratio: number) => void) | 
 }
 
 export function interruptFfmpeg() {
+  generation += 1;
   activeController?.abort();
   try {
     activeInstance?.terminate();
@@ -79,8 +81,22 @@ export function loadFfmpeg() {
   return ffmpegPromise;
 }
 
+function interrupted(ticket: number) {
+  return ticket !== generation;
+}
+
 export function enqueueFfmpeg<T>(task: (ffmpeg: FFmpeg) => Promise<T>) {
-  const run = queue.then(async () => task(await loadFfmpeg()));
+  const ticket = generation;
+  const run = queue.then(async () => {
+    if (interrupted(ticket)) {
+      throw new DOMException("FFmpeg interrupted", "AbortError");
+    }
+    const ffmpeg = await loadFfmpeg();
+    if (interrupted(ticket)) {
+      throw new DOMException("FFmpeg interrupted", "AbortError");
+    }
+    return task(ffmpeg);
+  });
   queue = run.then(
     () => undefined,
     () => undefined,
@@ -89,13 +105,14 @@ export function enqueueFfmpeg<T>(task: (ffmpeg: FFmpeg) => Promise<T>) {
 }
 
 export async function execFfmpeg(ffmpeg: FFmpeg, args: string[]) {
+  const ticket = generation;
   lastLog = "";
   const controller = new AbortController();
   activeController = controller;
   activeInstance = ffmpeg;
   try {
     const code = await ffmpeg.exec(args, -1, { signal: controller.signal });
-    if (controller.signal.aborted) {
+    if (interrupted(ticket) || controller.signal.aborted) {
       throw new DOMException("FFmpeg interrupted", "AbortError");
     }
     if (code !== 0) {

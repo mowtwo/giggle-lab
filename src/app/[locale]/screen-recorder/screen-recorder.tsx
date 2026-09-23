@@ -94,7 +94,10 @@ export function ScreenRecorder() {
   }>({ usage: null, quota: null });
   const videoRef = useRef<HTMLVideoElement>(null);
   const captureStop = useRef<(() => void) | null>(null);
+  const previewTracksRef = useRef<MediaStreamTrack[]>([]);
   const recorderRef = useRef<SegmentRecorder | null>(null);
+  const startLockRef = useRef(false);
+  const recordingTokenRef = useRef(0);
   const storeRef = useRef<RecordingStore | null>(null);
   const sessionRef = useRef<StoreSession | null>(null);
   const manifestRef = useRef<ProjectManifest | null>(null);
@@ -442,16 +445,34 @@ export function ScreenRecorder() {
     }
   };
 
+  const stopLivePreview = () => {
+    for (const track of previewTracksRef.current) track.stop();
+    previewTracksRef.current = [];
+    const video = videoRef.current;
+    if (video) video.srcObject = null;
+  };
+
+  const showLivePreview = (stream: MediaStream) => {
+    stopLivePreview();
+    const clones = stream.getVideoTracks().map((track) => track.clone());
+    previewTracksRef.current = clones;
+    const video = videoRef.current;
+    if (video) video.srcObject = new MediaStream(clones);
+  };
+
   const onSegment = (index: number, blob: Blob) => {
     const store = storeRef.current;
     const manifest = manifestRef.current;
+    const token = recordingTokenRef.current;
     if (!store || !manifest) return;
+    const projectId = manifest.id;
     pending.current += 1;
     setCapturedCount((count) => count + 1);
     void (async () => {
       try {
-        setStatus(t("transcoding"));
+        if (recordingTokenRef.current !== token) return;
         const flv = await transcodeSegmentToFlv(blob);
+        if (recordingTokenRef.current !== token || manifestRef.current?.id !== projectId) return;
         const flvName = segmentFileName(index, "flv");
         const flvBlob = new Blob([flv.buffer as ArrayBuffer], { type: "video/x-flv" });
         const limit = sessionRef.current?.byteLimit;
@@ -467,16 +488,20 @@ export function ScreenRecorder() {
           return;
         }
         const flvBytes = await store.writeBytes(
-          manifest.id,
+          projectId,
           `flv/${flvName}`,
           flvBlob,
         );
+        if (recordingTokenRef.current !== token || manifestRef.current?.id !== projectId) return;
         usedRef.current += flvBytes;
         setUsedBytes(usedRef.current);
-        await commitManifest((current) => ({
-          ...current,
-          flvParts: [...current.flvParts, { index, name: flvName, bytes: flvBytes }],
-        }));
+        await commitManifest((current) => {
+          if (current.id !== projectId) return current;
+          return {
+            ...current,
+            flvParts: [...current.flvParts, { index, name: flvName, bytes: flvBytes }],
+          };
+        });
         setThreads(ffmpegUsesThreads());
       } catch (err) {
         if (err instanceof ByteLimitError) {
@@ -495,7 +520,15 @@ export function ScreenRecorder() {
 
   const start = async () => {
     if (screenCaptureSupport() !== "ok") return;
-    if (!storeRef.current || phase === "recording") return;
+    if (
+      startLockRef.current ||
+      phaseRef.current === "recording" ||
+      phaseRef.current === "saving"
+    ) {
+      return;
+    }
+    startLockRef.current = true;
+    setBusy(true);
     setError(null);
     setPreview(null);
     setPreviewTitle(null);
@@ -520,14 +553,19 @@ export function ScreenRecorder() {
       }
     }
     const store = storeRef.current;
-    if (!store) return;
-    setBusy(true);
+    if (!store) {
+      startLockRef.current = false;
+      setBusy(false);
+      return;
+    }
     setStatus(t("ffmpegLoading"));
     try {
       await loadFfmpeg();
     } catch {
       setSupport("wasm");
+      phaseRef.current = "idle";
       setPhase("idle");
+      startLockRef.current = false;
       setBusy(false);
       return;
     }
@@ -549,39 +587,47 @@ export function ScreenRecorder() {
       setFlvCount(0);
       setCapturedCount(0);
       setElapsed(0);
-      const video = videoRef.current;
-      if (video) video.srcObject = capture.stream;
+      showLivePreview(capture.stream);
       const recorder = new SegmentRecorder(capture.stream, mimeType, onSegment);
       recorderRef.current = recorder;
       capture.stream.getVideoTracks()[0]?.addEventListener("ended", () => {
         stop();
       });
+      recordingTokenRef.current += 1;
       recorder.start();
       recordingIdRef.current = project.id;
+      phaseRef.current = "recording";
       setRecordingId(project.id);
       setPhase("recording");
       setStatus(t("recording"));
       await refreshProjects(store);
     } catch (err) {
+      recorderRef.current?.stop();
+      recorderRef.current = null;
       captureStop.current?.();
       captureStop.current = null;
+      stopLivePreview();
       recordingIdRef.current = null;
+      phaseRef.current = "idle";
       setRecordingId(null);
       setError(err instanceof Error ? err.message : t("captureFailed"));
       setPhase("idle");
     } finally {
+      if (phaseRef.current !== "recording") startLockRef.current = false;
       setBusy(false);
     }
   };
 
   const stop = () => {
-    if (stopRequested.current && phase !== "recording") return;
+    if (phaseRef.current !== "recording") return;
+    if (stopRequested.current) return;
     stopRequested.current = true;
+    phaseRef.current = "saving";
+    startLockRef.current = false;
     recorderRef.current?.stop();
     captureStop.current?.();
     captureStop.current = null;
-    const video = videoRef.current;
-    if (video) video.srcObject = null;
+    stopLivePreview();
     setPhase("saving");
     setStatus(t("saving"));
     if (pending.current === 0) void finalize();

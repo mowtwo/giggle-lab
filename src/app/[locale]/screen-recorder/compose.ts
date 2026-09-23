@@ -60,13 +60,16 @@ async function writeInput(
 }
 
 export async function transcodeSegmentToFlv(blob: Blob) {
+  const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const input = `segment-${stamp}.in`;
+  const output = `segment-${stamp}.flv`;
   return enqueueFfmpeg(async (ffmpeg) => {
-    await writeInput(ffmpeg, "segment.in", blob);
+    await writeInput(ffmpeg, input, blob);
     const attempts = [
-      ["-i", "segment.in", "-c", "copy", "-f", "flv", "segment.flv"],
+      ["-i", input, "-c", "copy", "-f", "flv", output],
       [
         "-i",
-        "segment.in",
+        input,
         "-c:v",
         "libx264",
         "-preset",
@@ -82,11 +85,11 @@ export async function transcodeSegmentToFlv(blob: Blob) {
         "128k",
         "-f",
         "flv",
-        "segment.flv",
+        output,
       ],
       [
         "-i",
-        "segment.in",
+        input,
         "-an",
         "-c:v",
         "libx264",
@@ -99,24 +102,24 @@ export async function transcodeSegmentToFlv(blob: Blob) {
         ...threadArgs(),
         "-f",
         "flv",
-        "segment.flv",
+        output,
       ],
     ];
     let lastError: unknown;
     for (const args of attempts) {
       try {
         await execFfmpeg(ffmpeg, withSourceMetadata(args));
-        const bytes = await readOutput(ffmpeg, "segment.flv");
-        await discard(ffmpeg, "segment.in");
-        await discard(ffmpeg, "segment.flv");
+        const bytes = await readOutput(ffmpeg, output);
+        await discard(ffmpeg, input);
+        await discard(ffmpeg, output);
         return bytes;
       } catch (error) {
         if (isAbort(error)) throw error;
         lastError = error;
-        await discard(ffmpeg, "segment.flv");
+        await discard(ffmpeg, output);
       }
     }
-    await discard(ffmpeg, "segment.in");
+    await discard(ffmpeg, input);
     throw lastError instanceof Error
       ? lastError
       : new Error("Could not mux this segment into FLV");
