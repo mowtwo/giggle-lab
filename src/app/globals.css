@@ -366,3 +366,47 @@ canvas.hiddenCanvasElement {
     opacity: 1;
   }
 }
+
+@keyframes schulte-hive-hit {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.14);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes schulte-hive-miss {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-3px);
+  }
+
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+.schulte-hive-hit {
+  animation: schulte-hive-hit 200ms linear;
+}
+
+.schulte-hive-miss {
+  animation: schulte-hive-miss 200ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schulte-hive-hit,
+  .schulte-hive-miss {
+    animation: none;
+  }
+}

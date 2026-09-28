@@ -90,6 +90,10 @@
     "screenRecorder": {
       "title": "屏幕录制",
       "summary": "录下屏幕。中间片段存成 FLV，停下来合成一个 MP4。"
+    },
+    "schulteHive": {
+      "title": "舒尔特蜂巢",
+      "summary": "在蜂巢里按顺序点完打乱的数字。点过的格子不会变样，只闪一下对错。"
     }
   },
   "HeartCard": {
@@ -731,5 +735,48 @@
     "captureFailed": "没有开始录制。",
     "composeFailed": "FLV 合成失败。",
     "limitHit": "到了 {limit} 上限，录制已停下。"
+  },
+  "SchulteHive": {
+    "metadataTitle": "舒尔特蜂巢 - Giggle Lab",
+    "metadataDescription": "蜂巢版舒尔特注意力测验。三分钟内按顺序点完打乱的数字，点过的格子不会留下痕迹。",
+    "title": "舒尔特蜂巢",
+    "description": "舒尔特方格用来测注意力。这里排成蜂巢，没有横竖行可以顺着扫。",
+    "blurb": {
+      "spark": "两圈，19 个数。先把节奏找回来。",
+      "steady": "三圈，37 个数。日常这一档，比 5×5 方格更没法逐行扫。",
+      "deep": "四圈，61 个数。一眼看不全，得记住刚扫过的区域。",
+      "apex": "五圈，91 个数。三分钟通常不够。"
+    },
+    "difficulty": {
+      "spark": "热身",
+      "steady": "稳态",
+      "deep": "深潜",
+      "apex": "顶点"
+    },
+    "count": "{count} 个",
+    "standard": "评分看用时和点错率。出色 ≤ {sharp}，良好 ≤ {good}，及格 ≤ {pass}。点错率 5% 以内不降档，15% 以内降一档，30% 以内降两档，再高是再练。没点完也是再练。",
+    "grade": {
+      "sharp": "出色",
+      "good": "良好",
+      "pass": "及格",
+      "again": "再练"
+    },
+    "gradeHeld": "点错率 {rate}%",
+    "gradeDropped": "速度是{speed}，点错率 {rate}%，评为{grade}",
+    "gradeSlow": "慢于及格，点错率 {rate}%",
+    "gradeUnfinished": "没点完，找到 {found} / {total}，点错率 {rate}%",
+    "seek": "找",
+    "misses": "点错 {count}",
+    "start": "开始",
+    "again": "再来一局",
+    "cleared": "点完了",
+    "clearedDetail": "用时 {time}，点错 {misses} 次",
+    "expired": "时间到",
+    "expiredDetail": "找到 {found} / {total}，点错 {misses} 次",
+    "cellLabel": "{n}",
+    "seekLive": "找 {n}",
+    "missLive": "不对，还是 {n}，点错 {count} 次",
+    "clearedLive": "{grade}，用时 {time}，点错率 {rate}%",
+    "expiredLive": "再练，找到 {found} 个，点错率 {rate}%"
   }
 }

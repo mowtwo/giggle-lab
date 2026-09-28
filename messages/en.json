@@ -90,6 +90,10 @@
     "screenRecorder": {
       "title": "Screen Recorder",
       "summary": "Record the screen. Parts stay as FLV, and stopping stitches them into one MP4."
+    },
+    "schulteHive": {
+      "title": "Schulte Hive",
+      "summary": "Tap shuffled numbers in order on a honeycomb. Tapped cells stay unmarked; right and wrong only flash."
     }
   },
   "HeartCard": {
@@ -731,5 +735,48 @@
     "captureFailed": "Recording did not start.",
     "composeFailed": "FLV compose failed.",
     "limitHit": "Hit the {limit} cap. Recording stopped."
+  },
+  "SchulteHive": {
+    "metadataTitle": "Schulte Hive - Giggle Lab",
+    "metadataDescription": "A honeycomb Schulte attention test. Tap shuffled numbers in order within three minutes. Tapped cells leave no mark.",
+    "title": "Schulte Hive",
+    "description": "A Schulte grid measures attention. This one is a hive, so there are no rows to scan along.",
+    "blurb": {
+      "spark": "Two rings, 19 numbers. Find the rhythm.",
+      "steady": "Three rings, 37 numbers. The daily round, harder to scan than a 5×5 square.",
+      "deep": "Four rings, 61 numbers. The field no longer fits in one look.",
+      "apex": "Five rings, 91 numbers. Three minutes usually runs out."
+    },
+    "difficulty": {
+      "spark": "Warm-up",
+      "steady": "Steady",
+      "deep": "Deep",
+      "apex": "Apex"
+    },
+    "count": "{count}",
+    "standard": "The grade uses time and miss rate. Sharp ≤ {sharp}, Good ≤ {good}, Pass ≤ {pass}. Miss rate within 5% keeps the speed grade, within 15% drops one, within 30% drops two, and above that is Retry. An unfinished round is Retry.",
+    "grade": {
+      "sharp": "Sharp",
+      "good": "Good",
+      "pass": "Pass",
+      "again": "Retry"
+    },
+    "gradeHeld": "Miss rate {rate}%",
+    "gradeDropped": "Speed was {speed}. Miss rate {rate}% makes this {grade}.",
+    "gradeSlow": "Slower than Pass. Miss rate {rate}%",
+    "gradeUnfinished": "Unfinished, found {found} / {total}. Miss rate {rate}%",
+    "seek": "Find",
+    "misses": "Misses {count}",
+    "start": "Start",
+    "again": "New round",
+    "cleared": "Cleared",
+    "clearedDetail": "{time}, {misses} misses",
+    "expired": "Time's up",
+    "expiredDetail": "Found {found} / {total}, {misses} misses",
+    "cellLabel": "{n}",
+    "seekLive": "Find {n}",
+    "missLive": "Miss. Still {n}. {count} misses",
+    "clearedLive": "{grade}, {time}, miss rate {rate}%",
+    "expiredLive": "Retry. Found {found}. Miss rate {rate}%"
   }
 }

@@ -119,4 +119,13 @@ export const miniApps: MiniApp[] = [
     icon: "icon-camera",
     href: "/screen-recorder",
   },
+  {
+    titleKey: "schulteHive.title",
+    slug: "schulte-hive",
+    summaryKey: "schulteHive.summary",
+    status: "ready",
+    color: "app-yellow",
+    icon: "icon-critterpedia",
+    href: "/schulte-hive",
+  },
 ];
